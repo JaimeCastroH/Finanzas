@@ -199,6 +199,65 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
 .amount-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
 .hanko { flex: none; width: 22px; height: 22px; border-radius: 5px; background: var(--red); color: var(--brand); display: grid; place-items: center; font-family: var(--num); font-weight: 800; font-size: 13px; line-height: 1; transform: rotate(-4deg); }
 .vert { position: absolute; top: 20px; right: 13px; writing-mode: vertical-rl; font-family: var(--num); font-size: 12px; letter-spacing: .25em; color: var(--muted); }
+
+/* Computadora: panel con tabla. En el teléfono los contenedores no existen (display: contents) y todo queda igual. */
+.band, .side, .lower, .main-col, .aside { display: contents; }
+.app .desk-only { display: none; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+@media (min-width: 1000px) {
+  .app { max-width: 1260px; padding: 30px 36px 120px; gap: 22px; }
+  .top h1 { font-size: 30px; }
+  .avatar { width: 52px; height: 52px; }
+  .band { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; align-items: stretch; }
+  .side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .hero { justify-content: center; padding: 30px 48px 30px 34px; }
+  .hero-main { gap: 34px; }
+  .ring { width: 150px; height: 150px; }
+  .ring .lbl { font-size: 13px; } .ring .lbl b { font-size: 26px; }
+  .hero .big { font-size: 58px; }
+  .wstats { gap: 34px; } .wstats b { font-size: 18px; }
+  .vert { top: 28px; right: 18px; font-size: 13px; }
+  .duo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .app .desk-only { display: flex; }
+  .tile { padding: 16px; } .tile b { font-size: 26px; }
+  .lower { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 22px; align-items: start; }
+  .main-col, .aside { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .aside { position: sticky; top: 20px; }
+  #hist { display: none; }
+  .fab { left: auto; right: 36px; bottom: 32px; transform: none; }
+  .sheet { left: 50%; right: auto; top: 50%; bottom: auto; transform: translate(-50%, -50%); width: min(540px, calc(100vw - 48px)); max-height: 88vh; border: 1px solid var(--line); border-radius: 28px; padding: 18px 26px 26px; }
+  .grab { display: none; }
+}
+.tcard { padding: 0; gap: 0; overflow: hidden; }
+.filters { display: flex; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); align-items: end; }
+.filters .field { width: 190px; flex: none; }
+.filters .field.grow { flex: 1; width: auto; }
+.filters select, .filters input[type=text] { height: 40px; font-size: 14px; border-radius: 10px; }
+.twrap { max-height: 620px; overflow: auto; }
+.tcard table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.tcard th { position: sticky; top: 0; z-index: 1; background: var(--surface); text-align: left; font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; padding: 11px 14px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tcard td { padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.tcard tbody tr:last-child td { border-bottom: 0; }
+.tcard tbody tr:hover td { background: var(--surface-2); }
+.tcard td.f { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tcard td.k { white-space: nowrap; font-weight: 600; }
+.tcard td.k .tk { display: inline-flex; align-items: center; gap: 8px; }
+.tcard td.k .ic { width: 28px; height: 28px; border-radius: 9px; }
+.tcard td.k .ic svg { width: 15px; height: 15px; }
+.tcard td.w { font-weight: 600; }
+.tcard td.m, .tcard td.nt { color: var(--muted); }
+.tcard td.nt { max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tcard th.n, .tcard td.n { text-align: right; }
+.tcard td.n { font-family: var(--num); font-weight: 800; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tcard td.n.in { color: var(--ok); }
+.tcard td.a { text-align: right; white-space: nowrap; width: 1%; }
+.tcard td.a button { font: inherit; font-size: 12px; border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 6px; }
+.tcard td.a button:hover { color: var(--ink); background: var(--surface); }
+.tcard td.a button.arm { color: var(--bad); font-weight: 700; }
+.tcard td.a button:focus-visible { outline: 3px solid var(--brand-2); }
+.tcard .empty { padding: 28px; }
+.tsum { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 13px 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+.tsum b { color: var(--ink); font-family: var(--num); font-weight: 800; margin-left: 6px; }
 </style>
 </head>
 <body>
@@ -226,6 +285,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
 
   <p class="card offline small">La app todavía no está conectada con tu hoja de Google. Abre una vez el enlace de configuración que te dio Claude en este dispositivo.</p>
 
+  <div class="band">
   <section class="hero ok" id="hero" aria-live="polite">
     <span class="vert" aria-hidden="true">今週の残り</span>
     <div class="hero-main">
@@ -246,6 +306,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
     <div class="visa-alert" id="visaBanner" hidden><span id="visaTxt"></span><button class="mini" type="button" id="visaBtn">Ya aboné</button></div>
   </section>
 
+  <div class="side">
   <section class="card qcard" aria-labelledby="qTitle">
     <div class="ic"><span class="msr" aria-hidden="true">payment_arrow_down</span></div>
     <b id="qTitle">Quincena</b>
@@ -272,6 +333,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
       <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
       <b id="tAhorro">—</b>
     </div>
+    <div class="tile desk-only">
+      <div class="row"><span class="lbl">Deuda total</span></div>
+      <b id="tDeuda">—</b>
+    </div>
   </section>
   <form class="card" id="ajForm" hidden novalidate>
     <div class="row"><h2>Ajustar con el banco</h2><button class="close" type="button" id="ajClose" aria-label="Cerrar">×</button></div>
@@ -293,9 +358,29 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
     <button class="btn block" type="submit" id="ahSave">Agregar al ahorro</button>
     <div class="msg" id="ahMsg" role="status"></div>
   </form>
+  </div>
+  </div>
 
+  <div class="lower">
+  <div class="main-col">
   <div class="section-head"><h2>Movimientos</h2><span class="small muted" id="histCount"></span></div>
   <section class="card" id="hist" aria-label="Movimientos"><p class="empty">Cargando…</p></section>
+  <section class="card tcard desk-only" aria-label="Tabla de movimientos">
+    <div class="filters">
+      <div class="field"><label for="fMes">Mes</label><select id="fMes"><option value="">Todos</option></select></div>
+      <div class="field"><label for="fTipo">Tipo</label><select id="fTipo">
+        <option value="">Todos</option><option value="gastos">Todos los gastos</option><option value="comida">Comidas y salidas</option><option value="gasolina">Gasolina</option><option value="otros">Otros</option>
+        <option value="pago">Pagos</option><option value="ingreso">Entradas</option><option value="ahorro">Ahorro</option><option value="salida">Salidas</option><option value="ajuste">Ajustes</option></select></div>
+      <div class="field grow"><label for="fQ">Buscar</label><input type="text" id="fQ" placeholder="Nota, tarjeta, concepto…" autocomplete="off"></div>
+    </div>
+    <div class="twrap"><table>
+      <thead><tr><th>Fecha</th><th>Detalle</th><th>Medio</th><th>Nota</th><th class="n">Monto</th><th class="a"><span class="sr">Acciones</span></th></tr></thead>
+      <tbody id="tBody"></tbody>
+    </table></div>
+    <div class="tsum" id="tSum"></div>
+  </section>
+  </div>
+  <div class="aside">
 
   <div class="section-head"><h2>Próximos pagos</h2><span class="small muted">Toca «Pagué» al pagar</span></div>
   <section class="card" id="pagos" aria-label="Próximos pagos"><p class="empty">Cargando…</p></section>
@@ -303,6 +388,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
 
   <div class="section-head"><h2>Tus deudas</h2><span class="small muted">En orden de ataque</span></div>
   <section class="card" id="debts" aria-label="Tus deudas"><p class="empty">Cargando…</p></section>
+  </div>
+  </div>
 </main>
 
 <button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet"><svg aria-hidden="true"><use href="#i-plus"/></svg>Anotar</button>
@@ -669,21 +756,30 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
   }
 
   // ---------- Movimientos ----------
-  function rowFor(m) {
+  // Describe un movimiento para la lista del teléfono y la tabla de la computadora.
+  function desc(m) {
     const debtName = (id) => ((state.cfg && state.cfg.deudas) || []).find((x) => x.id === id)?.nombre || id;
-    let key = 'otros', what = 'Gasto', sub = MEDIO[m.medio] || '', sign = '−', inClass = '';
-    if (m.tipo === 'gasto') { const c = CATS.find((x) => x.id === m.categoria); key = c ? c.id : 'otros'; what = c ? c.label : 'Otros'; }
-    else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); }
-    else if (m.tipo === 'ingreso') { key = 'ingreso'; what = m.concepto || 'Entrada'; sign = '+'; inClass = ' in'; }
-    else if (m.tipo === 'ajuste') { key = 'otros'; what = 'Ajuste con el banco'; sign = num(m.monto) >= 0 ? '+' : '−'; inClass = num(m.monto) >= 0 ? ' in' : ''; sub = ''; }
-    else if (m.destino === 'salida') { key = 'salida'; what = 'Salida'; }
-    else { key = 'ahorro'; what = 'Ahorro'; sign = '+'; inClass = ' in'; sub = m.desde === 'externo' ? 'Dinero extra' : 'Desde tu cuenta'; }
-    if (m.nota) sub = sub ? sub + ' · ' + m.nota : m.nota;
+    let key = 'otros', what = 'Gasto', tipoLbl = 'Gasto', medio = MEDIO[m.medio] || '', sign = '−', inClass = '', filtro = m.categoria;
+    if (m.tipo === 'gasto') { const c = CATS.find((x) => x.id === m.categoria); key = c ? c.id : 'otros'; what = c ? c.label : 'Otros'; filtro = key; }
+    else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); tipoLbl = 'Pago'; medio = ''; filtro = 'pago'; }
+    else if (m.tipo === 'ingreso') { key = 'ingreso'; what = m.concepto || 'Entrada'; tipoLbl = 'Entrada'; sign = '+'; inClass = ' in'; medio = ''; filtro = 'ingreso'; }
+    else if (m.tipo === 'ajuste') { key = 'otros'; what = 'Ajuste con el banco'; tipoLbl = 'Ajuste'; sign = num(m.monto) >= 0 ? '+' : '−'; inClass = num(m.monto) >= 0 ? ' in' : ''; medio = ''; filtro = 'ajuste'; }
+    else if (m.destino === 'salida') { key = 'salida'; what = 'Salida'; tipoLbl = 'Salida'; medio = ''; filtro = 'salida'; }
+    else { key = 'ahorro'; what = 'Ahorro'; tipoLbl = 'Ahorro'; sign = '+'; inClass = ' in'; medio = m.desde === 'externo' ? 'Dinero extra' : 'Desde tu cuenta'; filtro = 'ahorro'; }
+    if (m.tipo === 'gasto') tipoLbl = what;
+    return { key, what, tipoLbl, medio, nota: m.nota || '', sign, inClass, filtro, editable: m.tipo !== 'ajuste' };
+  }
+  const editMov = (m) => { if (m.tipo === 'ahorro' && m.destino === 'vacaciones') ahToggle(true, m); else openSheet(m); };
+  const borrarMov = async (m) => { if (!db) return; await db.doc('movs/' + m.id).delete(); };
+
+  function rowFor(m) {
+    const D = desc(m); const what = D.what, key = D.key, sign = D.sign, inClass = D.inClass;
+    let sub = D.medio; if (D.nota) sub = sub ? sub + ' · ' + D.nota : D.nota;
     const info = el('div'); info.append(el('div', 'what', what)); if (sub) info.append(el('div', 'sub', sub));
-    const editable = m.tipo !== 'ajuste';
+    const editable = D.editable;
     if (editable) {
       info.className = 'info'; info.tabIndex = 0; info.setAttribute('role', 'button'); info.setAttribute('aria-label', 'Editar ' + what);
-      const go = () => { if (m.tipo === 'ahorro' && m.destino === 'vacaciones') ahToggle(true, m); else openSheet(m); };
+      const go = () => editMov(m);
       info.addEventListener('click', go);
       info.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
     }
@@ -725,6 +821,51 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
     $('dragon').innerHTML = s;
   }
 
+  // ---------- Tabla (computadora) ----------
+  const fMes = $('fMes'), fTipo = $('fTipo'), fQ = $('fQ');
+  function renderTabla(list) {
+    const meses = [...new Set(list.map((m) => (m.fecha || '').slice(0, 7)).filter(Boolean))].sort().reverse();
+    const keep = fMes.value;
+    if (fMes.options.length - 1 !== meses.length || meses.some((k, i) => fMes.options[i + 1].value !== k)) {
+      fMes.replaceChildren(new Option('Todos', ''), ...meses.map((k) => new Option(MESES[+k.slice(5, 7) - 1].replace(/^./, (c) => c.toUpperCase()) + ' ' + k.slice(0, 4), k)));
+      fMes.value = meses.includes(keep) ? keep : '';
+    }
+    const mes = fMes.value, tp = fTipo.value, q = fQ.value.trim().toLowerCase();
+    const rows = list.map((m) => ({ m, D: desc(m) })).filter(({ m, D }) => {
+      if (mes && !(m.fecha || '').startsWith(mes)) return false;
+      if (tp === 'gastos' ? m.tipo !== 'gasto' : tp && D.filtro !== tp) return false;
+      if (q && ![D.what, D.tipoLbl, D.medio, D.nota].join(' ').toLowerCase().includes(q)) return false;
+      return true;
+    });
+    const body = $('tBody');
+    if (!rows.length) {
+      const td = el('td', 'empty', list.length ? 'Nada coincide con esos filtros.' : 'Todavía no hay movimientos.'); td.colSpan = 6;
+      const tr = el('tr'); tr.append(td); body.replaceChildren(tr);
+    } else body.replaceChildren(...rows.map(({ m, D }) => {
+      const tr = el('tr');
+      const k = el('td', 'k'); const tk = el('span', 'tk'); tk.append(icon(D.key), el('span', null, D.what)); k.append(tk);
+      const nt = el('td', 'nt', D.nota); if (D.nota) nt.title = D.nota;
+      const a = el('td', 'a');
+      if (D.editable) { const e = el('button', null, 'Editar'); e.type = 'button'; e.setAttribute('aria-label', 'Editar ' + D.what + ' del ' + short(m.fecha)); e.addEventListener('click', () => editMov(m)); a.append(e); }
+      const del = el('button', null, 'Borrar'); del.type = 'button'; del.setAttribute('aria-label', 'Borrar ' + D.what + ' del ' + short(m.fecha));
+      twoTap(del, () => { del.textContent = '¿Borrar?'; }, () => { del.textContent = 'Borrar'; }, async () => {
+        del.disabled = true; try { await borrarMov(m); } catch (e) { del.disabled = false; del.textContent = 'Reintentar'; }
+      });
+      a.append(del);
+      const yr = (m.fecha || '').slice(0, 4);
+      tr.append(el('td', 'f', short(m.fecha) + (yr && yr !== today().slice(0, 4) ? ' ' + yr : '')), k, el('td', 'm', D.medio), nt,
+        el('td', 'n' + D.inClass, D.sign + fmt(Math.abs(num(m.monto)))), a);
+      return tr;
+    }));
+    const tot = (f) => rows.filter(({ m }) => f(m)).reduce((s, { m }) => s + num(m.monto), 0);
+    const part = (lbl, v) => { const s = el('span', null, lbl); s.append(el('b', null, fmt(v))); return s; };
+    $('tSum').replaceChildren(el('span', null, rows.length + (rows.length === 1 ? ' movimiento' : ' movimientos')),
+      part('Gastos', tot((m) => m.tipo === 'gasto')), part('Pagos', tot((m) => m.tipo === 'pago')), part('Entradas', tot((m) => m.tipo === 'ingreso')));
+  }
+  [fMes, fTipo].forEach((x) => x.addEventListener('change', () => renderTabla(sortedMovs())));
+  fQ.addEventListener('input', () => renderTabla(sortedMovs()));
+  const sortedMovs = () => state.movs.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.creado || '').localeCompare(a.creado || ''));
+
   // ---------- Pantalla ----------
   function render() {
     const cfg = state.cfg;
@@ -757,6 +898,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
     // Saldos
     $('tCuenta').textContent = fmt(c.cuenta);
     $('tAhorro').textContent = fmt(c.ahorro);
+    $('tDeuda').textContent = fmt(c.debts.reduce((s, d) => s + Math.max(0, d.saldo), 0));
 
     // Deudas
     $('debts').replaceChildren(...c.debts.slice().sort((a, b) => (a.orden || 9) - (b.orden || 9)).map((d) => {
@@ -771,7 +913,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
     }));
 
     // Movimientos
-    const list = state.movs.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.creado || '').localeCompare(a.creado || ''));
+    const list = sortedMovs();
+    renderTabla(list);
     $('histCount').textContent = list.length ? list.length + (list.length === 1 ? ' movimiento' : ' movimientos') : '';
     const h = $('hist');
     if (!list.length) { h.replaceChildren(emptyP('Todavía no hay movimientos. Toca «Anotar» o escríbeme en el chat: «gasté $12 en comida con la Visa».')); return; }
