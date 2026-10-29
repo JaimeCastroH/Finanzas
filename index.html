@@ -994,7 +994,9 @@ body::before { opacity: .04; }
   // ---------- Movimientos ----------
   // Describe un movimiento para la lista del teléfono y la tabla de la computadora.
   function desc(m) {
-    const debtName = (id) => ((state.cfg && state.cfg.deudas) || []).find((x) => x.id === id)?.nombre || id;
+    const debtName = (id) => ((state.cfg && state.cfg.deudas) || []).find((x) => x.id === id)?.nombre
+      || ((state.cfg && state.cfg.pagos) || []).find((p) => (p.partes || []).some((x) => x.a === id))?.nombre
+      || (id ? id.charAt(0).toUpperCase() + id.slice(1) : '');
     let key = 'otros', what = 'Gasto', tipoLbl = 'Gasto', medio = MEDIO[m.medio] || '', sign = '−', inClass = '', filtro = m.categoria;
     if (m.tipo === 'gasto') { const c = CATS.find((x) => x.id === m.categoria); key = c ? c.id : 'otros'; what = c ? c.label : 'Otros'; filtro = key; }
     else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); tipoLbl = 'Pago'; medio = ''; filtro = 'pago'; }
@@ -1320,7 +1322,7 @@ body::before { opacity: .04; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-10-29.7';
+  const VERSION = '2026-10-29.8';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
