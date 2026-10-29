@@ -57,6 +57,26 @@ h2 { font-size: 17px; font-weight: 700; }
 .fx .r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
 .fx .r b { font-family: var(--num); font-weight: 800; font-variant-numeric: tabular-nums; }
 .fx.done { opacity: .55; }
+/* Gastos fijos: progreso, etiquetas y gasolina */
+.fbig { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.fbig > span:first-child { font-size: 13px; color: var(--muted); }
+.fbig b { font-family: var(--num); font-weight: 800; font-size: 26px; font-variant-numeric: tabular-nums; }
+.fbig small { font-size: 13px; color: var(--muted); }
+.fprog { height: 8px; border-radius: 99px; background: var(--track); overflow: hidden; }
+.fprog span { display: block; height: 100%; border-radius: 99px; background: var(--brand); transition: width .3s; }
+.badge { display: inline-block; font-size: 10px; font-weight: 800; letter-spacing: .08em; padding: 2px 6px; border-radius: 6px; margin-right: 6px; vertical-align: 1px; }
+.b-auto { background: rgba(78,104,81,.35); color: #a9c4ad; }
+.b-yo { background: rgba(184,58,45,.28); color: #e8a297; }
+.fx.gas { grid-template-columns: 40px 1fr auto; }
+.fx.gas .fprog { grid-column: 1 / -1; height: 6px; }
+.fx.gas .fprog span { background: var(--ok); }
+.fx.gas.over .fprog span { background: var(--bad); }
+.fx.gas.over .r b { color: var(--bad); }
+.gasin { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; }
+.gasin input { flex: 1; min-width: 0; font: inherit; font-size: 18px; font-weight: 700; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; outline: none; }
+.gasin input:focus { border-color: var(--brand); }
+.gasin .mini.ghost { background: transparent; color: var(--muted); box-shadow: none; border: 1px solid var(--line); }
+.fdone { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
 .k-varios { background: #1f2a22; color: var(--ok); }
 
 /* Top */
@@ -489,15 +509,13 @@ body::before { opacity: .04; }
   </div>
   <div class="aside">
 
-  <div class="section-head" data-kanji="足" id="alcHead" hidden><h2>¿Me alcanza?</h2><span class="small muted">Estimado</span></div>
-  <section class="card alc" id="alcanza" aria-label="¿Me alcanza para los próximos pagos?" hidden></section>
+  <div class="section-head" data-kanji="固" id="fijosHead" hidden><h2>Gastos fijos</h2><span class="small muted" id="fijosSub"></span></div>
+  <section class="card" id="fijos" aria-label="Gastos fijos del mes" hidden></section>
 
   <div class="section-head" data-kanji="払"><h2>Próximos pagos</h2><span class="small muted">Toca «Pagué» al pagar</span></div>
   <section class="card" id="pagos" aria-label="Próximos pagos"><p class="empty">Cargando…</p></section>
 
 
-  <div class="section-head" data-kanji="固" id="fijosHead" hidden><h2>Cobros fijos</h2><span class="small muted" id="fijosSub"></span></div>
-  <section class="card" id="fijos" aria-label="Cobros fijos del mes" hidden></section>
 
   <div class="section-head" data-kanji="借"><h2>Tus deudas</h2><span class="small muted">En orden de ataque</span></div>
   <section class="card" id="debts" aria-label="Tus deudas"><p class="empty">Cargando…</p></section>
@@ -961,34 +979,88 @@ body::before { opacity: .04; }
     $('alcanza').replaceChildren(...out);
   }
 
-  // ---------- Cobros fijos del mes ----------
-  function renderFijos() {
-    const list = (state.cfg && state.cfg.fijos) || [];
-    $('fijosHead').hidden = $('fijos').hidden = !list.length;
-    if (!list.length) return;
+  // ---------- Gastos fijos del mes + gasolina ----------
+  let gasAbierto = false;
+  function renderFijos(force) {
+    const cfg = state.cfg; if (!cfg) return;
+    if (gasAbierto && !force) return; // no borrar lo que se está escribiendo
     const mes = today().slice(0, 7);
-    if (state.cfg.fijos_desde && mes < state.cfg.fijos_desde) { $('fijosHead').hidden = $('fijos').hidden = true; return; }
+    const vigente = (f) => (!f.desde || mes >= f.desde) && (!f.hasta || mes <= f.hasta);
+    const activos = (!cfg.fijos_desde || mes >= cfg.fijos_desde) ? (cfg.fijos || []).filter(vigente) : [];
     const marca = (f) => 'fijo-' + f.id + '-' + mes;
     const hecho = (f) => state.movs.some((m) => m.pago_id === marca(f));
-    const pend = list.filter((f) => !hecho(f));
-    $('fijosSub').textContent = pend.length ? 'Faltan ' + fmt(pend.reduce((a, f) => a + num(f.monto), 0)) + ' este mes' : 'Todo cobrado este mes ✓';
-    $('fijos').replaceChildren(...list.slice().sort((a, b) => hecho(a) - hecho(b) || (num(a.dia) || 99) - (num(b.dia) || 99)).map((f) => {
-      const ok = hecho(f);
-      const row = el('div', 'fx' + (ok ? ' done' : ''));
-      const t = el('div', 't'); t.append(el('div', null, f.nombre), el('div', null, (MEDIO[f.medio] || 'Débito') + (f.dia ? ' · se cobra el ' + f.dia : '')));
+    const pend = activos.filter((f) => !hecho(f)).sort((a, b) => (num(a.dia) || 99) - (num(b.dia) || 99));
+    const listos = activos.filter(hecho);
+    const total = activos.reduce((s, f) => s + num(f.monto), 0);
+    const pagado = listos.reduce((s, f) => s + num(f.monto), 0);
+    const gLim = num(cfg.gasolina);
+    if (!activos.length && !(gLim > 0)) { $('fijosHead').hidden = $('fijos').hidden = true; return; }
+    $('fijosHead').hidden = $('fijos').hidden = false;
+    $('fijosSub').textContent = MESES[parse(today()).getMonth()].replace(/^./, (c) => c.toUpperCase());
+    const out = [];
+
+    if (activos.length) {
+      const big = el('div', 'fbig'); const v = el('span');
+      v.append(el('b', null, fmt(pagado)), el('small', null, ' de ' + fmt(total)));
+      big.append(el('span', null, pend.length ? 'Pagado este mes' : 'Todo pagado este mes ✓'), v);
+      const bar = el('div', 'fprog'); const fill = el('span'); fill.style.width = (total > 0 ? Math.min(100, pagado / total * 100) : 0) + '%'; bar.append(fill);
+      out.push(big, bar);
+    }
+
+    for (const f of pend) {
+      const row = el('div', 'fx');
+      const t = el('div', 't'); const n = el('div');
+      n.append(el('span', 'badge ' + (f.auto ? 'b-auto' : 'b-yo'), f.auto ? 'AUTO' : 'TÚ'), document.createTextNode(f.nombre));
+      t.append(n, el('div', null, (MEDIO[f.medio] || 'Débito') + (f.dia ? (f.auto ? ' · se cobra el ' : ' · el ') + f.dia : '') + (f.nota ? ' · ' + f.nota : '')));
       const r = el('div', 'r'); r.append(el('b', null, fmt(num(f.monto))));
-      if (ok) r.append(el('span', 'done-tag', '✓ Cobrado'));
-      else {
-        const btn = el('button', 'mini', 'Ya cobró'); btn.type = 'button'; btn.setAttribute('aria-label', 'Marcar ' + f.nombre + ' como cobrado');
-        btn.addEventListener('click', async () => {
-          if (!db) return;
-          const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'fijo', medio: f.medio || 'cuenta', monto: num(f.monto), fecha: today(), pago_id: marca(f), nota: f.nombre, creado: new Date().toISOString(), origen: 'app' });
-          avisoDeshacer('Cobrado: ' + f.nombre + ' ' + fmt(num(f.monto)), [q]);
-        });
+      const btn = el('button', 'mini', 'Pagado'); btn.type = 'button'; btn.setAttribute('aria-label', 'Marcar ' + f.nombre + ' como pagado');
+      btn.addEventListener('click', async () => {
+        if (!db) return;
+        const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'fijo', medio: f.medio || 'cuenta', monto: num(f.monto), fecha: today(), pago_id: marca(f), nota: f.nombre, creado: new Date().toISOString(), origen: 'app' });
+        avisoDeshacer('Pagado: ' + f.nombre + ' ' + fmt(num(f.monto)), [q]);
+      });
+      r.append(btn);
+      row.append(icon('fijo'), t, r); out.push(row);
+    }
+
+    // Gasolina: presupuesto por quincena; lo que no se usa queda libre en la cuenta el día de pago.
+    if (gLim > 0) {
+      const pd = periodo();
+      const usado = round2(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= pd.desde && m.fecha < pd.hasta).reduce((s, m) => s + num(m.monto), 0));
+      const queda = round2(gLim - usado);
+      const row = el('div', 'fx gas' + (queda < 0 ? ' over' : ''));
+      const t = el('div', 't'); t.append(el('div', null, 'Gasolina'),
+        el('div', null, (queda < 0 ? 'Te pasaste ' + fmt0(-queda) : fmt0(usado) + ' de ' + fmt0(gLim)) + ' · se libera el ' + short(pd.hasta)));
+      const r = el('div', 'r'); r.append(el('b', null, queda < 0 ? '−' + fmt(-queda) : fmt(queda)));
+      const bar = el('div', 'fprog'); const fill = el('span'); fill.style.width = Math.min(100, Math.max(0, usado / gLim * 100)) + '%'; bar.append(fill);
+      if (!gasAbierto) {
+        const btn = el('button', 'mini', 'Poner gas'); btn.type = 'button';
+        btn.addEventListener('click', () => { gasAbierto = true; renderFijos(true); const i = $('gasMonto'); if (i) i.focus(); });
         r.append(btn);
+        row.append(icon('gasolina'), t, r, bar);
+      } else {
+        const f = el('form', 'gasin'); f.noValidate = true;
+        const i = el('input'); i.id = 'gasMonto'; i.type = 'text'; i.inputMode = 'decimal'; i.placeholder = '¿Cuánto? $'; i.autocomplete = 'off'; i.setAttribute('aria-label', 'Monto de gasolina');
+        const ok = el('button', 'mini', 'Guardar'); ok.type = 'submit';
+        const no = el('button', 'mini ghost', 'Cancelar'); no.type = 'button';
+        no.addEventListener('click', () => { gasAbierto = false; renderFijos(true); });
+        f.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const monto = parseMonto(i.value);
+          if (!(monto > 0)) { i.focus(); return; }
+          if (!db) return;
+          gasAbierto = false; renderFijos(true);
+          const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'gasolina', medio: 'visa', monto, fecha: today(), nota: 'Gasolina', creado: new Date().toISOString(), origen: 'app' });
+          avisoDeshacer('Gasolina ' + fmt(monto) + ' con la Visa', [q]);
+        });
+        f.append(i, ok, no);
+        row.append(icon('gasolina'), t, r, bar, f);
       }
-      const ic = icon('fijo'); row.append(ic, t, r); return row;
-    }));
+      out.push(row);
+    }
+
+    if (listos.length) out.push(el('div', 'fdone', '✓ Pagado: ' + listos.map((f) => f.nombre).join(', ') + ' · vuelven el otro mes'));
+    $('fijos').replaceChildren(...out);
   }
 
   // ---------- Movimientos ----------
@@ -1123,7 +1195,6 @@ body::before { opacity: .04; }
     const vb = $('visaBanner'); vb.hidden = !(c.visaPend > 0.004);
     $('visaTxt').textContent = 'Abona ' + fmt(c.visaPend) + ' a la Visa: son compras que aún no cubres.';
 
-    renderAlcanza(c);
 
     // Saldos
     $('tCuenta').textContent = fmt(c.cuenta);
@@ -1322,7 +1393,7 @@ body::before { opacity: .04; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-10-29.8';
+  const VERSION = '2026-10-30.1';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
