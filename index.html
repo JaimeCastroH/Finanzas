@@ -198,6 +198,7 @@ input[type=date] { line-height: 48px; }
 input[type=date]::-webkit-date-and-time-value { text-align: left; margin: 0; }
 input[type=date]::-webkit-calendar-picker-indicator { filter: invert(.7); }
 select:focus-visible, input:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 0; }
+.ver { margin: 8px 0 0; text-align: center; font-size: 11px; color: var(--muted); opacity: .6; }
 .offline { display: none; }
 .app.no-db .offline { display: block; }
 @media (max-width: 360px) { .ring { width: 92px; height: 92px; } }
@@ -410,6 +411,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
   <section class="card" id="debts" aria-label="Tus deudas"><p class="empty">Cargando…</p></section>
   </div>
   </div>
+  <p class="ver" id="ver"></p>
 </main>
 
 <button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet"><svg aria-hidden="true"><use href="#i-plus"/></svg>Anotar</button>
@@ -1046,6 +1048,27 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
       }
     }; }
   } : null;
+
+  // ---------- Actualización automática ----------
+  // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
+  // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
+  const VERSION = '2026-10-28.4';
+  $('ver').textContent = 'Versión ' + VERSION;
+  async function revisarVersion() {
+    try {
+      const r = await fetch(location.pathname + '?nocache=' + Date.now(), { cache: 'no-store' });
+      const html = await r.text();
+      const m = html.match(/const VERSION = '([^']+)'/);
+      if (!m || m[1] === VERSION) return;
+      if (sessionStorage.getItem('fj_recarga') === m[1]) return; // ya se intentó, no entrar en bucle
+      sessionStorage.setItem('fj_recarga', m[1]);
+      await fetch(location.href, { cache: 'reload' });
+      await fetch(location.pathname, { cache: 'reload' });
+      location.reload();
+    } catch (e) { /* sin conexión: se revisa la próxima vez */ }
+  }
+  revisarVersion();
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) revisarVersion(); });
 
   if (!API) { $('app').classList.add('no-db'); avisar('Falta conectar con tu hoja. Abre el enlace de configuración.'); }
   else {
