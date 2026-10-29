@@ -89,7 +89,7 @@ h2 { font-size: 17px; font-weight: 700; }
 .btn.block { width: 100%; padding: 15px; font-size: 16px; }
 .mini { font: inherit; font-size: 12px; font-weight: 700; border: 0; color: var(--on-brand); background: var(--brand); border-radius: 99px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
 .mini:disabled { opacity: .5; }
-.close { font: inherit; border: 0; background: var(--surface-2); color: var(--ink); border-radius: 99px; width: 36px; height: 36px; cursor: pointer; font-size: 18px; line-height: 1; flex: none; }
+.close { font: inherit; border: 0; background: var(--surface-2); color: var(--ink); border-radius: 99px; width: 40px; height: 40px; cursor: pointer; font-size: 20px; line-height: 1; flex: none; }
 .btn:focus-visible, .mini:focus-visible, .del:focus-visible, .fab:focus-visible, .close:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 2px; }
 .msg { font-size: 13px; padding-inline: 4px; }
 .msg:empty { display: none; }
@@ -160,7 +160,12 @@ h2 { font-size: 17px; font-weight: 700; }
 .scrim { position: fixed; inset: 0; z-index: 30; background: rgba(0, 0, 0, .55); backdrop-filter: blur(2px); }
 .sheet { position: fixed; z-index: 31; left: 0; right: 0; bottom: 0; max-height: 92%; overflow-y: auto; background: var(--surface); border-top: 1px solid var(--line); border-radius: 28px 28px 0 0; padding-block: 10px calc(20px + env(safe-area-inset-bottom, 0px)); padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: max(18px, env(safe-area-inset-right, 0px)); }
 .sheet-inner { max-width: 30rem; margin-inline: auto; display: flex; flex-direction: column; gap: 16px; }
-.grab { width: 44px; height: 5px; border-radius: 99px; background: var(--line); margin: 0 auto 4px; }
+.grab-zone { margin: -10px -18px -6px; padding: 10px 0 14px; touch-action: none; cursor: grab; }
+.grab { width: 44px; height: 5px; border-radius: 99px; background: var(--line); margin: 0 auto; }
+#sheetHead { touch-action: none; }
+.sheet.drag-anim { transition: transform .22s ease; }
+.amount input:focus, .amount input:focus-visible { outline: none; }
+.amount:focus-within span { color: var(--ink); }
 .sheet h2 { font-size: 20px; }
 form.stack { display: flex; flex-direction: column; gap: 16px; }
 .seg { display: grid; grid-template-columns: 1fr 1fr 1.4fr; background: var(--surface-2); border-radius: 14px; padding: 4px; gap: 4px; }
@@ -238,7 +243,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
   #hist { display: none; }
   .fab { left: auto; right: 36px; bottom: 32px; transform: none; }
   .sheet { left: 50%; right: auto; top: 50%; bottom: auto; transform: translate(-50%, -50%); width: min(540px, calc(100vw - 48px)); max-height: 88vh; border: 1px solid var(--line); border-radius: 28px; padding: 18px 26px 26px; }
-  .grab { display: none; }
+  .grab-zone { display: none; }
 }
 .tcard { padding: 0; gap: 0; overflow: hidden; }
 .filters { display: flex; gap: 12px; padding: 16px 18px; border-bottom: 1px solid var(--line); align-items: end; }
@@ -419,8 +424,8 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
   <div class="sheet-inner">
-    <div class="grab" aria-hidden="true"></div>
-    <div class="row"><h2 id="sheetTitle">Anotar</h2><button class="close" type="button" id="close" aria-label="Cerrar">×</button></div>
+    <div class="grab-zone" id="grab" aria-hidden="true"><div class="grab"></div></div>
+    <div class="row" id="sheetHead"><h2 id="sheetTitle">Anotar</h2><button class="close" type="button" id="close" aria-label="Cerrar">×</button></div>
     <form id="form" class="stack" novalidate>
       <div class="seg" role="radiogroup" aria-label="Tipo">
         <label><input type="radio" name="tipo" id="tGasto" value="gasto" checked><span>Gasto</span></label>
@@ -541,7 +546,21 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
     $('scrim').hidden = false; $('sheet').hidden = false;
     setTimeout(() => $('monto').focus(), 50);
   };
-  const closeSheet = () => { $('scrim').hidden = true; $('sheet').hidden = true; editing = null; $('fab').focus(); };
+  const closeSheet = () => { $('scrim').hidden = true; $('sheet').hidden = true; $('sheet').style.transform = ''; editing = null; $('fab').focus(); };
+  // Arrastrar la pestañita (o el título) hacia abajo cierra el panel en el teléfono.
+  (() => {
+    const sh = $('sheet'); let y0 = null, dy = 0;
+    const start = (e) => { if (!$('grab').offsetParent || e.target.closest('button')) return; y0 = e.clientY; dy = 0; sh.classList.remove('drag-anim'); e.currentTarget.setPointerCapture(e.pointerId); };
+    const move = (e) => { if (y0 === null) return; dy = Math.max(0, e.clientY - y0); sh.style.transform = 'translateY(' + dy + 'px)'; };
+    const end = () => {
+      if (y0 === null) return; y0 = null; sh.classList.add('drag-anim');
+      if (dy > Math.min(140, sh.offsetHeight * 0.25)) { sh.style.transform = 'translateY(100%)'; setTimeout(() => { sh.classList.remove('drag-anim'); closeSheet(); }, 200); }
+      else sh.style.transform = '';
+    };
+    ['grab', 'sheetHead'].forEach((id) => { const z = $(id);
+      z.addEventListener('pointerdown', start); z.addEventListener('pointermove', move);
+      z.addEventListener('pointerup', end); z.addEventListener('pointercancel', end); });
+  })();
   $('fab').addEventListener('click', () => openSheet(null));
   $('close').addEventListener('click', closeSheet);
   $('scrim').addEventListener('click', closeSheet);
@@ -1052,7 +1071,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-10-28.4';
+  const VERSION = '2026-10-28.5';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
