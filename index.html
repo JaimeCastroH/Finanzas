@@ -16,7 +16,7 @@
 <title>Finanzas de Jaime</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=payment_arrow_down,pest_control_rodent&display=block">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&amp;text=%240123456789.%2C%2F-%E2%88%92%2B%25%E6%AE%8B%E4%BB%8A%E9%80%B1%E3%81%AE%E3%82%8A%E8%A8%98%E8%B6%B3%E6%89%95%E5%9B%BA%E5%80%9F%E5%85%B1~&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&amp;text=%240123456789.%2C%2F-%E2%88%92%2B%25%E6%AE%8B%E4%BB%8A%E9%80%B1%E3%81%AE%E3%82%8A%E8%A8%98%E8%B6%B3%E6%89%95%E5%9B%BA%E5%80%9F%E5%85%B1%E7%B5%A6~&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
 <style>
 *, *::before, *::after { box-sizing: border-box; }
@@ -88,7 +88,7 @@ h2 { font-size: 17px; font-weight: 700; }
 .eye { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); display: grid; place-items: center; cursor: pointer; }
 .eye svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .eye .x { display: none; } html.discreto .eye .x { display: inline; } html.discreto .eye { color: var(--brand); }
-html.discreto :is(#weekLeft, .wstats b, .tile b, .fx .r b, .fbig b, .pay .r b, .mov .v, .debt .amt, .ev b, .ev span, .tcard td.n, .tsum b, .bx .top b, .libre b, .cam-r, .cam-pie b, #eSub, #sSub + *, .sfoot, .fx .t div + div) { filter: blur(7px); }
+html.discreto :is(#weekLeft, #wSub, .wstats b, .tile b, .fx .r b, .fbig b, .pay .r b, .mov .v, .debt .amt, .ev b, .ev span, .tcard td.n, .tsum b, .bx .top b, .libre b, .cam-r, .cam-pie b, #eSub, #sSub + *, .sfoot, .fx .t div + div) { filter: blur(7px); }
 :is(#weekLeft, .tile b, .mov .v, .debt .amt) { transition: filter .25s; }
 .aj-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; }
 .aj-row > div:first-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -468,9 +468,108 @@ body::before { opacity: .06; }
 /* Toque japonés sutil: un kanji grande y tenue detrás de cada título de sección */
 .section-head { position: relative; isolation: isolate; }
 .section-head[data-kanji]::before { content: attr(data-kanji); position: absolute; z-index: -1; left: -6px; top: 50%; transform: translateY(-58%) rotate(-6deg); font-family: "Shippori Mincho B1", serif; font-weight: 800; font-size: 64px; line-height: 1; color: rgba(236,227,210,.09); pointer-events: none; }
+
+/* ===== Inicio minimalista (2026-11-03.4): pestañas, barra de la semana y cristal solo donde importa ===== */
+/* Pestañas: cada bloque dice en qué pestaña vive (data-t) */
+body[data-tab="inicio"] .app [data-t]:not([data-t~="inicio"]),
+body[data-tab="movs"] .app [data-t]:not([data-t~="movs"]),
+body[data-tab="pagos"] .app [data-t]:not([data-t~="pagos"]),
+body[data-tab="deudas"] .app [data-t]:not([data-t~="deudas"]) { display: none !important; }
+.app { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
+.app > .pie { order: 9; }
+body[data-tab="pagos"] :is(#pagosHead, #pagos) { order: 1; }
+body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
+body[data-tab="pagos"] #emerg { order: 3; }
+.duo { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
+
+.tabs { position: fixed; z-index: 21; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 24px));
+  display: flex; justify-content: space-around; padding: 7px 4px; border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.04)), rgba(10,10,12,.55);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), inset 0 0 0 .5px rgba(255,255,255,.18), 0 14px 30px rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); }
+.tabs button { flex: 1; font: inherit; font-size: 11px; font-weight: 500; color: var(--muted); background: none; border: 0; border-radius: 18px; padding: 5px 2px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 1px; }
+.tabs button i { font-style: normal; font-family: "Shippori Mincho B1", serif; font-weight: 800; font-size: 17px; line-height: 1.2; }
+.tabs button[aria-current="page"] { color: var(--brand); background: rgba(236,227,210,.08); }
+.tabs button:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 1px; }
+
+.fab, .fab:is(*) { left: auto; right: max(18px, calc(50vw - 208px)); transform: none; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); width: 54px; height: 54px; padding: 0; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; background: var(--red);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), 0 10px 24px rgba(0,0,0,.5); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.fab svg { width: 24px; height: 24px; }
+.toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
+
+/* Cristal solo en lo principal; el resto en placas planas */
+.card, .tile { background: rgba(255,255,255,.035); border: 1px solid rgba(236,227,210,.08); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.card::before, .tile::before { display: none; }
+.card > *, .tile > * { text-shadow: none; }
+.hero, .qcard { border: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.03));
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), inset 0 0 0 .5px rgba(255,255,255,.18), 0 14px 30px rgba(0,0,0,.45);
+  -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); }
+.hero::before { display: none; }
+#fondo .f1, #fondo .f2, #fondo .f3 { opacity: .75; }
+
+/* Semana: barra con canal hundido, relleno en relieve y globito */
+.hero { padding: 22px 22px 20px; gap: 0; align-items: stretch; text-align: center; }
+.wbar { position: relative; margin: 30px 2px 18px; }
+.wtrack { position: relative; height: 16px; border-radius: 99px;
+  background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(255,255,255,.04));
+  box-shadow: inset 0 2px 3px rgba(0,0,0,.7), inset 0 0 0 .5px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.10); }
+.wfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 99px; transition: width .5s ease;
+  background: linear-gradient(180deg, #efe2c9 0%, var(--brand) 45%, #b9a585 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 1px rgba(0,0,0,.25), 0 1px 3px rgba(0,0,0,.55); }
+.wfill::after { content: ""; position: absolute; left: 6px; right: 6px; top: 2px; height: 40%; border-radius: 99px; background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0)); }
+.hero.warn .wfill { background: linear-gradient(180deg, #f0cf8a 0%, var(--warn) 45%, #a87c2c 100%); }
+.wtip { position: absolute; bottom: calc(100% + 9px); left: 50%; transform: translateX(-50%); padding: 3px 9px; border-radius: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; line-height: 1.3;
+  color: #2a2620; background: linear-gradient(180deg, #f6efe2, #d9cdb8); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 2px 5px rgba(0,0,0,.5); transition: left .5s ease; }
+.wtip::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #d9cdb8; }
+.hero.bad .wtip { color: #fff; background: linear-gradient(180deg, #d0594b, var(--red)); }
+.hero.bad .wtip::after { border-top-color: var(--red); }
+.hero .big, .hero .big:is(*) { font-size: clamp(40px, 12vw, 50px); line-height: 1; }
+.hero.bad .big { color: var(--bad); }
+.wsub { margin: 7px 0 0; font-size: 13px; color: var(--muted); }
+.hero .note { text-align: center; }
+.hero .visa-alert { margin-top: 14px; text-align: left; }
+.hero > *, .qcard > * { text-shadow: none; }
+
+/* Placa del día de pago */
+.qcard { flex-direction: row; align-items: center; gap: 12px; padding: 12px 12px 12px 14px; border-radius: 22px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), inset 0 0 0 1px rgba(184,58,45,.55), 0 14px 30px rgba(0,0,0,.45); }
+.qk { flex: none; width: 38px; height: 38px; border-radius: 50%; background: rgba(184,58,45,.22); color: var(--brand); display: grid; place-items: center; font-family: "Shippori Mincho B1", serif; font-weight: 800; font-size: 17px; }
+.qt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.qt b { font-size: 14px; font-weight: 600; }
+.qt span { font-size: 12px; color: var(--muted); }
+.qt span:empty { display: none; }
+.btn.qgo { padding: 9px 14px; font-size: 13px; border-radius: 99px; box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
+
+/* Gasolina en Inicio */
+#gTile.over b { color: var(--bad); }
+
+/* Anotar: acceso a la quincena */
+.rata-link { display: flex; align-items: center; gap: 10px; width: 100%; font: inherit; text-align: left; color: var(--ink); cursor: pointer;
+  padding: 9px 12px; border-radius: 14px; background: rgba(184,58,45,.10); border: 1px solid rgba(184,58,45,.35); }
+.rata-link i { font-style: normal; font-family: "Shippori Mincho B1", serif; font-weight: 800; color: var(--brand); font-size: 16px; }
+.rata-link span { font-size: 14px; font-weight: 600; }
+.rata-link small { font-weight: 400; font-size: 12px; color: var(--muted); margin-left: 4px; }
+.rata-link:focus-visible { outline: 3px solid var(--brand-2); }
+
+@media (min-width: 1000px) {
+  .app { max-width: 1000px; }
+  .lower { grid-template-columns: minmax(0, 1fr); }
+  .duo { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .hero { padding: 30px 40px 28px; }
+  .hero .big { font-size: 58px; }
+  .fab { right: calc(50vw - 208px); bottom: 86px; }
+}
+@media (orientation: landscape) and (max-height: 520px) {
+  .app { padding-bottom: 110px; }
+  .tabs { bottom: 8px; }
+  .fab { bottom: 74px; right: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { .wfill, .wtip { transition: none; } }
 </style>
 </head>
-<body>
+<body data-tab="inicio">
 <div id="fondo" aria-hidden="true"><i class="f1"></i><i class="f2"></i><i class="f3"></i><i class="f4"></i></div>
 
 
@@ -503,33 +602,21 @@ body::before { opacity: .06; }
   <p class="card offline small">La app todavía no está conectada con tu hoja de Google. Abre una vez el enlace de configuración que te dio Claude en este dispositivo.</p>
 
   <div class="band">
-  <section class="hero ok" id="hero">
-    <span class="vert" aria-hidden="true">今週の残り</span>
-    <div class="hero-main">
-      <div class="ring" aria-hidden="true">
-        <svg id="ring" viewBox="0 0 120 120"></svg>
-        <div class="lbl"><b id="ringPct">—</b></div>
-      </div>
-      <div>
-        <div class="amount-row"><span class="hanko" aria-hidden="true">残</span><p class="cap">Te quedan</p></div>
-        <div class="big" id="weekLeft">$—</div>
-        <div class="wstats">
-          <div><span id="wLbl1">Gastado</span><b id="wVal1">—</b></div>
-          <div><span id="wLbl2">Por día</span><b id="wVal2">—</b></div>
-        </div>
-        <p class="note" id="weekNote" hidden></p>
-      </div>
-    </div>
+  <section class="hero ok" id="hero" data-t="inicio">
+    <div class="wbar" aria-hidden="true"><div class="wtrack"><div class="wfill" id="wFill"></div><div class="wtip" id="wTip">—</div></div></div>
+    <div class="big" id="weekLeft">$—</div>
+    <p class="wsub" id="wSub">te quedan esta semana</p>
+    <p class="note" id="weekNote" hidden></p>
     <div class="visa-alert" id="visaBanner" hidden><span id="visaTxt"></span><button class="mini" type="button" id="visaBtn">Ya aboné</button></div>
   </section>
 
   <div class="side">
-  <section class="card qcard" aria-labelledby="qTitle">
-    <div class="ic"><span class="msr" aria-hidden="true">payment_arrow_down</span></div>
-    <b id="qTitle">Quincena</b>
-    <button class="btn soft" type="button" id="qBtn" aria-expanded="false" aria-controls="qForm"><span class="msr" aria-hidden="true">pest_control_rodent</span><span id="qLbl">Cayó la rata</span></button>
+  <section class="card qcard" id="qCard" aria-labelledby="qTitle" data-t="inicio" hidden>
+    <div class="qk" aria-hidden="true">給</div>
+    <div class="qt"><b id="qTitle">Hoy es día de pago</b><span id="qSub"></span></div>
+    <button class="btn qgo" type="button" id="qBtn" aria-expanded="false" aria-controls="qForm"><span id="qLbl">Cayó la rata</span></button>
   </section>
-  <form class="card" id="qForm" hidden novalidate>
+  <form class="card" id="qForm" data-t="inicio" hidden novalidate>
     <div class="row"><h2>¿Cuánto te cayó?</h2><button class="close" type="button" id="qCancel" aria-label="Cerrar">×</button></div>
     <p class="small muted" style="margin:0">Escribe el monto exacto que entró a tu cuenta. Ya viene lleno con lo de siempre.</p>
     <div class="fields">
@@ -539,24 +626,29 @@ body::before { opacity: .06; }
     <button class="btn block" type="submit" id="qSave">Guardar quincena</button>
     <div class="msg" id="qFormMsg" role="status"></div>
   </form>
-  <div class="msg" id="qMsg" role="status"></div>
+  <div class="msg" id="qMsg" role="status" data-t="inicio"></div>
 
-  <section class="duo" aria-label="Saldos">
-    <div class="tile">
+  <section class="duo" aria-label="Saldos" data-t="inicio deudas">
+    <div class="tile" data-t="inicio">
       <div class="row"><span class="lbl">Cuenta</span><button class="mini" type="button" id="ajAdd" aria-expanded="false" aria-controls="ajForm">Ajustar</button></div>
       <b id="tCuenta">—</b>
       <span class="libre" id="tLibre" hidden></span>
     </div>
-    <div class="tile">
+    <div class="tile" id="gTile" data-t="inicio" hidden>
+      <div class="row"><span class="lbl">Gasolina</span><button class="mini" type="button" id="gasAdd">Poner gas</button></div>
+      <b id="tGas">—</b>
+      <span class="libre" id="gSub"></span>
+    </div>
+    <div class="tile" data-t="deudas">
       <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
       <b id="tAhorro">—</b>
     </div>
-    <div class="tile desk-only">
+    <div class="tile desk-only" data-t="deudas">
       <div class="row"><span class="lbl">Deuda total</span></div>
       <b id="tDeuda">—</b>
     </div>
   </section>
-  <section class="card ecard sobre" id="sobre" aria-label="Apartado para los próximos pagos grandes" hidden>
+  <section class="card ecard sobre" id="sobre" data-t="inicio" aria-label="Apartado para los próximos pagos grandes" hidden>
     <div class="ehead">
       <div class="ic k-pago"><svg aria-hidden="true"><use href="#i-pago"/></svg></div>
       <div class="et"><b id="sTit">—</b><span id="sSub">—</span></div>
@@ -565,7 +657,7 @@ body::before { opacity: .06; }
     <div class="prog"><span id="sBar"></span></div>
     <p class="sfoot" id="sFoot"></p>
   </section>
-  <section class="card ecard" id="emerg" aria-label="Gastos varios" hidden>
+  <section class="card ecard" id="emerg" data-t="pagos" aria-label="Gastos varios" hidden>
     <div class="ehead">
       <div class="ic k-varios"><svg aria-hidden="true"><use href="#i-varios"/></svg></div>
       <div class="et"><b>Gastos varios</b><span id="eSub">—</span></div>
@@ -573,7 +665,7 @@ body::before { opacity: .06; }
     </div>
     <div class="prog"><span id="eBar"></span></div>
   </section>
-  <form class="card" id="ajForm" hidden novalidate>
+  <form class="card" id="ajForm" data-t="inicio" hidden novalidate>
     <div class="row"><h2>Ajustar con el banco</h2><button class="close" type="button" id="ajClose" aria-label="Cerrar">×</button></div>
     <p class="small muted" style="margin:0">Escribe el saldo que ves hoy en la app de tu banco. Anoto la diferencia como un ajuste.</p>
     <div class="fields">
@@ -582,7 +674,7 @@ body::before { opacity: .06; }
     <button class="btn block" type="submit" id="ajSave">Guardar ajuste</button>
     <div class="msg" id="ajMsg" role="status"></div>
   </form>
-  <form class="card" id="ahForm" hidden novalidate>
+  <form class="card" id="ahForm" data-t="deudas" hidden novalidate>
     <div class="row"><h2 id="ahTitle">Agregar al ahorro</h2><button class="close" type="button" id="ahClose" aria-label="Cerrar">×</button></div>
     <div class="fields">
       <div class="field"><label for="ahMonto">Monto</label><input type="text" id="ahMonto" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
@@ -598,15 +690,15 @@ body::before { opacity: .06; }
 
   <div class="lower">
   <div class="main-col">
-  <div class="section-head" data-kanji="新" id="bandHead" hidden><h2>Por clasificar</h2><span class="small muted" id="bandSub"></span></div>
-  <section class="card" id="banda" aria-label="Cobros por clasificar" hidden></section>
+  <div class="section-head" data-kanji="新" id="bandHead" data-t="inicio" hidden><h2>Por clasificar</h2><span class="small muted" id="bandSub"></span></div>
+  <section class="card" id="banda" aria-label="Cobros por clasificar" data-t="inicio" hidden></section>
 
-  <div class="section-head" data-kanji="固" id="fijosHead" hidden><h2>Gastos fijos</h2><span class="small muted" id="fijosSub"></span></div>
-  <section class="card" id="fijos" aria-label="Gastos fijos del mes" hidden></section>
+  <div class="section-head" data-kanji="固" id="fijosHead" data-t="pagos" hidden><h2>Gastos fijos</h2><span class="small muted" id="fijosSub"></span></div>
+  <section class="card" id="fijos" aria-label="Gastos fijos del mes" data-t="pagos" hidden></section>
 
-  <div class="section-head" data-kanji="記"><h2>Movimientos</h2><span class="small muted" id="histCount"></span></div>
-  <section class="card" id="hist" aria-label="Movimientos"><p class="empty">Cargando…</p></section>
-  <section class="card tcard desk-only" aria-label="Tabla de movimientos">
+  <div class="section-head" data-kanji="記" data-t="movs"><h2>Movimientos</h2><span class="small muted" id="histCount"></span></div>
+  <section class="card" id="hist" aria-label="Movimientos" data-t="movs"><p class="empty">Cargando…</p></section>
+  <section class="card tcard desk-only" aria-label="Tabla de movimientos" data-t="movs">
     <div class="filters">
       <div class="field"><label for="fMes">Mes</label><select id="fMes"><option value="">Todos</option></select></div>
       <div class="field"><label for="fTipo">Tipo</label><select id="fTipo">
@@ -624,16 +716,16 @@ body::before { opacity: .06; }
   <div class="aside">
 
 
-  <div class="section-head" data-kanji="払"><h2>Próximos pagos</h2><span class="small muted">Toca «Pagué» al pagar</span></div>
-  <section class="card" id="pagos" aria-label="Próximos pagos"><p class="empty">Cargando…</p></section>
+  <div class="section-head" data-kanji="払" id="pagosHead" data-t="pagos"><h2>Próximos pagos</h2><span class="small muted">Toca «Pagué» al pagar</span></div>
+  <section class="card" id="pagos" aria-label="Próximos pagos" data-t="pagos"><p class="empty">Cargando…</p></section>
 
 
 
-  <div class="section-head" data-kanji="借"><h2>Tus deudas</h2><span class="small muted">En orden de ataque</span></div>
-  <section class="card" id="debts" aria-label="Tus deudas"><p class="empty">Cargando…</p></section>
+  <div class="section-head" data-kanji="借" data-t="deudas"><h2>Tus deudas</h2><span class="small muted">En orden de ataque</span></div>
+  <section class="card" id="debts" aria-label="Tus deudas" data-t="deudas"><p class="empty">Cargando…</p></section>
 
-  <div class="section-head" data-kanji="道" id="caminoHead" hidden><h2>Camino a cero</h2><span class="small muted" id="caminoSub"></span></div>
-  <section class="card" id="camino" aria-label="Proyección para quedar sin deudas" hidden></section>
+  <div class="section-head" data-kanji="道" id="caminoHead" data-t="deudas" hidden><h2>Camino a cero</h2><span class="small muted" id="caminoSub"></span></div>
+  <section class="card" id="camino" aria-label="Proyección para quedar sin deudas" data-t="deudas" hidden></section>
   </div>
   </div>
   <footer class="pie">
@@ -643,7 +735,13 @@ body::before { opacity: .06; }
 </main>
 <div class="toast" id="toast" role="status" hidden><span id="toastTxt"></span><button type="button" id="toastBtn">Deshacer</button></div>
 
-<button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet"><svg aria-hidden="true"><use href="#i-plus"/></svg>Anotar</button>
+<nav class="tabs" id="tabs" aria-label="Secciones">
+  <button type="button" data-go="inicio" aria-current="page"><i aria-hidden="true">今</i>Inicio</button>
+  <button type="button" data-go="movs"><i aria-hidden="true">記</i>Movimientos</button>
+  <button type="button" data-go="pagos"><i aria-hidden="true">払</i>Pagos</button>
+  <button type="button" data-go="deudas"><i aria-hidden="true">借</i>Deudas</button>
+</nav>
+<button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet" aria-label="Anotar"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="ajustes" role="dialog" aria-modal="true" aria-labelledby="ajTit" hidden>
@@ -668,6 +766,7 @@ body::before { opacity: .06; }
         <label><input type="radio" name="tipo" id="tPago" value="pago"><span>Pago</span></label>
         <label><input type="radio" name="tipo" id="tMov" value="mov"><span>Entrada/Salida</span></label>
       </div>
+      <button class="rata-link" type="button" id="rataLink"><i aria-hidden="true">給</i><span>Cayó la rata <small>Anotar la quincena</small></span></button>
       <div class="amount"><span>$</span><input id="monto" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="Monto"></div>
 
       <div id="gastoFields" class="stack" style="display:flex;flex-direction:column;gap:12px">
@@ -776,6 +875,7 @@ body::before { opacity: .06; }
       $('sheetTitle').textContent = 'Anotar'; $('save').textContent = 'Guardar';
     }
     $('yaAbone').checked = true; showAbono();
+    $('rataLink').hidden = !!editing;
     $('scrim').hidden = false; $('sheet').hidden = false; $('app').inert = true; $('fab').inert = true;
     setTimeout(() => $('monto').focus(), 50);
   };
@@ -795,6 +895,21 @@ body::before { opacity: .06; }
       z.addEventListener('pointerup', end); z.addEventListener('pointercancel', end); });
   })();
   $('fab').addEventListener('click', () => openSheet(null));
+  // Pestañas: Inicio, Movimientos, Pagos y Deudas.
+  const setTab = (t) => {
+    document.body.dataset.tab = t;
+    document.querySelectorAll('#tabs [data-go]').forEach((b) => { if (b.dataset.go === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    window.scrollTo(0, 0);
+  };
+  document.querySelectorAll('#tabs [data-go]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go)));
+  $('gasAdd').addEventListener('click', () => {
+    openSheet(null); $('cat-gasolina').checked = true; $('medio').value = 'visa'; showAbono();
+    $('nota').value = 'Gasolina';
+  });
+  $('rataLink').addEventListener('click', () => {
+    closeSheet(); setTab('inicio'); qForce = true; renderQuincena();
+    if (!$('qBtn').disabled) qToggle(true);
+  });
   $('close').addEventListener('click', closeSheet);
   $('scrim').addEventListener('click', closeSheet);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
@@ -941,12 +1056,17 @@ body::before { opacity: .06; }
   }
 
   // ---------- Quincena ----------
-  let qArmed = () => false;
+  // La placa aparece sola el día de pago (15 y 30) y se queda hasta que anotes la quincena.
+  // Si te pagan otro día, se abre desde Anotar → «Cayó la rata» (qForce).
+  let qArmed = () => false, qForce = false;
   function renderQuincena() {
     if (!state.cfg || qArmed()) return;
-    const got = !!quincena().q;
+    const qd = quincena(), got = !!qd.q, pend = !got && !qd.adelantada;
+    $('qCard').hidden = !(pend || qForce);
     $('qBtn').disabled = got;
     $('qLbl').textContent = got ? 'Ya cayó ✓' : 'Cayó la rata';
+    $('qTitle').textContent = got ? 'La quincena ya está anotada' : pend ? (qd.pd.prev === today() ? 'Hoy es día de pago' : 'Día de pago: ' + short(qd.pd.prev)) : 'Anotar la quincena';
+    $('qSub').textContent = got ? '' : 'Lo de siempre: ' + fmt(ingresoQ());
   }
   qArmed = () => !$('qForm').hidden;
   const qToggle = (open) => {
@@ -956,7 +1076,7 @@ body::before { opacity: .06; }
       $('qMonto').value = ingresoQ().toFixed(2);
       $('qFecha').value = today();
       $('qMonto').focus(); $('qMonto').select();
-    } else renderQuincena();
+    } else { qForce = false; renderQuincena(); }
   };
   $('qBtn').addEventListener('click', () => qToggle($('qForm').hidden));
   $('qCancel').addEventListener('click', () => qToggle(false));
@@ -974,7 +1094,7 @@ body::before { opacity: .06; }
       const qs = [await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Quincena', monto, fecha: f, nota: '', creado: now, origen: 'app' })];
       if (vac > 0) qs.push(await db.collection('movs').add({ tipo: 'ahorro', destino: 'vacaciones', monto: vac, fecha: f, nota: 'Apartado de la quincena', creado: now, origen: 'app' }));
       avisoDeshacer('Quincena anotada', qs, () => { $('qMsg').textContent = ''; $('qMsg').className = 'msg'; });
-      $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false');
+      $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false'); qForce = false;
       const msg = $('qMsg'); msg.className = 'msg notice';
       const deu = num(qp.deuda), var_ = num(state.cfg.varios);
       msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa: se queda en tu cuenta para diciembre') + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
@@ -1583,14 +1703,13 @@ body::before { opacity: .06; }
     // Semana
     const lim = num(cfg.limite_semana) || 55; const left = lim - c.weekSpent;
     const hero = $('hero'); hero.classList.remove('ok', 'warn', 'bad'); hero.classList.add(left < 0 ? 'bad' : left < lim * 0.25 ? 'warn' : 'ok');
-    drawRing(c.weekSpent / lim);
-    $('ringPct').textContent = Math.round(c.weekSpent / lim * 100) + '%';
-    $('weekLeft').textContent = fmt(left);
-    const dleft = 7 - ((new Date().getDay() + 6) % 7);
-    $('wLbl1').textContent = 'Gastado';
-    $('wVal1').textContent = fmt0(c.weekSpent) + '/' + fmt0(lim);
-    $('wLbl2').textContent = left < 0 ? 'Te pasaste' : dleft === 1 ? 'Hoy cierra' : 'Por día';
-    $('wVal2').textContent = left < 0 ? fmt0(-left) : fmt0(dleft === 1 ? left : left / dleft);
+    // Barra: muestra lo que te queda de la semana; el globito va en la punta del relleno.
+    const qf = Math.max(0, Math.min(1, left / lim));
+    $('wFill').style.width = (qf * 100) + '%';
+    $('wTip').style.left = Math.min(92, Math.max(8, qf * 100)) + '%';
+    $('wTip').textContent = left < 0 ? 'Te pasaste' : Math.round(qf * 100) + '%';
+    $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
+    $('wSub').textContent = (left < 0 ? 'te pasaste esta semana' : 'te quedan esta semana') + ' · gastado ' + fmt(c.weekSpent);
     const t = today();
     const vb = $('visaBanner'); vb.hidden = !(c.visaPend > 0.004);
     $('visaTxt').textContent = 'Abona ' + fmt(c.visaPend) + ' a la Visa: son compras que aún no cubres.';
@@ -1598,6 +1717,15 @@ body::before { opacity: .06; }
 
     // Saldos
     $('tCuenta').textContent = fmt(c.cuenta);
+    const gLim = num(cfg.gasolina); $('gTile').hidden = !(gLim > 0);
+    if (gLim > 0) {
+      const gp = periodo();
+      const gUso = round2(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= gp.desde && m.fecha < gp.hasta).reduce((s, m) => s + num(m.monto), 0));
+      const gQ = round2(gLim - gUso);
+      $('gTile').classList.toggle('over', gQ < 0);
+      $('tGas').textContent = gQ < 0 ? '−' + fmt(-gQ) : fmt(gQ);
+      $('gSub').textContent = gQ < 0 ? 'te pasaste' : 'de ' + fmt0(gLim) + ' esta quincena';
+    }
     renderApartado(c);
     $('tAhorro').textContent = fmt(c.ahorro);
     const eLim = num(cfg.varios); const ec = $('emerg'); ec.hidden = !(eLim > 0);
@@ -1667,7 +1795,7 @@ body::before { opacity: .06; }
 
   // ---------- Signo de dólar en rojo ----------
   // Los montos se escriben como texto; aquí se envuelve el "$" en un span para pintarlo.
-  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, #eLeft, .al .r b, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
+  const CON_DOLAR = '#weekLeft, #tCuenta, #tGas, #sVal, #tAhorro, #tDeuda, #eLeft, .al .r b, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
   function dolares(root) {
     (root || document).querySelectorAll(CON_DOLAR).forEach((e) => {
       if (e.querySelector('.dl') || !e.textContent.includes('$')) return;
@@ -1846,7 +1974,7 @@ body::before { opacity: .06; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.3';
+  const VERSION = '2026-11-03.4';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
