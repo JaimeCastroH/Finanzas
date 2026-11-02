@@ -1813,12 +1813,14 @@ body[data-tab="pagos"] #emerg { order: 3; }
   // y se guardan en este dispositivo.
   const store = { get: (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} } };
   (() => {
-    // Se acepta en ?api=...&k=... o en #api=...&k=... y se deja en la dirección para que el ícono de inicio la conserve.
+    // Se acepta en #api=...&k=... (lo correcto: lo que va después de # nunca sale del teléfono) o en ?api=...&k=... (enlaces viejos).
+    // Si llega con ?, se pasa a # en la dirección para que no se vuelva a enviar a GitHub en esta sesión.
     const p = new URLSearchParams(location.search.slice(1) || location.hash.slice(1));
+    if (location.search && (p.get('api') || p.get('k'))) { try { history.replaceState(null, '', location.pathname + '#' + location.search.slice(1)); } catch (e) {} }
     // Si la clave se cambió a mano en Ajustes, un enlace viejo (por ejemplo el del ícono de inicio) ya no la reemplaza.
     if (p.get('api') && p.get('k') && !store.get('fj_k_manual')) { store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); }
   })();
-  const q0 = new URLSearchParams(location.search.slice(1) || location.hash.slice(1));
+  const q0 = new URLSearchParams(location.hash.slice(1));
   const API = store.get('fj_api') || q0.get('api'), KEY = store.get('fj_k') || q0.get('k');
   const cache = { get: () => { try { return JSON.parse(localStorage.getItem('fj_datos') || 'null'); } catch (e) { return null; } }, set: (d) => { try { localStorage.setItem('fj_datos', JSON.stringify(d)); } catch (e) {} } };
   iniciarAjustes();
@@ -1974,7 +1976,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.4';
+  const VERSION = '2026-11-03.5';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
@@ -1986,7 +1988,6 @@ body[data-tab="pagos"] #emerg { order: 3; }
       if (abierto) return; // se actualiza la próxima vez, para no borrar lo que estás escribiendo
       if (sessionStorage.getItem('fj_recarga') === m[1]) return; // ya se intentó, no entrar en bucle
       sessionStorage.setItem('fj_recarga', m[1]);
-      await fetch(location.href, { cache: 'reload' });
       await fetch(location.pathname, { cache: 'reload' });
       location.reload();
     } catch (e) { /* sin conexión: se revisa la próxima vez */ }

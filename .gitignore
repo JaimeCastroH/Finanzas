@@ -1,0 +1,9 @@
+# Bocetos y capturas de Claude (pueden tener saldos): nunca se suben
+Claude outputs/
+
+# Archivos de la Mac
+.DS_Store
+
+# Puente con la hoja: la clave vive solo en Apps Script
+Codigo.gs
+Código.gs
