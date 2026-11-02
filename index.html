@@ -404,11 +404,17 @@ body { background: transparent; }
 body::before { opacity: .06; }
 :root { --surface: rgba(18,18,16,.40); --surface-2: rgba(255,250,240,.06); --line: rgba(236,227,210,.13); --tint: rgba(236,227,210,.08); --track: rgba(236,227,210,.10); }
 .hero, .card, .tile { position: relative; overflow: hidden; border-radius: 28px;
-  background: linear-gradient(145deg, rgba(236,227,210,.12) 0%, rgba(236,227,210,.035) 40%, rgba(236,227,210,.012) 65%, rgba(236,227,210,.055) 100%), rgba(10,10,12,.40);
-  border: 1px solid rgba(236,227,210,.17);
-  box-shadow: inset 1.5px 1.5px 0 rgba(255,250,240,.24), inset -1px -1px 0 rgba(255,250,240,.05), inset 0 0 28px rgba(255,250,240,.035), 0 18px 40px rgba(0,0,0,.45);
-  -webkit-backdrop-filter: blur(26px) saturate(150%); backdrop-filter: blur(26px) saturate(150%); }
-.hero::after, .card::after, .tile::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; background: radial-gradient(120% 60% at 15% 0%, rgba(255,248,235,.13), transparent 55%); }
+  /* Cristal claro: poco desenfoque y poco tinte, así las luces del fondo se ven a través del vidrio */
+  background: linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.015) 45%, rgba(255,255,255,.05)), rgba(6,6,8,.22);
+  border: 0;
+  box-shadow: 0 16px 34px rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(9px) saturate(185%) brightness(1.12); backdrop-filter: blur(9px) saturate(185%) brightness(1.12); }
+/* Borde de luz: un hilo de medio punto que solo brilla en la esquina de arriba a la izquierda y la de abajo a la derecha */
+.hero::before, .card::before, .tile::before { content: ""; position: absolute; inset: 0; border-radius: inherit; padding: .5px; pointer-events: none; z-index: 2;
+  background: linear-gradient(140deg, rgba(255,255,255,.7), rgba(255,255,255,0) 22%, rgba(255,255,255,0) 78%, rgba(255,255,255,.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+.hero > *, .card > *, .tile > * { text-shadow: 0 1px 2px rgba(0,0,0,.55); }
+:is(.hero, .card, .tile) :is(button, .mini, .btn, input, select) { text-shadow: none; }
 .hero > *:not(.vert), .card > *, .tile > * { position: relative; z-index: 1; }
 .hero > .vert { z-index: 1; }
 .tile { border-radius: 22px; }
@@ -1840,7 +1846,7 @@ body::before { opacity: .06; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.2';
+  const VERSION = '2026-11-03.3';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
