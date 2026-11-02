@@ -15,7 +15,6 @@
 <link rel="icon" href="icono.png">
 <title>Finanzas de Jaime</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=payment_arrow_down,pest_control_rodent&display=block">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@800&amp;text=%240123456789.%2C%2F-%E2%88%92%2B%25%E6%AE%8B%E4%BB%8A%E9%80%B1%E3%81%AE%E3%82%8A%E8%A8%98%E8%B6%B3%E6%89%95%E5%9B%BA%E5%80%9F%E5%85%B1%E7%B5%A6~&amp;display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&display=swap">
 <style>
@@ -45,7 +44,6 @@ h2 { font-size: 17px; font-weight: 700; }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-inline: 4px; }
 .card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
-.msr { font-family: "Material Symbols Rounded"; font-weight: normal; font-style: normal; font-size: 24px; line-height: 1; letter-spacing: normal; text-transform: none; white-space: nowrap; direction: ltr; -webkit-font-smoothing: antialiased; font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24; display: inline-block; width: 24px; overflow: hidden; flex: none; }
 .ic { display: grid; place-items: center; flex: none; background: var(--tint); color: var(--brand); }
 .ic svg { width: 18px; height: 18px; }
 .k-otros { background: var(--tint); color: var(--muted); }
@@ -88,7 +86,7 @@ h2 { font-size: 17px; font-weight: 700; }
 .eye { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); display: grid; place-items: center; cursor: pointer; }
 .eye svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .eye .x { display: none; } html.discreto .eye .x { display: inline; } html.discreto .eye { color: var(--brand); }
-html.discreto :is(#weekLeft, #wSub, .wstats b, .tile b, .fx .r b, .fbig b, .pay .r b, .mov .v, .debt .amt, .ev b, .ev span, .tcard td.n, .tsum b, .bx .top b, .libre b, .cam-r, .cam-pie b, #eSub, #sSub + *, .sfoot, .fx .t div + div) { filter: blur(7px); }
+html.discreto :is(#weekLeft, #wSub, .tile b, .fx .r b, .fbig b, .pay .r b, .mov .v, .debt .amt, .ev b, .ev span, .tcard td.n, .tsum b, .bx .top b, .libre b, .cam-r, .cam-pie b, #eSub, #sSub + *, .sfoot, .fx .t div + div) { filter: blur(7px); }
 :is(#weekLeft, .tile b, .mov .v, .debt .amt) { transition: filter .25s; }
 .aj-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; }
 .aj-row > div:first-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -128,16 +126,6 @@ label.mini { display: inline-block; }
 .hero { border-radius: 28px; padding: 22px; background: linear-gradient(160deg, #201e1a 0%, #161512 100%); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 16px; }
 .hero-main { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 20px; }
 .hero-main > div:last-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.wstats { display: grid; grid-template-columns: max-content max-content; justify-content: start; gap: 22px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); }
-.wstats div { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-.wstats span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
-.wstats b { font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.hero.bad .wstats b { color: var(--bad); }
-.ring { width: 108px; height: 108px; margin: 4px; flex: none; position: relative; }
-.ring svg { width: 100%; height: 100%; overflow: visible; color: var(--brand); }
-.hero.warn .ring svg { color: var(--warn); } .hero.bad .ring svg { color: var(--bad); }
-.ring .lbl { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; font-size: 12px; line-height: 1.15; }
-.ring .lbl b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -0.01em; }
 .hero .cap { margin: 0; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 .hero .big { font-size: clamp(34px, 10vw, 46px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .hero .note { font-size: 13px; color: var(--muted); margin: 4px 0 0; white-space: pre-line; line-height: 1.4; }
@@ -151,7 +139,6 @@ label.mini { display: inline-block; }
 
 /* Botones */
 .btn { font: inherit; font-weight: 700; border: 0; border-radius: 14px; padding: 12px 16px; background: var(--brand); color: var(--on-brand); cursor: pointer; font-size: 15px; white-space: nowrap; }
-.btn.soft { background: var(--green); color: var(--brand); display: inline-flex; align-items: center; gap: 8px; }
 .btn.arm, .mini.arm { background: var(--ink); color: var(--surface); }
 .btn:disabled { opacity: .6; cursor: default; }
 .btn.block { width: 100%; padding: 15px; font-size: 16px; }
@@ -169,7 +156,6 @@ label.mini { display: inline-block; }
 
 /* Quincena y saldos */
 .qcard { flex-direction: row; align-items: center; gap: 14px; }
-.qcard .ic { width: 44px; height: 44px; border-radius: 14px; }
 .qcard b { flex: 1; min-width: 0; }
 .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .tile { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0; }
@@ -304,17 +290,12 @@ select:focus-visible, input:focus-visible { outline: 3px solid var(--brand-2); o
 .ver { font-size: 11px; opacity: .6; }
 .offline { display: none; }
 .app.no-db .offline { display: block; }
-@media (max-width: 360px) { .ring { width: 92px; height: 92px; } }
 
 /* Toque japonés: números mincho, sello y grano leve */
 body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); opacity: .11; mix-blend-mode: screen; }
 .hero { position: relative; }
-.hero .big, .wstats b, .tile b, .pay .r b, .pay .d b, .mov .v, .debt .amt, .ring .lbl b, .amount input { font-family: var(--num); font-weight: 800; letter-spacing: 0; }
+.hero .big, .tile b, .pay .r b, .pay .d b, .mov .v, .debt .amt, .amount input { font-family: var(--num); font-weight: 800; letter-spacing: 0; }
 .hero .big { font-size: clamp(30px, 9vw, 40px); white-space: nowrap; }
-.hero { padding-right: 38px; }
-.amount-row { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
-.hanko { flex: none; width: 22px; height: 22px; border-radius: 5px; background: var(--red); color: var(--brand); display: grid; place-items: center; font-family: var(--num); font-weight: 800; font-size: 13px; line-height: 1; transform: rotate(-4deg); }
-.vert { position: absolute; top: 20px; right: 13px; writing-mode: vertical-rl; font-family: var(--num); font-size: 12px; letter-spacing: .25em; color: var(--muted); }
 
 /* Computadora: panel con tabla. En el teléfono los contenedores no existen (display: contents) y todo queda igual. */
 .band, .side, .lower, .main-col, .aside { display: contents; }
@@ -328,11 +309,7 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
   .side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   .hero { justify-content: center; padding: 30px 48px 30px 34px; }
   .hero-main { gap: 34px; }
-  .ring { width: 150px; height: 150px; }
-  .ring .lbl b { font-size: 34px; }
   .hero .big { font-size: 58px; }
-  .wstats { gap: 34px; } .wstats b { font-size: 18px; }
-  .vert { top: 28px; right: 18px; font-size: 13px; }
   .duo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .app .desk-only { display: flex; }
   .tile { padding: 16px; } .tile b { font-size: 26px; }
@@ -415,14 +392,12 @@ body::before { opacity: .06; }
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
 .hero > *, .card > *, .tile > * { text-shadow: 0 1px 2px rgba(0,0,0,.55); }
 :is(.hero, .card, .tile) :is(button, .mini, .btn, input, select) { text-shadow: none; }
-.hero > *:not(.vert), .card > *, .tile > * { position: relative; z-index: 1; }
-.hero > .vert { z-index: 1; }
+.hero > *, .card > *, .tile > * { position: relative; z-index: 1; }
 .tile { border-radius: 22px; }
 .tcard { padding: 0; }
 .tcard th { background: rgba(16,16,18,.92); }
 .pay, .fx.pay { background: rgba(236,227,210,.055); border: 1px solid rgba(236,227,210,.08); }
 .pay.soon { background: rgba(217,164,65,.14); } .pay.late { background: rgba(208,89,75,.16); }
-.btn.soft { box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 8px 20px rgba(0,0,0,.3); }
 .mini { box-shadow: inset 0 1px 0 rgba(255,255,255,.45); }
 .fab { background: rgba(220,201,169,.9); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 12px 30px rgba(0,0,0,.55); }
 .sheet { background: linear-gradient(180deg, rgba(236,227,210,.07), rgba(236,227,210,.02)), rgba(14,14,16,.82); border-top: 1px solid rgba(236,227,210,.18); box-shadow: inset 0 1px 0 rgba(255,250,240,.18); -webkit-backdrop-filter: blur(30px) saturate(150%); backdrop-filter: blur(30px) saturate(150%); }
@@ -432,21 +407,6 @@ body::before { opacity: .06; }
 .visa-alert { background: rgba(217,164,65,.14); border: 1px solid rgba(217,164,65,.25); }
 @media (min-width: 1000px) { .sheet { border: 1px solid rgba(236,227,210,.18); }  }
 
-/* ¿Me alcanza? */
-.alc { gap: 0; padding: 8px 18px; }
-.al { display: grid; grid-template-columns: 48px 1fr auto; gap: 12px; align-items: center; padding: 10px 0; }
-.al + .al { border-top: 1px solid var(--line); }
-.al .d { width: 48px; height: 52px; border-radius: 14px; background: rgba(236,227,210,.06); display: flex; flex-direction: column; align-items: center; justify-content: center; line-height: 1; }
-.al .d b { font-family: var(--num); font-weight: 800; font-size: 19px; }
-.al .d span { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-top: 3px; }
-.al .t { min-width: 0; }
-.al .t div:first-child { font-weight: 600; }
-.al .t div + div { font-size: 12px; color: var(--muted); }
-.al .r { text-align: right; }
-.al .r b { display: block; font-family: var(--num); font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
-.al .r span { font-size: 11px; color: var(--muted); }
-.al.ok .r b { color: var(--ok); } .al.bad .r b { color: var(--bad); }
-.alc .foot { margin: 0; padding: 10px 0 8px; border-top: 1px solid var(--line); font-size: 12px; color: var(--muted); line-height: 1.4; }
 /* Aviso con Deshacer y estado sin señal */
 .toast { position: fixed; z-index: 40; left: 50%; transform: translateX(-50%); bottom: calc(92px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 32px)); display: flex; align-items: center; gap: 12px; padding: 12px 12px 12px 18px; border-radius: 18px; color: var(--ink); font-size: 14px; font-weight: 600;
   background: linear-gradient(145deg, rgba(236,227,210,.14), rgba(236,227,210,.04)), rgba(16,16,18,.82); border: 1px solid rgba(236,227,210,.2); box-shadow: inset 0 1px 0 rgba(255,250,240,.22), 0 14px 34px rgba(0,0,0,.55); -webkit-backdrop-filter: blur(24px); backdrop-filter: blur(24px); }
@@ -461,10 +421,10 @@ body::before { opacity: .06; }
 
 /* Números: Rajdhani Bold (geométrica, de la referencia), incluida en la app para que funcione sin señal */
 @font-face { font-family: "Num"; src: url(data:font/woff2;base64,d09GMgABAAAAAA74ABEAAAAAHkgAAA6cAAEzdQAAAAAAAAAAAAAAAAAAAAAAAAAAGhYbEBwaBmAAVAhkCZZwEQgKmFyWGAE2AiQDUgssAAQgBYRMByAMgREbsBuzERVsHEBkcFNA/5cDbgzBN8x6hvgWvFEotpJNFYWoo8xoxPjROecqdZQKx8FarVv/63o1q5/vtuQJYWCDNpYCNRrvLBohyaz/ZNN8/8/MzoIIbF4DSrZl4jXjrYO6EMBROuy4jS7EFXAb7gDQHrLTu0flFLwA+KSwQl+FqTu9dRm7kzxPnOz9Px3g7raNBtkksCDrksRizTKNZP2Ul79U27zslplKyKRIKvP0DR7JE/K/utCspf651KbRuWgJ8o65nXSmc2EkjCUrs73h/5mtN1KUYjSXvIgxEfsyMdaiAlFm5Rd1ipquOkzcgXOQyzSqXAtw9u/XUvvey4ZO5QoIwgEaX2MW0/3/H2Bns1cIwl4uBO1dyujLqhUK8VIEIdOq+rpKlLLGypobI2bqMnyK1O12PqRrmO3+T0UIgXa7NQUBCGDXmUEgJMBaZmtGyIvyTVMKwVNOvWw/knC7v6Tv+yIUwAfYB8DC+wx0AjTp2J8xrkq47dxzegVX3C0mHtzdDvS1dIzMSNrtzcK1g1wlACSSoK2bgscCUcb207j4GOtbbA/AxSPdfp//n8VnBeFmXlxGtA2eEcO1fH478M//yK9OVcILJRDEtQJBFV8HfoV2Ya+uPmn5GzWFyApspVmWnv5DcO0pxvunRNecxt+yp7r1A+vw38wqeKxs6bwHO2DCpiMILDFAwPW9AENr8WpGxk9jY7AnZqvZm8/Jm3fV37B6TR7v14m+T7V9v1lNqGhY0wgZJTlOOZ6ThFcd2lM9YDXBZgXhbhu3P1EP9AyAknN2kOVsYDVtcg4IaCakDmuh+CqhJGJIdN5nyAMS5s1r3dQ96qQbV18t2FsR4uTxz0JV968AreWKdcj4OpVXbniTk2UvvPcEmXPKsHy9gAKal0YwNWCYWgpNQPszwPc96AE56hTQEMgrOFz9k9ldQG3Ps0i4TBe3MjHqOjiLFz3ZYG1OvsfWUkBm+I2QWjSrNUlrpkIoZbMBd47Hj4VQhmdqYnec7kFqdyFSriCgOvSZRqcmppJ35vNFHwiicW6KU9I0EALkEgE+WSpGtcRMsITrGEwMhCEilHxE/ZPZo9YkQiyq+Q0hiRaI4Om71ORzmk8TfNmPQBQpfZ2evt0HnW8Z8RljaAhPvDfDcwcoRcKWHapmjS1wwGAbaGRCaOeNvAASitUDyGyLkzcoffa4dmBlaCdnJsAFQVHQJKHqSwDv2YC4TSGCkZECHQdAHPsannqXCEvUDEcitsAeVaD0O9LZjxbOseb/Y6UMF5k7lQMJNMQvBZJo9A4pYkiTgCKSUEwKSsiAUtJQRiaUk2VVYJ/sbQOClViBrrqAKmKoJgE1JKGWFNSRAfWkoYFMaCSrpAnq8wma4wsR18RcMeG8mJympPphMqDZaD4FspAWorvYhi2bV/VdopXzOdASg840InuChledE62spG4qaYNu4WQ5ziFyUW5DZjR1/c8HqV8AgMl7ttXaQvJioB3qtcBpgQn9jgId6I71gU7RABRR6G270DgbnVFXbVCTtp/icT3QIgsblJbOZ0ji2BkoefhioBsghdRXE7k8Fi9taqtIfe0LL9ITUaejGClRyhb5ibmtd0s/eXPQdfM94sGSHKMJk6o10pbNi56MMNpSQTYnvwyzrA3BYa2KExxc5mUGk7RPWoNJyGjzYcsZJuewLpqVQxatuI3MIqysRSgdRlIhGxk9EgoiR4s+C9vEVnEO9HIwlyRUtKzfgjP6FsCUKGmuGmMDTv2aAwajt8Jm6tSbd3DlcUJRHjTU2+HxV6seqJSZa0SGS/p6BxD4GBpevnuTupgfyupBmDrWrPmbhDhz1zIhcQnOHlrs1U6GpVPLXHgEdJvSjqOgx6q76ZPlULVvEYdkR4bq9zKMopGChaZe6t1SVziGZl57O6biP7HIPhW+Ol85u7ct5+Md9RkjHycj33+aiHpby1uSuIyTnuTEGRoxHZqH8Jz207JMVU6jgZwgHbloBnQtMHszpGamTvNak3gKzSEdg8yacfMYZUFXdBTwLsJAgegGg4kC2UVYKFDdILBRoLsIBwWmGxQuCmwX4aHA5QaLNwUeF+FLgc8NEn8KZM26INBKVGHLFow0c3shWLCcGQ6sBGcIpEasApffJA1uyQQeyQRej2kHvmwG/BIDAYmBoMRAKNsMYckMEckMUcncIpZ9IlnyL6N+j2cKSacWRO3qFQVK5loAQXuEcXMl5TS7TjnAjwDCwjBTAJC/agWCAq2353dkj6gJrn5y3ePQWIVUgVBqS7hFCql2tXmimeY9rZSmTDHPJ/vAcz7dqHQO8uC2sD1e/G6H7c+vuzze5gvEaJRP9oxhp9gHNsrCd8rH2W97dsv54TbfEQvCKK70HmsJrM5e2SOfPbPZY9nvSXU7rlnibiiaaP7iL+e00FC48vQqllk0rGqWfSvwxO1Dxi6tWtFX8EHZIEZW+nJHpUa+D5dXoAfmnO9MfKPybYofeFrQbX3ODi22tHRTKDa3DmLHMyMXfNZ1630S6R1cCpgtSgkcKPj/vkmGBz9oSk23vlhfQeZGBHfb5gVroFi7ePwzaAjs1RSxF9f6G5XBSpbTR8Wax0Q7YqccOkjZ1GCBMrpcTyIFI6W5bGUSYGcFZU+exf1zPp0Mv9utZWqSnZJ1RHqXNYSXfnw+fzOs5h0gvHAHVynvaEF64EWg5dM6loUB0NI0Nps2AeAApA4fi0SO38WZph/rcmvlEQ90eO0ZlqWlDAB1HkaQmJGT9vJvi5HzfXke+ZI7UCuLWjRlc8DZXKqAhvmALwX5vyBnFJJ64K93gl+RCaF+nG+pL+cX6lu1FlQRCgYjI4KUPCnwwxdtt93sp++kMvY9OazJqL/5GN9zcT7TORu8X92X1s/OGwyhV2B+VlgQEr5jbvcSCdvuwiXlcZV1KqPEh7y8PBPDf+V5gFAS5kIyFKhw4wGWSR4B/bsrmwzShk4qY8sTVOZkzLzS21xs9iNoQauR9zDeOzQHKxkuiwnfzVSJORaHfyR38kF/9qdxU5MuHSBPNavcBvhoNSaZvpthpCfWXHUtp26zuZsXphAJHJA2OJDGSPrYCR9+YcNpdeRHFisBoBbw6y6t9e0KJR1VuabgAnPK6+XDYgPWFfpWCAt9VWZoFfLahuqBogUII3+Hv9Ff+4neRBaU/jXyNXK0Wny9bTsQvdAo1mggiSBi9URSqWo2UJfgabZLuwFEOEAhQBrAnyWccFmzptkznuujICykY0LtpjzR64pxl/NT35oYtBvFj9Ydo+7qpmA5H867wIon4CTXRrGzZZYxXTZ4V3FyffLjf1+BlVKhOA2WeHT3sJ39LdCIVlEeaB2KKwEPyubSHbhw1AAuL9+N69NZTHsURltEm5W40iydXs+wNO3qaRt9M6qo1B1JH8e/y8Qz7m4UjFYjmlrd2P+EZMUT5IWTh0HIxXl+BmEawXn8Gauwe3QoNBC+EN89WRlvdw0OlpzWZI/rHEgkMZBAXw+ixdgEVAJ0Nd/8VD1JRTMLheCq77WA0ELwqTaBCKegYWpl5pGopW+QlNWzIAXtWERUQ3Ol8jNqFufahOW54D93xytlLN6H+rs7WrPNDbU1iWjQNiRWuuIYiYy3DzQ0K513iG0CMfaPJKXhW0E2jOpZQBJ+yGQhasTcuNeRq3ZjEcb8zVsaXxrozY12jDY3uG3VbSXpSGWs0tYIczhsJDILheSq7yUlQRAxKA+ClQ9a1fFcqVcCGqw2W/NoxSYxORd3PKujtrr+bdcwSjJeEhCgTUCCDxAWjzo2UhmvrD5UWncsTAWHHeGWN9IhATXajo41pGuoepapTibPZmsEOYjNIAKkCKPsyL4i5hqec3Qzt7ixzElFHaAZABQBikNd3fprFgrOqg+rsQCdCgB3BAfjetIHJWvkXKlX3nxoce76KXae6Wzq6upXRnHmqTLSoBmlM2ZBEIgfSWvDUKeaBGgFnQdsE3hU7hiR92Bg0ZZT08o4d713g4YiXqv4UcC5Rsydp79emjF47cxlm+qqi5LRkK0x0hGL1wldRBDXkgZDERN4f3+PTuP0lAAqpuJ0ImppUaWqQIDNbYGncjLIfPiXgTBAxrlI0Oo+GVRLksgjBdlWolZpJK1q1PYt4krbg7M3GvYnyOy1VeUlqXg0HLAMgVxzww17QIOgKA9K+i2MRJJ0TjhoVS/lzZEINoQbrDIqwAEzpwKGKZ9ITDNYGinEG5fru453NzAxzWhiEJiwaVORbqFE+iZxq0+VF2m7uAPVAymrw9NEbQEZF6P38SDFEmjSXFKUjOVoKZFoStZOm5IYICbmzuQbiknQIgCSWGv0tbRRzM0rZ5pI2CxdwwcELTIsYyID9dKAAKjz0n99TUl46HfTEV8B8P4XehcA9Kl1Vbv1u4/qb4cHQTDBAAAC/p0PGP9Ec/7mkyDc3ixRH4v+AQ6jtZ/raDea3aM+fRC9f6r7UNki6LOMgnwvk//VtRzs/KOlQXTlMcRbAb0tMn1Fs43JSTcC92EMaBcH8JpzAW4P0jgGCZIWgNtgOZUQsTWVYeLuqQI5F1MlSjxOVfjJV1+OgZJ8YEJYxJIYLzcPDBGxE0M0VNR0kDYhDl5WIcigJRFOSLOwuTYWw9SezOsxF3p8LW8fL97s6NrcScEuLEisn5XvEJ5TgVc9zgL+ejUFCmaplz6oWQ+LtE++Td6SjeKHOcXEEwvLjkjz+l4DNUzlMQ8jhtnl/PP1VQpGpmhikJWfU4a50PgALxuNoJ4Z2DGGVo+N4IXCd8/BwsOIzq+Y1yrULCfKBSDGTxiLaZi22DJYT4WLg9W02MgCRwwLldFV4ODswjriwu62cBQmcVvt3jF0uP7CFx0P/yjRkZ0C/ad0tfdRqPEnWooZzZ+aPuWaIc3mdnSzkVZX0uMvmJ54FcNSsMbAU3t5EpOfWrpjzS94d/genEL1jufNG0ASsk/e9EXY6+nPU9VmRHOg+Vm4V0EePsqYBAAAAA==) format("woff2"); font-weight: 100 900; font-display: block; unicode-range: U+0020, U+0024-0025, U+002B-002F, U+0030-0039, U+007E, U+2212; }
-.hero .big, .wstats b, .tile b, .pay .r b, .pay .d b, .mov .v, .debt .amt, .ring .lbl b, .amount input, .al .r b, .al .d b, .fx .r b, .ev b, .tcard td.n, .tsum b { letter-spacing: 0; font-feature-settings: "tnum"; font-synthesis: none; }
+.hero .big, .tile b, .pay .r b, .pay .d b, .mov .v, .debt .amt, .amount input, .fx .r b, .ev b, .tcard td.n, .tsum b { letter-spacing: 0; font-feature-settings: "tnum"; font-synthesis: none; }
 .dl { color: var(--red); }
 .mov .v.in .dl, .tcard td.n.in .dl { color: inherit; }
-.ev b .dl, .al .r b .dl { font-size: inherit; color: var(--red); letter-spacing: inherit; }
+.ev b .dl { font-size: inherit; color: var(--red); letter-spacing: inherit; }
 /* Toque japonés sutil: un kanji grande y tenue detrás de cada título de sección */
 .section-head { position: relative; isolation: isolate; }
 .section-head[data-kanji]::before { content: attr(data-kanji); position: absolute; z-index: -1; left: -6px; top: 50%; transform: translateY(-58%) rotate(-6deg); font-family: "Shippori Mincho B1", serif; font-weight: 800; font-size: 64px; line-height: 1; color: rgba(236,227,210,.09); pointer-events: none; }
@@ -479,7 +439,7 @@ body[data-tab="deudas"] .app [data-t]:not([data-t~="deudas"]) { display: none !i
 .app > .pie { order: 9; }
 body[data-tab="pagos"] :is(#pagosHead, #pagos) { order: 1; }
 body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
-body[data-tab="pagos"] #emerg { order: 3; }
+#emerg.over b { color: var(--bad); }
 .duo { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 
 .tabs { position: fixed; z-index: 21; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 24px));
@@ -556,7 +516,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
 @media (min-width: 1000px) {
   .app { max-width: 1000px; }
   .lower { grid-template-columns: minmax(0, 1fr); }
-  .duo { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+  .duo { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .hero { padding: 30px 40px 28px; }
   .hero .big { font-size: 58px; }
   .fab { right: calc(50vw - 208px); bottom: 86px; }
@@ -634,14 +594,19 @@ body[data-tab="pagos"] #emerg { order: 3; }
       <b id="tCuenta">—</b>
       <span class="libre" id="tLibre" hidden></span>
     </div>
+    <div class="tile" data-t="inicio">
+      <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
+      <b id="tAhorro">—</b>
+    </div>
     <div class="tile" id="gTile" data-t="inicio" hidden>
       <div class="row"><span class="lbl">Gasolina</span><button class="mini" type="button" id="gasAdd">Poner gas</button></div>
       <b id="tGas">—</b>
       <span class="libre" id="gSub"></span>
     </div>
-    <div class="tile" data-t="deudas">
-      <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
-      <b id="tAhorro">—</b>
+    <div class="tile" id="emerg" data-t="inicio" aria-label="Gastos varios" hidden>
+      <div class="row"><span class="lbl">Gastos varios</span></div>
+      <b id="eLeft">—</b>
+      <span class="libre" id="eSub"></span>
     </div>
     <div class="tile desk-only" data-t="deudas">
       <div class="row"><span class="lbl">Deuda total</span></div>
@@ -657,14 +622,6 @@ body[data-tab="pagos"] #emerg { order: 3; }
     <div class="prog"><span id="sBar"></span></div>
     <p class="sfoot" id="sFoot"></p>
   </section>
-  <section class="card ecard" id="emerg" data-t="pagos" aria-label="Gastos varios" hidden>
-    <div class="ehead">
-      <div class="ic k-varios"><svg aria-hidden="true"><use href="#i-varios"/></svg></div>
-      <div class="et"><b>Gastos varios</b><span id="eSub">—</span></div>
-      <div class="ev"><b id="eLeft">—</b><span id="eOf"></span></div>
-    </div>
-    <div class="prog"><span id="eBar"></span></div>
-  </section>
   <form class="card" id="ajForm" data-t="inicio" hidden novalidate>
     <div class="row"><h2>Ajustar con el banco</h2><button class="close" type="button" id="ajClose" aria-label="Cerrar">×</button></div>
     <p class="small muted" style="margin:0">Escribe el saldo que ves hoy en la app de tu banco. Anoto la diferencia como un ajuste.</p>
@@ -674,7 +631,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
     <button class="btn block" type="submit" id="ajSave">Guardar ajuste</button>
     <div class="msg" id="ajMsg" role="status"></div>
   </form>
-  <form class="card" id="ahForm" data-t="deudas" hidden novalidate>
+  <form class="card" id="ahForm" data-t="inicio" hidden novalidate>
     <div class="row"><h2 id="ahTitle">Agregar al ahorro</h2><button class="close" type="button" id="ahClose" aria-label="Cerrar">×</button></div>
     <div class="fields">
       <div class="field"><label for="ahMonto">Monto</label><input type="text" id="ahMonto" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
@@ -1203,8 +1160,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
     }));
   }
 
-  // ---------- ¿Me alcanza? ----------
-  // Proyecta la cuenta hasta cada fecha de pago pendiente, con lo que ya está en el plan.
+  // ---------- Cálculos para «Para diciembre» ----------
   // Quincena esperada: la última que se anotó de verdad; si no hay, la de Config.
   function ingresoQ() {
     const qs = state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
@@ -1311,22 +1267,6 @@ body[data-tab="pagos"] #emerg { order: 3; }
       return { D, nombres: pend.filter((p) => p.fecha === D).map((p) => p.nombre), monto: pend.filter((p) => p.fecha === D).reduce((a, p) => a + partsSum(p), 0), saldo };
     });
   }
-  function renderAlcanza(c) {
-    const rows = proyeccion(c);
-    $('alcHead').hidden = $('alcanza').hidden = !rows.length;
-    if (!rows.length) return;
-    const out = rows.map((r) => {
-      const ok = r.saldo >= 0;
-      const w = el('div', 'al ' + (ok ? 'ok' : 'bad'));
-      const d = el('div', 'd'); d.append(el('b', null, String(parse(r.D).getDate())), el('span', null, MES3[parse(r.D).getMonth()]));
-      const tx = el('div', 't'); tx.append(el('div', null, r.nombres.join(' + ')), el('div', null, 'Pagas ' + fmt(r.monto) + ' · ' + whenTxt(daysTo(r.D)).toLowerCase()));
-      const rr = el('div', 'r'); rr.append(el('b', null, '~' + fmt0(Math.abs(r.saldo))), el('span', null, ok ? 'te quedarían' : 'te faltarían'));
-      w.append(d, tx, rr); return w;
-    });
-    out.push(el('p', 'foot', 'Cuenta de hoy + quincenas que faltan − ahorro, semana de $' + (num(state.cfg.limite_semana) || 55) + ', gasolina, gastos varios, cobros fijos y pagos anteriores.'));
-    $('alcanza').replaceChildren(...out);
-  }
-
   // Agrupa cada apartado (título + tarjeta y sus formularios) para que en horizontal no se partan entre columnas.
   (function agrupar() {
     const env = (els) => { const els2 = els.filter(Boolean); if (!els2.length) return; const w = document.createElement('div'); w.className = 'blk'; els2[0].before(w); els2.forEach((e) => w.append(e)); };
@@ -1621,28 +1561,6 @@ body[data-tab="pagos"] #emerg { order: 3; }
     const d = el('div', 'mov'); d.append(icon(key), info, r); return d;
   }
 
-  // ---------- Aro de la semana ----------
-  // Aro minimalista: pista tenue, arco grueso con puntas redondas y un brillo suave en la punta que avanza.
-  function drawRing(frac) {
-    const p = Math.max(0, frac || 0), full = p >= 0.999;
-    const R = 48, C = 60, SW = 15, A0 = -Math.PI / 2;
-    const f = (n) => n.toFixed(2);
-    const pt = (a) => [C + R * Math.cos(a), C + R * Math.sin(a)];
-    const arco = (from, to) => { const [x0, y0] = pt(from), [x1, y1] = pt(to); return 'M' + f(x0) + ' ' + f(y0) + 'A' + R + ' ' + R + ' 0 ' + (to - from > Math.PI ? 1 : 0) + ' 1 ' + f(x1) + ' ' + f(y1); };
-    let s = '<circle cx="60" cy="60" r="' + R + '" fill="none" stroke="currentColor" stroke-opacity=".16" stroke-width="' + SW + '"/>';
-    if (full) s += '<circle cx="60" cy="60" r="' + R + '" fill="none" stroke="currentColor" stroke-width="' + SW + '"/>';
-    else if (p > 0.004) {
-      const a1 = A0 + p * 2 * Math.PI;
-      s += '<path d="' + arco(A0, a1) + '" fill="none" stroke="currentColor" stroke-width="' + SW + '" stroke-linecap="round"/>';
-      // Brillo en la punta: degradado de transparente a claro en el último tramo del arco.
-      const ah = Math.max(A0, a1 - Math.min(0.9, p * 2 * Math.PI)), [hx0, hy0] = pt(ah), [hx1, hy1] = pt(a1);
-      s += '<defs><linearGradient id="punta" gradientUnits="userSpaceOnUse" x1="' + f(hx0) + '" y1="' + f(hy0) + '" x2="' + f(hx1) + '" y2="' + f(hy1) + '">' +
-        '<stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".42"/></linearGradient></defs>' +
-        '<path d="' + arco(ah, a1) + '" fill="none" stroke="url(#punta)" stroke-width="' + SW + '" stroke-linecap="round"/>';
-    }
-    $('ring').innerHTML = s;
-  }
-
   // ---------- Tabla (computadora) ----------
   const fMes = $('fMes'), fTipo = $('fTipo'), fQ = $('fQ');
   function renderTabla(list) {
@@ -1733,9 +1651,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
       const eLeft = round2(eLim - c.emergUsed);
       ec.classList.toggle('over', eLeft < 0);
       $('eLeft').textContent = eLeft < 0 ? '−' + fmt(-eLeft) : fmt(eLeft);
-      $('eOf').textContent = eLeft < 0 ? 'te pasaste' : 'de ' + fmt0(eLim);
-      $('eSub').textContent = c.emergUsed > 0 ? 'Usaste ' + fmt(c.emergUsed) + ' esta quincena' : 'Si no lo usas, se libera el ' + short(c.emergNext);
-      $('eBar').style.width = Math.min(100, Math.max(0, c.emergUsed / eLim * 100)) + '%';
+      $('eSub').textContent = eLeft < 0 ? 'te pasaste esta quincena' : 'de ' + fmt0(eLim) + ' esta quincena';
     }
     $('tDeuda').textContent = fmt(c.debts.reduce((s, d) => s + Math.max(0, d.saldo), 0));
 
@@ -1795,7 +1711,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
 
   // ---------- Signo de dólar en rojo ----------
   // Los montos se escriben como texto; aquí se envuelve el "$" en un span para pintarlo.
-  const CON_DOLAR = '#weekLeft, #tCuenta, #tGas, #sVal, #tAhorro, #tDeuda, #eLeft, .al .r b, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
+  const CON_DOLAR = '#weekLeft, #tCuenta, #tGas, #sVal, #tAhorro, #tDeuda, #eLeft, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
   function dolares(root) {
     (root || document).querySelectorAll(CON_DOLAR).forEach((e) => {
       if (e.querySelector('.dl') || !e.textContent.includes('$')) return;
@@ -1976,7 +1892,7 @@ body[data-tab="pagos"] #emerg { order: 3; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.5';
+  const VERSION = '2026-11-03.7';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
