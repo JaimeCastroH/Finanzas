@@ -379,10 +379,10 @@ html { background: #000; }
 /* Fondo: manchas de luz dibujadas con código (nítidas en cualquier pantalla) que se mueven muy lento */
 #fondo { position: fixed; inset: 0; z-index: -1; overflow: hidden; background: #000; pointer-events: none; }
 #fondo i { position: absolute; border-radius: 50%; filter: blur(70px); will-change: transform; }
-#fondo .f1 { width: 130vw; height: 55vh; left: 5vw; top: -18vh; background: radial-gradient(closest-side, #262626, transparent); animation: fm1 36s ease-in-out infinite alternate; }
-#fondo .f2 { width: 95vw; height: 42vh; left: -40vw; top: -12vh; background: radial-gradient(closest-side, #202020, transparent); animation: fm2 43s ease-in-out infinite alternate; }
-#fondo .f3 { width: 95vw; height: 80vh; left: 45vw; top: 38vh; background: radial-gradient(closest-side, #171717, transparent); animation: fm3 49s ease-in-out infinite alternate; }
-#fondo .f4 { width: 70vw; height: 40vh; left: -20vw; top: 55vh; background: radial-gradient(closest-side, rgba(184,58,45,.15), transparent); animation: fm4 60s ease-in-out infinite alternate; }
+#fondo .f1 { width: 130vw; height: 55vh; left: 5vw; top: -18vh; background: radial-gradient(closest-side, #333333, transparent); animation: fm1 20s ease-in-out infinite alternate; }
+#fondo .f2 { width: 95vw; height: 42vh; left: -40vw; top: -12vh; background: radial-gradient(closest-side, #2b2b2b, transparent); animation: fm2 24s ease-in-out infinite alternate; }
+#fondo .f3 { width: 95vw; height: 80vh; left: 45vw; top: 38vh; background: radial-gradient(closest-side, #212121, transparent); animation: fm3 27s ease-in-out infinite alternate; }
+#fondo .f4 { width: 70vw; height: 40vh; left: -20vw; top: 55vh; background: radial-gradient(closest-side, rgba(184,58,45,.21), transparent); animation: fm4 32s ease-in-out infinite alternate; }
 @keyframes fm4 { 0% { transform: translate(0, 0); } 50% { transform: translate(60%, -50%) scale(1.15); } 100% { transform: translate(110%, -10%) scale(.9); } }
 @keyframes fm1 { to { transform: translate(-9%, 5%) scale(1.1, .94); } }
 @keyframes fm2 { to { transform: translate(12%, 7%) scale(.9, 1.12); } }
@@ -1840,7 +1840,7 @@ body::before { opacity: .06; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.1';
+  const VERSION = '2026-11-03.2';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
