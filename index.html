@@ -346,10 +346,24 @@ html { background: #000; }
 #fondo .f1 { width: 130vw; height: 55vh; left: 5vw; top: -18vh; background: radial-gradient(closest-side, #262626, transparent); animation: fm1 36s ease-in-out infinite alternate; }
 #fondo .f2 { width: 95vw; height: 42vh; left: -40vw; top: -12vh; background: radial-gradient(closest-side, #202020, transparent); animation: fm2 43s ease-in-out infinite alternate; }
 #fondo .f3 { width: 95vw; height: 80vh; left: 45vw; top: 38vh; background: radial-gradient(closest-side, #171717, transparent); animation: fm3 49s ease-in-out infinite alternate; }
+#fondo .f4 { width: 70vw; height: 40vh; left: -20vw; top: 55vh; background: radial-gradient(closest-side, rgba(184,58,45,.15), transparent); animation: fm4 60s ease-in-out infinite alternate; }
+@keyframes fm4 { 0% { transform: translate(0, 0); } 50% { transform: translate(60%, -50%) scale(1.15); } 100% { transform: translate(110%, -10%) scale(.9); } }
 @keyframes fm1 { to { transform: translate(-9%, 5%) scale(1.1, .94); } }
 @keyframes fm2 { to { transform: translate(12%, 7%) scale(.9, 1.12); } }
 @keyframes fm3 { to { transform: translate(-14%, -7%) scale(1.12, .92); } }
 @media (prefers-reduced-motion: reduce) { #fondo i { animation: none; } }
+/* Bloques: en vertical y en computadora no cambian nada (display: contents) */
+.blk { display: contents; }
+/* Teléfono en horizontal: todos los apartados fluyen en dos columnas que se equilibran solas */
+@media (orientation: landscape) and (max-height: 520px) {
+  .app { display: block; max-width: none; padding: 14px 22px 90px; columns: 2; column-gap: 16px; }
+  .band, .side, .lower, .main-col, .aside { display: contents; }
+  .app > .top, #hero, .blk { break-inside: avoid; -webkit-column-break-inside: avoid; margin: 0 0 12px; }
+  .blk { display: flex; flex-direction: column; gap: 10px; }
+  .blk:not(:has(> :not([hidden]))) { display: none; }
+  .app > .pie { column-span: all; }
+  .fab { left: auto; right: 18px; bottom: 14px; transform: none; height: 48px; padding: 0 18px 0 14px; }
+}
 body { background: transparent; }
 body::before { opacity: .06; }
 :root { --surface: rgba(18,18,16,.40); --surface-2: rgba(255,250,240,.06); --line: rgba(236,227,210,.13); --tint: rgba(236,227,210,.08); --track: rgba(236,227,210,.10); }
@@ -415,7 +429,7 @@ body::before { opacity: .06; }
 </style>
 </head>
 <body>
-<div id="fondo" aria-hidden="true"><i class="f1"></i><i class="f2"></i><i class="f3"></i></div>
+<div id="fondo" aria-hidden="true"><i class="f1"></i><i class="f2"></i><i class="f3"></i><i class="f4"></i></div>
 
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1133,6 +1147,18 @@ body::before { opacity: .06; }
     $('alcanza').replaceChildren(...out);
   }
 
+  // Agrupa cada apartado (título + tarjeta y sus formularios) para que en horizontal no se partan entre columnas.
+  (function agrupar() {
+    const env = (els) => { const els2 = els.filter(Boolean); if (!els2.length) return; const w = document.createElement('div'); w.className = 'blk'; els2[0].before(w); els2.forEach((e) => w.append(e)); };
+    const side = document.querySelector('.side');
+    if (side) { const k = [...side.children]; const q = k.findIndex((e) => e.id === 'qForm'), d = k.findIndex((e) => e.classList.contains('duo'));
+      env(k.slice(0, d)); env([k[d]]); env([document.getElementById('sobre')]); env([document.getElementById('emerg'), document.getElementById('ajForm'), document.getElementById('ahForm')]); }
+    for (const col of document.querySelectorAll('.main-col, .aside')) {
+      let grupo = [];
+      for (const e of [...col.children]) { if (e.classList.contains('section-head') && grupo.length) { env(grupo); grupo = []; } grupo.push(e); }
+      env(grupo);
+    }
+  })();
   let histDias = 1; // días visibles en Movimientos (teléfono)
   // ---------- Gastos fijos del mes + gasolina ----------
   let gasAbierto = false;
@@ -1661,7 +1687,7 @@ body::before { opacity: .06; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-02.11';
+  const VERSION = '2026-11-02.12';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
