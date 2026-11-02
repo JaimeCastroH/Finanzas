@@ -76,6 +76,9 @@ h2 { font-size: 17px; font-weight: 700; }
 .gasin input { flex: 1; min-width: 0; font: inherit; font-size: 18px; font-weight: 700; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; outline: none; }
 .gasin input:focus { border-color: var(--brand); }
 .gasin .mini.ghost { background: transparent; color: var(--muted); box-shadow: none; border: 1px solid var(--line); }
+.hmore { display: flex; gap: 8px; margin-top: 4px; }
+.hmore button { flex: 1; font: inherit; font-size: 14px; font-weight: 700; color: var(--brand); background: transparent; border: 1px solid var(--line); border-radius: 12px; padding: 10px; cursor: pointer; }
+.hmore button.menos { flex: 0 0 auto; color: var(--muted); }
 .fdone { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
 .k-varios { background: #1f2a22; color: var(--ok); }
 
@@ -175,6 +178,7 @@ h2 { font-size: 17px; font-weight: 700; }
 .debt:first-child { padding-top: 0; } .debt:last-child { border-bottom: 0; padding-bottom: 0; }
 .debt .name { font-weight: 600; }
 .debt .rate { font-size: 12px; color: var(--muted); }
+.debt .rate.int { color: #e8a297; }
 .debt .amt { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
 .debt .right { text-align: right; }
 .prog { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
@@ -216,6 +220,31 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .ev { display: flex; flex-direction: column; align-items: flex-end; }
 .ev b { font-family: var(--num); font-weight: 800; font-size: 20px; font-variant-numeric: tabular-nums; }
 .ecard .prog span { background: var(--ok); }
+.libre { font-size: 12px; color: var(--muted); }
+.libre b { font-family: var(--num); font-size: 13px !important; font-weight: 800; color: var(--ink); letter-spacing: 0; }
+.sobre .prog span { background: var(--brand); }
+.abono { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; font-weight: 600; font-size: 14px; }
+.abono[hidden] { display: none; }
+.abono input { width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--brand); flex: none; }
+.abono small { display: block; font-weight: 400; font-size: 12px; color: var(--muted); }
+.gasin .abono { flex-basis: 100%; padding: 6px 10px; font-size: 13px; }
+.gasin { flex-wrap: wrap; }
+.bx + .bx { border-top: 1px solid var(--line); padding-top: 12px; }
+.bx { display: flex; flex-direction: column; gap: 10px; }
+.bx .top { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; }
+.bx .top .t div:first-child { font-weight: 600; overflow-wrap: anywhere; }
+.bx .top .t div + div { font-size: 12px; color: var(--muted); }
+.bx .ic { width: 40px; height: 40px; border-radius: 13px; }
+.bx .top b { font-family: var(--num); font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
+.bchips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.bchips button { font: inherit; font-size: 12px; font-weight: 700; line-height: 1.2; padding: 9px 4px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); color: var(--ink); cursor: pointer; }
+.bchips button.sug { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+.bx .pie { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.bx .pie .abono { flex: 1; padding: 6px 10px; font-size: 13px; }
+.bx .pie select { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; }
+.bx .del { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: underline; }
+.sfoot { margin: 0; font-size: 12px; color: var(--muted); }
+.sfoot.bad { color: #e8a297; } .sfoot.ok { color: var(--ok); }
 .ecard.over .ev b { color: var(--bad); } .ecard.over .prog span { background: var(--bad); }
 .chip { position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: var(--surface-2); border: 2px solid transparent; font-size: 12px; font-weight: 600; text-align: center; }
 .chip input { position: absolute; opacity: 0; pointer-events: none; }
@@ -387,7 +416,7 @@ body::before { opacity: .04; }
   <symbol id="i-otros" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></symbol>
   <symbol id="i-ingreso" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-salida" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-pago" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 10h19M6.5 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-interes" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7.5" cy="7.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16.5" cy="16.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol><symbol id="i-pago" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 10h19M6.5 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
   <symbol id="i-ahorro" viewBox="0 0 24 24"><path d="M19 9.5c1 .7 1.5 1.6 1.5 2.5h1v3h-1.4a6 6 0 0 1-2.1 2.4V20h-3v-1.5h-4V20h-3v-2.7A6 6 0 0 1 5 13c0-3.6 3.6-6 7-6 1.6 0 3 .3 4.2.9L18.5 6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="15.5" cy="11.5" r="1" fill="currentColor"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
 </svg>
@@ -447,6 +476,7 @@ body::before { opacity: .04; }
     <div class="tile">
       <div class="row"><span class="lbl">Cuenta</span><button class="mini" type="button" id="ajAdd" aria-expanded="false" aria-controls="ajForm">Ajustar</button></div>
       <b id="tCuenta">—</b>
+      <span class="libre" id="tLibre" hidden></span>
     </div>
     <div class="tile">
       <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
@@ -456,6 +486,15 @@ body::before { opacity: .04; }
       <div class="row"><span class="lbl">Deuda total</span></div>
       <b id="tDeuda">—</b>
     </div>
+  </section>
+  <section class="card ecard sobre" id="sobre" aria-label="Apartado para los próximos pagos grandes" hidden>
+    <div class="ehead">
+      <div class="ic k-pago"><svg aria-hidden="true"><use href="#i-pago"/></svg></div>
+      <div class="et"><b id="sTit">—</b><span id="sSub">—</span></div>
+      <div class="ev"><b id="sVal">—</b><span id="sOf"></span></div>
+    </div>
+    <div class="prog"><span id="sBar"></span></div>
+    <p class="sfoot" id="sFoot"></p>
   </section>
   <section class="card ecard" id="emerg" aria-label="Gastos varios" hidden>
     <div class="ehead">
@@ -490,6 +529,12 @@ body::before { opacity: .04; }
 
   <div class="lower">
   <div class="main-col">
+  <div class="section-head" data-kanji="新" id="bandHead" hidden><h2>Por clasificar</h2><span class="small muted" id="bandSub"></span></div>
+  <section class="card" id="banda" aria-label="Cobros por clasificar" hidden></section>
+
+  <div class="section-head" data-kanji="固" id="fijosHead" hidden><h2>Gastos fijos</h2><span class="small muted" id="fijosSub"></span></div>
+  <section class="card" id="fijos" aria-label="Gastos fijos del mes" hidden></section>
+
   <div class="section-head" data-kanji="記"><h2>Movimientos</h2><span class="small muted" id="histCount"></span></div>
   <section class="card" id="hist" aria-label="Movimientos"><p class="empty">Cargando…</p></section>
   <section class="card tcard desk-only" aria-label="Tabla de movimientos">
@@ -509,8 +554,6 @@ body::before { opacity: .04; }
   </div>
   <div class="aside">
 
-  <div class="section-head" data-kanji="固" id="fijosHead" hidden><h2>Gastos fijos</h2><span class="small muted" id="fijosSub"></span></div>
-  <section class="card" id="fijos" aria-label="Gastos fijos del mes" hidden></section>
 
   <div class="section-head" data-kanji="払"><h2>Próximos pagos</h2><span class="small muted">Toca «Pagué» al pagar</span></div>
   <section class="card" id="pagos" aria-label="Próximos pagos"><p class="empty">Cargando…</p></section>
@@ -547,9 +590,10 @@ body::before { opacity: .04; }
         <div class="chips" role="radiogroup" aria-label="Categoría" id="cats"></div>
         <div class="fields">
           <div class="field"><label for="medio">Pagado con</label>
-            <select id="medio"><option value="visa">Visa Economía</option><option value="cuenta">Débito o efectivo</option><option value="atl">Atlántida</option><option value="siman">Simán</option><option value="amex_rev">AMEX</option></select></div>
+            <select id="medio"><option value="visa">Visa Economía</option><option value="cuenta">Débito</option><option value="atl">Atlántida</option><option value="siman">Simán</option><option value="amex_rev">AMEX</option></select></div>
           <div class="field"><label for="fechaG">Fecha</label><input type="date" id="fechaG"></div>
         </div>
+        <label class="abono" id="abonoRow"><input type="checkbox" id="yaAbone" checked><span>Ya lo aboné a la Visa <small>Si aún no, desmárcala y te queda el aviso.</small></span></label>
       </div>
       <div id="pagoFields" hidden><div class="fields">
         <div class="field"><label for="destinoPago">Pago a</label><select id="destinoPago"></select></div>
@@ -573,9 +617,11 @@ body::before { opacity: .04; }
     { id: 'gasolina', label: 'Gasolina' },
     { id: 'otros', label: 'Otros', semana: true },
     { id: 'varios', label: 'Gastos varios' },
-    { id: 'fijo', label: 'Cobro fijo', oculto: true } // se marca desde «Cobros fijos», no aparece al anotar
+    { id: 'fijo', label: 'Cobro fijo', oculto: true }, // se marca desde «Cobros fijos», no aparece al anotar
+    { id: 'interes', label: 'Intereses', oculto: true },
+    { id: 'pendiente', label: 'Por clasificar', oculto: true } // cobro leído de un SMS del banco // interés real del estado de cuenta; lo anota Claude
   ];
-  const MEDIO = { visa: 'Visa', cuenta: 'Débito', atl: 'Atlántida', amex_rev: 'AMEX', siman: 'Simán' };
+  const MEDIO = { visa: 'Visa', cuenta: 'Débito', atl: 'Atlántida', amex_rev: 'AMEX', amex_ole: 'AMEX OLE', siman: 'Simán' };
   const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const MES3 = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -623,9 +669,11 @@ body::before { opacity: .04; }
     l.append(inp, icon(c.id), el('span', null, c.label)); $('cats').append(l);
   });
   const tipo = () => document.querySelector('input[name=tipo]:checked').value;
+  const showAbono = () => { $('abonoRow').hidden = !!editing || $('medio').value !== 'visa'; };
   const showFields = () => { const t = tipo(); $('gastoFields').hidden = t !== 'gasto'; $('pagoFields').hidden = t !== 'pago'; $('movFields').hidden = t !== 'mov'; };
   document.querySelectorAll('input[name=tipo]').forEach((r) => r.addEventListener('change', showFields));
   showFields();
+  $('medio').addEventListener('change', showAbono);
 
   const setTipo = (v) => { const r = document.querySelector('input[name=tipo][value="' + v + '"]'); if (r) r.checked = true; showFields(); };
   const openSheet = (m) => {
@@ -643,6 +691,7 @@ body::before { opacity: .04; }
       setTipo('gasto'); $('cat-' + CATS[0].id).checked = true;
       $('sheetTitle').textContent = 'Anotar'; $('save').textContent = 'Guardar';
     }
+    $('yaAbone').checked = true; showAbono();
     $('scrim').hidden = false; $('sheet').hidden = false; $('app').inert = true; $('fab').inert = true;
     setTimeout(() => $('monto').focus(), 50);
   };
@@ -694,7 +743,10 @@ body::before { opacity: .04; }
         avisoDeshacer('Cambios guardados: ' + fmt(monto), [q]);
       } else {
         const q = await db.collection('movs').add(doc);
-        avisoDeshacer('Anotado: ' + fmt(monto), [q]);
+        if (doc.tipo === 'gasto' && doc.medio === 'visa' && $('yaAbone').checked) {
+          const q2 = await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto, fecha: doc.fecha, nota: 'Abono de compras con Visa', creado: new Date().toISOString(), origen: 'app' });
+          avisoDeshacer('Anotado y abonado: ' + fmt(monto), [q, q2]);
+        } else avisoDeshacer('Anotado: ' + fmt(monto), [q]);
       }
       closeSheet();
     } catch (e) {
@@ -710,9 +762,31 @@ body::before { opacity: .04; }
     const movs = state.movs.filter((m) => (m.fecha || '') >= base);
     const sum = (list) => list.reduce((a, m) => a + num(m.monto), 0);
 
+    // Deudas. Las que cobran interés suman un estimado en cada fecha de corte,
+    // hasta que llega el estado de cuenta y se anota el interés real (gasto «interes» con pago_id int-<deuda>-AAAA-MM).
+    const hoy = today();
     const debts = (cfg.deudas || []).map((d) => {
-      const saldo = num(d.saldo_base) + sum(movs.filter((m) => m.tipo === 'gasto' && m.medio === d.id)) - sum(movs.filter((m) => m.tipo === 'pago' && m.a === d.id));
-      return { ...d, saldo: round2(saldo) };
+      const de = (m) => m.tipo === 'gasto' && m.medio === d.id, a = (m) => m.tipo === 'pago' && m.a === d.id;
+      const saldoAl = (f) => num(d.saldo_base) + sum(movs.filter((m) => de(m) && m.fecha <= f)) - sum(movs.filter((m) => a(m) && m.fecha <= f));
+      let saldo = num(d.saldo_base) + sum(movs.filter(de)) - sum(movs.filter(a));
+      const it = (cfg.intereses || {})[d.id];
+      let estimado = 0, ultimo = null, proximo = null;
+      if (it && num(it.mensual) > 0) {
+        const tasa = num(it.mensual) / 100, dia = num(it.corte) || 12;
+        const b = parse(base); let est = 0;
+        for (let k = 0; k < 60; k++) {
+          const c = new Date(b.getFullYear(), b.getMonth() + k, Math.min(dia, lastDay(b.getFullYear(), b.getMonth() + k)));
+          const f = iso(c); if (f <= base) continue;
+          const mes = f.slice(0, 7);
+          const real = movs.find((m) => m.tipo === 'gasto' && m.categoria === 'interes' && m.pago_id === 'int-' + d.id + '-' + mes);
+          if (f > hoy) { proximo = { fecha: f, monto: round2(Math.max(0, saldo) * tasa) }; break; }
+          if (real) { ultimo = { fecha: f, monto: num(real.monto), real: true }; continue; }
+          const m = round2(Math.max(0, saldoAl(f) + est) * tasa);
+          est += m; ultimo = { fecha: f, monto: m, real: false };
+        }
+        estimado = round2(est); saldo += estimado;
+      }
+      return { ...d, saldo: round2(saldo), estimado, ultimo, proximo };
     });
 
     let cuenta = num(cfg.cuenta_base);
@@ -795,7 +869,7 @@ body::before { opacity: .04; }
     $('qForm').hidden = !open; $('qBtn').setAttribute('aria-expanded', String(open));
     if (open) {
       $('qFormMsg').textContent = ''; $('qFormMsg').className = 'msg';
-      $('qMonto').value = num(state.cfg && state.cfg.ingreso_quincena).toFixed(2);
+      $('qMonto').value = ingresoQ().toFixed(2);
       $('qFecha').value = today();
       $('qMonto').focus(); $('qMonto').select();
     } else renderQuincena();
@@ -808,8 +882,9 @@ body::before { opacity: .04; }
     if (!db || !state.cfg) { fm.className = 'msg err'; fm.textContent = 'Sin conexión a tus datos en esta vista.'; return; }
     const monto = parseMonto($('qMonto').value);
     if (!(monto > 0)) { fm.className = 'msg err'; fm.textContent = 'Escribe cuánto te cayó exactamente.'; $('qMonto').focus(); return; }
-    const qp = state.cfg.quincena_plan || {}; const vac = num(qp.vacaciones);
+    const qp = state.cfg.quincena_plan || {};
     const now = new Date().toISOString(); const f = $('qFecha').value || today();
+    const vac = vacEn(f);
     const btn = $('qSave'); btn.disabled = true; btn.textContent = 'Guardando…';
     try {
       const qs = [await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Quincena', monto, fecha: f, nota: '', creado: now, origen: 'app' })];
@@ -818,7 +893,7 @@ body::before { opacity: .04; }
       $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false');
       const msg = $('qMsg'); msg.className = 'msg notice';
       const deu = num(qp.deuda), var_ = num(state.cfg.varios);
-      msg.textContent = 'Entraron ' + fmt(monto) + '. Abona ' + fmt0(vac) + ' a tu ahorro' + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
+      msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa: se queda en tu cuenta para diciembre') + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
         (var_ > 0 ? ' Tienes ' + fmt0(var_) + ' para gastos varios.' : '') + (qp.nota_deuda ? '\n' + qp.nota_deuda : '');
       document.querySelectorAll('.duo .tile').forEach((t) => { t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); });
       setTimeout(() => { msg.textContent = ''; msg.className = 'msg'; }, 12000);
@@ -926,6 +1001,75 @@ body::before { opacity: .04; }
 
   // ---------- ¿Me alcanza? ----------
   // Proyecta la cuenta hasta cada fecha de pago pendiente, con lo que ya está en el plan.
+  // Quincena esperada: la última que se anotó de verdad; si no hay, la de Config.
+  function ingresoQ() {
+    const qs = state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
+    return qs.length ? num(qs[qs.length - 1].monto) : num(state.cfg && state.cfg.ingreso_quincena);
+  }
+  // Ahorro de la quincena: 0 si la fecha cae en una pausa acordada (Config → ahorro_pausa).
+  function vacEn(f) {
+    const cfg = state.cfg, pz = cfg && cfg.ahorro_pausa;
+    if (pz && f >= pz.desde && f <= pz.hasta) return 0;
+    return num(cfg && cfg.quincena_plan && cfg.quincena_plan.vacaciones);
+  }
+  function fijosHasta(D) {
+    const cfg = state.cfg, t = today(); let total = 0;
+    for (let k = 0; k < 6; k++) {
+      const m0 = parse(t); const md = new Date(m0.getFullYear(), m0.getMonth() + k, 1); const mes = iso(md).slice(0, 7);
+      if (mes + '-01' > D) break;
+      if (cfg.fijos_desde && mes < cfg.fijos_desde) continue;
+      for (const f of (cfg.fijos || [])) {
+        if ((f.desde && mes < f.desde) || (f.hasta && mes > f.hasta)) continue;
+        if (state.movs.some((m) => m.pago_id === 'fijo-' + f.id + '-' + mes)) continue;
+        const dia = num(f.dia); const vence = dia ? iso(new Date(md.getFullYear(), md.getMonth(), Math.min(dia, lastDay(md.getFullYear(), md.getMonth())))) : mes + '-01';
+        if (vence <= D) total += num(f.monto);
+      }
+    }
+    return total;
+  }
+  // Lo comprometido hasta la próxima quincena y el apartado para los pagos grandes que vienen después.
+  function apartado(c) {
+    const cfg = state.cfg, t = today(), pd = periodo(), hasta = pd.hasta;
+    const hecho = (p) => state.movs.some((m) => m.pago_id === p.id);
+    const pend = (cfg.pagos || []).filter((p) => !hecho(p)).map((p) => (p.fecha < t ? { ...p, fecha: t } : p));
+    const antes = pend.filter((p) => p.fecha < hasta), despues = pend.filter((p) => p.fecha >= hasta).sort((a, b) => a.fecha.localeCompare(b.fecha));
+    const lim = num(cfg.limite_semana) || 55, gas = num(cfg.gasolina), vari = num(cfg.varios);
+    const dias = Math.max(0, daysTo(hasta));
+    const dow = (new Date().getDay() + 6) % 7, finSemana = addDays(t, 6 - dow);
+    const diasSemana = Math.min(dias, daysTo(finSemana) + 1);
+    const semana = Math.max(0, lim - c.weekSpent) * (diasSemana / (7 - dow)) + Math.max(0, dias - diasSemana) * lim / 7;
+    const gasUsado = state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= pd.desde && m.fecha < hasta).reduce((a, m) => a + num(m.monto), 0);
+    const comp = antes.reduce((a, p) => a + partsSum(p), 0) + fijosHasta(addDays(hasta, -1)) + Math.max(0, gas - gasUsado) + Math.max(0, vari - c.emergUsed) + semana + c.visaPend;
+    const disp = c.cuenta - comp;
+    // Grupo de pagos grandes: los pendientes del mismo mes que el primero después de la quincena.
+    const mesG = despues.length ? despues[0].fecha.slice(0, 7) : null;
+    const grupo = despues.filter((p) => p.fecha.slice(0, 7) === mesG);
+    const meta = grupo.reduce((a, p) => a + partsSum(p), 0);
+    const guardado = Math.max(0, Math.min(disp, meta));
+    const libre = Math.max(0, disp - meta);
+    let proy = null;
+    if (grupo.length) { const rows = proyeccion(c).filter((r) => r.D.slice(0, 7) === mesG); if (rows.length) proy = rows.reduce((a, r) => (r.saldo < a.saldo ? r : a)); }
+    return { comp: round2(comp), disp: round2(disp), libre: round2(libre), meta: round2(meta), guardado: round2(guardado), grupo, mesG, proy, hasta };
+  }
+  function renderApartado(c) {
+    const a = apartado(c);
+    $('tLibre').hidden = false;
+    $('tLibre').replaceChildren(document.createTextNode('Libre '), el('b', null, fmt(a.libre)));
+    $('tLibre').title = 'Lo que queda después de lo comprometido hasta el ' + short(a.hasta) + ' y de apartar para los pagos de ' + (a.mesG ? MESES[parse(a.mesG + '-01').getMonth()] : 'después');
+    const sb = $('sobre'); sb.hidden = !a.grupo.length; if (!a.grupo.length) return;
+    const mesN = MESES[parse(a.mesG + '-01').getMonth()];
+    $('sTit').textContent = 'Para ' + mesN;
+    const dias = [...new Set(a.grupo.map((p) => parse(p.fecha).getDate()))].sort((x, y) => x - y);
+    $('sSub').textContent = [...new Set(a.grupo.map((p) => p.nombre.split(' ')[0]))].join(', ') + ' · ' + (dias.length > 1 ? dias[0] + '–' + dias[dias.length - 1] : dias[0]) + ' ' + MES3[parse(a.mesG + '-01').getMonth()];
+    $('sVal').textContent = fmt(a.guardado); $('sOf').textContent = 'de ' + fmt(a.meta);
+    $('sBar').style.width = (a.meta > 0 ? Math.min(100, a.guardado / a.meta * 100) : 0) + '%';
+    const f = $('sFoot');
+    if (a.proy) {
+      const ok = a.proy.saldo >= 0;
+      f.className = 'sfoot ' + (ok ? 'ok' : 'bad');
+      f.textContent = (ok ? 'Vas bien: al ' : 'Al ') + short(a.proy.D) + (ok ? ' te sobrarían ~' : ' te faltarían ~') + fmt0(Math.abs(a.proy.saldo)) + ' con lo que falta por cobrar.';
+    } else f.textContent = '';
+  }
   function proyeccion(c) {
     const cfg = state.cfg; const t = today();
     const hecho = (p) => state.movs.some((m) => m.pago_id === p.id);
@@ -933,7 +1077,7 @@ body::before { opacity: .04; }
     const pend = (cfg.pagos || []).filter((p) => !hecho(p) && p.fecha >= addDays(t, -30)).map((p) => (p.fecha < t ? { ...p, fecha: t } : p));
     const fechas = [...new Set(pend.map((p) => p.fecha))].sort().slice(0, 3);
     if (!fechas.length) return [];
-    const lim = num(cfg.limite_semana) || 55, ing = num(cfg.ingreso_quincena), vac = num(cfg.quincena_plan.vacaciones);
+    const lim = num(cfg.limite_semana) || 55, ing = ingresoQ();
     const gas = num(cfg.gasolina), vari = num(cfg.varios);
     const fijosMes = (cfg.fijos || []).reduce((a, f) => a + num(f.monto), 0);
     const fijosPend = (() => {
@@ -956,10 +1100,10 @@ body::before { opacity: .04; }
       const gasolina = dias * gas / 15;
       const q = cobros.filter((f) => f <= D).length;
       const varios = Math.max(0, vari - c.emergUsed) + q * vari;
-      let fijos = 0; for (let m = parse(t); ; ) { m = new Date(m.getFullYear(), m.getMonth() + 1, 1); if (iso(m) > D) break; if (!cfg.fijos_desde || iso(m).slice(0, 7) >= cfg.fijos_desde) fijos += fijosMes; }
-      fijos += fijosPend;
+      const fijos = fijosHasta(D);
       const pagos = pend.filter((p) => p.fecha <= D).reduce((a, p) => a + partsSum(p), 0);
-      const saldo = c.cuenta + q * (ing - vac) - c.visaPend - semana - gasolina - varios - fijos - pagos;
+      const netas = cobros.filter((f) => f <= D).reduce((a, f) => a + ing - vacEn(f), 0);
+      const saldo = c.cuenta + netas - c.visaPend - semana - gasolina - varios - fijos - pagos;
       return { D, nombres: pend.filter((p) => p.fecha === D).map((p) => p.nombre), monto: pend.filter((p) => p.fecha === D).reduce((a, p) => a + partsSum(p), 0), saldo };
     });
   }
@@ -979,8 +1123,66 @@ body::before { opacity: .04; }
     $('alcanza').replaceChildren(...out);
   }
 
+  let histDias = 1; // días visibles en Movimientos (teléfono)
   // ---------- Gastos fijos del mes + gasolina ----------
   let gasAbierto = false;
+  const normCom = (x) => String(x || '').toUpperCase().replace(/[^A-Z0-9Ñ ]/g, ' ').replace(/\s+/g, ' ').trim();
+  function sugerir(comercio) {
+    const k = normCom(comercio); if (!k) return null;
+    const clave = k.split(' ').slice(0, 2).join(' ');
+    const prev = state.movs.filter((m) => m.tipo === 'gasto' && ['comida', 'gasolina', 'otros', 'varios'].includes(m.categoria) && normCom(m.nota).startsWith(clave))
+      .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+    if (prev.length) return prev[0].categoria;
+    if (/TEXACO|PUMA|SHELL|ESSO|GASOLIN|\bUNO\b|SERVICENTRO/.test(k)) return 'gasolina';
+    if (/PIZZA|POLLO|REST|CAFE|COFFEE|BURGER|MCDONALD|STARBUCKS|PEDIDOSYA|WENDY|SUBWAY|TACO|PUPUS|CHURCH|COMIDA|BAR\b/.test(k)) return 'comida';
+    if (/PARQUEO|PARKING|CENTRO COMERCIAL|FARMACIA|VETERINAR|AUTO|TALLER|LLANT/.test(k)) return 'varios';
+    return null;
+  }
+  // ---------- Por clasificar: cobros leídos de los SMS del banco ----------
+  function renderBandeja() {
+    const pend = state.movs.filter((m) => m.tipo === 'gasto' && (m.categoria === 'pendiente' || m.medio === 'sms')).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
+    $('bandHead').hidden = $('banda').hidden = !pend.length;
+    if (!pend.length) return;
+    $('bandSub').textContent = pend.length + (pend.length === 1 ? ' cobro' : ' cobros') + ' · un toque y listo';
+    const opts = [['comida', 'Comidas y salidas'], ['gasolina', 'Gasolina'], ['otros', 'Otros'], ['varios', 'Gastos varios']];
+    $('banda').replaceChildren(...pend.map((m) => {
+      const box = el('div', 'bx');
+      const top = el('div', 'top'); const t = el('div', 't');
+      t.append(el('div', null, m._comercio || m.nota || 'Cobro'), el('div', null, (MEDIO[m.medio] || 'Tarjeta sin identificar') + (m._tarjeta ? ' (' + m._tarjeta + ')' : '') + ' · ' + (m.fecha === today() ? 'hoy' : short(m.fecha))));
+      top.append(icon('pago'), t, el('b', null, fmt(num(m.monto))));
+      const sug = m.categoria !== 'pendiente' ? m.categoria : sugerir(m._comercio);
+      const chips = el('div', 'bchips');
+      let medioSel = null, abonoCb = null;
+      const pie = el('div', 'pie');
+      if (m.medio === 'sms') {
+        medioSel = el('select'); medioSel.setAttribute('aria-label', '¿Con qué tarjeta?');
+        [['', '¿Qué tarjeta?'], ['visa', 'Visa'], ['cuenta', 'Débito'], ['atl', 'Atlántida'], ['siman', 'Simán'], ['amex_rev', 'AMEX']].forEach(([v, l]) => medioSel.append(new Option(l, v)));
+        pie.append(medioSel);
+      }
+      if (m.medio === 'visa' || m.medio === 'sms') {
+        abonoCb = el('input'); abonoCb.type = 'checkbox'; abonoCb.checked = true;
+        const ab = el('label', 'abono'); ab.append(abonoCb, el('span', null, 'Ya lo aboné a la Visa'));
+        if (m.medio === 'sms') { ab.hidden = true; medioSel.addEventListener('change', () => { ab.hidden = medioSel.value !== 'visa'; }); }
+        pie.append(ab);
+      }
+      const del = el('button', 'del', 'No es mío / borrar'); del.type = 'button'; del.addEventListener('click', () => borrarMov(m));
+      pie.append(del);
+      for (const [id, lbl] of opts) {
+        const b = el('button', id === sug ? 'sug' : null, lbl); b.type = 'button';
+        b.addEventListener('click', async () => {
+          if (!db) return;
+          const medio = medioSel ? medioSel.value : m.medio;
+          if (!medio || medio === 'sms') { medioSel.focus(); return; }
+          const doc = limpiar({ tipo: 'gasto', categoria: id, medio, monto: num(m.monto), fecha: m.fecha, nota: m._comercio || m.nota, creado: m.creado, origen: 'sms', editado: new Date().toISOString() });
+          const qs = [await db.doc('movs/' + m.id).set(doc)];
+          if (medio === 'visa' && abonoCb && abonoCb.checked) qs.push(await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto: num(m.monto), fecha: today(), nota: 'Abono de compras con Visa', creado: new Date().toISOString(), origen: 'app' }));
+          avisoDeshacer(lbl + ': ' + (m._comercio || '') + ' ' + fmt(num(m.monto)) + (qs.length > 1 ? ' · abonado' : ''), qs);
+        });
+        chips.append(b);
+      }
+      box.append(top, chips, pie); return box;
+    }));
+  }
   function renderFijos(force) {
     const cfg = state.cfg; if (!cfg) return;
     if (gasAbierto && !force) return; // no borrar lo que se está escribiendo
@@ -1017,7 +1219,9 @@ body::before { opacity: .04; }
       btn.addEventListener('click', async () => {
         if (!db) return;
         const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'fijo', medio: f.medio || 'cuenta', monto: num(f.monto), fecha: today(), pago_id: marca(f), nota: f.nombre, creado: new Date().toISOString(), origen: 'app' });
-        avisoDeshacer('Pagado: ' + f.nombre + ' ' + fmt(num(f.monto)), [q]);
+        const qs = [q];
+        if (f.medio === 'visa') qs.push(await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto: num(f.monto), fecha: today(), nota: 'Abono de compras con Visa', creado: new Date().toISOString(), origen: 'app' }));
+        avisoDeshacer((f.medio === 'visa' ? 'Pagado y abonado: ' : 'Pagado: ') + f.nombre + ' ' + fmt(num(f.monto)), qs);
       });
       r.append(btn);
       row.append(icon('fijo'), t, r); out.push(row);
@@ -1043,6 +1247,7 @@ body::before { opacity: .04; }
         const i = el('input'); i.id = 'gasMonto'; i.type = 'text'; i.inputMode = 'decimal'; i.placeholder = '¿Cuánto? $'; i.autocomplete = 'off'; i.setAttribute('aria-label', 'Monto de gasolina');
         const ok = el('button', 'mini', 'Guardar'); ok.type = 'submit';
         const no = el('button', 'mini ghost', 'Cancelar'); no.type = 'button';
+        const ab = el('label', 'abono'); const cb = el('input'); cb.type = 'checkbox'; cb.checked = true; ab.append(cb, el('span', null, 'Ya lo aboné a la Visa'));
         no.addEventListener('click', () => { gasAbierto = false; renderFijos(true); });
         f.addEventListener('submit', async (e) => {
           e.preventDefault();
@@ -1051,9 +1256,12 @@ body::before { opacity: .04; }
           if (!db) return;
           gasAbierto = false; renderFijos(true);
           const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'gasolina', medio: 'visa', monto, fecha: today(), nota: 'Gasolina', creado: new Date().toISOString(), origen: 'app' });
-          avisoDeshacer('Gasolina ' + fmt(monto) + ' con la Visa', [q]);
+          if (cb.checked) {
+            const q2 = await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto, fecha: today(), nota: 'Abono de compras con Visa', creado: new Date().toISOString(), origen: 'app' });
+            avisoDeshacer('Gasolina ' + fmt(monto) + ' anotada y abonada', [q, q2]);
+          } else avisoDeshacer('Gasolina ' + fmt(monto) + ' con la Visa', [q]);
         });
-        f.append(i, ok, no);
+        f.append(i, ok, no, ab);
         row.append(icon('gasolina'), t, r, bar, f);
       }
       out.push(row);
@@ -1077,6 +1285,8 @@ body::before { opacity: .04; }
     else if (m.destino === 'salida') { key = 'salida'; what = 'Salida'; tipoLbl = 'Salida'; medio = ''; filtro = 'salida'; }
     else { key = 'ahorro'; what = 'Ahorro'; tipoLbl = 'Ahorro'; sign = '+'; inClass = ' in'; medio = m.desde === 'externo' ? 'Dinero extra' : 'Desde tu cuenta'; filtro = 'ahorro'; }
     if (m.tipo === 'gasto') tipoLbl = what;
+    if (m.categoria === 'pendiente') { return { key: 'pago', what: m._comercio || 'Cobro por clasificar', tipoLbl: 'Por clasificar', medio: MEDIO[m.medio] || 'Tarjeta', nota: 'Por clasificar', sign, inClass, filtro, editable: false }; }
+    if (m.categoria === 'interes') { return { key: 'interes', what: 'Interés ' + debtName(m.medio), tipoLbl: 'Intereses', medio: 'Estado de cuenta', nota: m.nota || '', sign, inClass, filtro, editable: false }; }
     if (m.categoria === 'fijo') { what = m.nota || 'Cobro fijo'; return { key, what, tipoLbl: 'Cobro fijo', medio, nota: 'Cobro fijo', sign, inClass, filtro, editable: false }; }
     return { key, what, tipoLbl, medio, nota: m.nota || '', sign, inClass, filtro, editable: m.tipo !== 'ajuste' };
   }
@@ -1175,7 +1385,7 @@ body::before { opacity: .04; }
       sel.replaceChildren(...(cfg.deudas || []).slice().sort((a, b) => (a.orden || 9) - (b.orden || 9)).map((d) => new Option(d.nombre, d.id)));
       if (keep) sel.value = keep;
     }
-    renderQuincena(); renderPagos(); renderFijos();
+    renderQuincena(); renderPagos(); renderFijos(); renderBandeja();
     const c = compute();
     state.last = c;
     if (!c) { if (state.loaded) { $('weekNote').hidden = false; $('weekNote').textContent = 'Falta la configuración. Pídemela en el chat.'; } return; }
@@ -1198,6 +1408,7 @@ body::before { opacity: .04; }
 
     // Saldos
     $('tCuenta').textContent = fmt(c.cuenta);
+    renderApartado(c);
     $('tAhorro').textContent = fmt(c.ahorro);
     const eLim = num(cfg.varios); const ec = $('emerg'); ec.hidden = !(eLim > 0);
     if (eLim > 0) {
@@ -1214,6 +1425,12 @@ body::before { opacity: .04; }
     $('debts').replaceChildren(...c.debts.slice().sort((a, b) => (a.orden || 9) - (b.orden || 9)).map((d) => {
       const w = el('div', 'debt');
       const left = el('div'); left.append(el('div', 'name', d.nombre), el('div', 'rate', d.detalle || ''));
+      if (d.ultimo || d.proximo) {
+        const tx = d.ultimo && !d.ultimo.real ? 'Incluye ~' + fmt(d.estimado) + ' de interés estimado (corte ' + short(d.ultimo.fecha) + ')'
+          : d.proximo ? 'Próximo corte ' + short(d.proximo.fecha) + ': ~' + fmt(d.proximo.monto) + ' de interés'
+          : 'Interés del ' + short(d.ultimo.fecha) + ': ' + fmt(d.ultimo.monto);
+        left.append(el('div', 'rate int', tx));
+      }
       const right = el('div', 'right'); right.append(el('div', 'amt', fmt(Math.max(0, d.saldo))));
       if (d.saldo <= 0.004) right.append(el('span', 'pill zero', 'En cero'));
       else if (d.prioridad) right.append(el('span', 'pill' + (/^1/.test(d.prioridad) ? ' hot' : ''), d.prioridad));
@@ -1228,17 +1445,37 @@ body::before { opacity: .04; }
     $('histCount').textContent = list.length ? list.length + (list.length === 1 ? ' movimiento' : ' movimientos') : '';
     const h = $('hist');
     if (!list.length) { h.replaceChildren(emptyP('Todavía no hay movimientos. Toca «Anotar» o escríbeme en el chat: «gasté $12 en comida con la Visa».')); return; }
+    // En el teléfono se ve un día a la vez; «Ver el …» agrega el día anterior.
     const out = []; let lastF = null; const ayer = addDays(t, -1);
-    list.slice(0, 40).forEach((m) => {
-      if (m.fecha !== lastF) { lastF = m.fecha; out.push(el('div', 'daygrp', m.fecha === t ? 'Hoy' : m.fecha === ayer ? 'Ayer' : short(m.fecha))); }
+    const fechas = [...new Set(list.map((m) => m.fecha))];
+    histDias = Math.max(1, Math.min(histDias, fechas.length));
+    const visibles = new Set(fechas.slice(0, histDias));
+    const diaTxt = (f) => f === t ? 'Hoy' : f === ayer ? 'Ayer' : DIAS[parse(f).getDay()].slice(0, 3) + ' ' + short(f);
+    list.filter((m) => visibles.has(m.fecha)).forEach((m) => {
+      if (m.fecha !== lastF) { lastF = m.fecha; out.push(el('div', 'daygrp', diaTxt(m.fecha))); }
       out.push(rowFor(m));
     });
+    const sig = fechas[histDias];
+    if (sig || histDias > 1) {
+      const bx = el('div', 'hmore');
+      if (sig) {
+        const b = el('button', null, sig === ayer ? 'Ver ayer' : 'Ver el ' + short(sig)); b.type = 'button';
+        b.addEventListener('click', () => { histDias++; render(); });
+        bx.append(b);
+      }
+      if (histDias > 1) {
+        const b = el('button', 'menos', 'Ver menos'); b.type = 'button';
+        b.addEventListener('click', () => { histDias = 1; render(); $('hist').scrollIntoView({ block: 'nearest' }); });
+        bx.append(b);
+      }
+      out.push(bx);
+    }
     h.replaceChildren(...out);
   }
 
   // ---------- Signo de dólar en rojo ----------
   // Los montos se escriben como texto; aquí se envuelve el "$" en un span para pintarlo.
-  const CON_DOLAR = '#weekLeft, #tCuenta, #tAhorro, #tDeuda, #eLeft, .al .r b, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
+  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, #eLeft, .al .r b, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
   function dolares(root) {
     (root || document).querySelectorAll(CON_DOLAR).forEach((e) => {
       if (e.querySelector('.dl') || !e.textContent.includes('$')) return;
@@ -1269,7 +1506,10 @@ body::before { opacity: .04; }
     state.cfg = {
       base_fecha: c.base_fecha, cuenta_base: num(c.cuenta_base), limite_semana: num(c.limite_semana),
       ingreso_quincena: num(c.ingreso_quincena), varios: num(c.varios_quincena), gasolina: num(c.gasolina_quincena), fijos_desde: String(c.fijos_desde || '').slice(0, 7),
+      tarjetas: (() => { try { const x = JSON.parse(c.tarjetas || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
+      intereses: (() => { try { const x = JSON.parse(c.intereses || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       fijos: (() => { try { const f = JSON.parse(c.fijos || '[]'); return Array.isArray(f) ? f : []; } catch (e) { return []; } })(),
+      ahorro_pausa: (() => { try { const x = JSON.parse(c.ahorro_pausa || 'null'); return x && x.desde && x.hasta ? x : null; } catch (e) { return null; } })(),
       quincena_plan: { vacaciones: num(c.quincena_vacaciones), deuda: num(c.quincena_deuda), nota_deuda: c.nota_deuda || '' },
       ahorro_base: num(c.ahorro_base), ahorro_tasa: num(c.ahorro_tasa), ahorro_fecha: c.ahorro_fecha,
       deudas: d.deudas || [], pagos: d.pagos || []
@@ -1292,6 +1532,23 @@ body::before { opacity: .04; }
   const nuevoId = () => Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => b.toString(16).padStart(2, '0')).join('');
   const limpiar = (d) => { const o = {}; Object.keys(d).forEach((k) => { if (d[k] !== undefined && d[k] !== null) o[k] = d[k]; }); return o; };
 
+  // Cobros que llegan por SMS (atajo de iPhone): el texto completo viene en la nota.
+  // «Alertas PRF VISA 4390: has realizado una compra por USD 39.00 en el comercio: TEXACO SANTA TECLA  2026/10/31 14:24:33 Inf.»
+  function leerSms(m) {
+    if (!(m.tipo === 'gasto' && (m.categoria === 'pendiente' || (m.origen === 'sms' && /comercio:/i.test(m.nota || ''))))) return m;
+    const txt = String(m.nota || '');
+    const tj = txt.match(/\b(VISA|AMEX|MASTERCARD|MC|D[ÉE]BITO)\s*(\d{4})\b/i);
+    const mo = txt.match(/USD\s*([\d,]+(?:\.\d{1,2})?)/i);
+    const co = txt.match(/comercio:\s*(.+?)\s+(\d{4})\/(\d{2})\/(\d{2})/i);
+    const mapa = (state.cfg && state.cfg.tarjetas) || {};
+    let medio = m.medio;
+    // Si el banco escribe la tarjeta distinto, se buscan los últimos 4 dígitos conocidos en el texto.
+    const conocida = !tj ? Object.keys(mapa).find((d) => new RegExp('\\b' + d + '\\b').test(txt)) : null;
+    if (medio === 'sms' || !medio) medio = tj ? (mapa[tj[2]] || (/D[ÉE]BITO/i.test(tj[1]) ? 'cuenta' : 'sms')) : (conocida ? mapa[conocida] : 'sms');
+    return { ...m, medio, monto: mo ? parseMonto(mo[1]) : num(m.monto), fecha: co ? co[2] + '-' + co[3] + '-' + co[4] : m.fecha,
+      nota: co && m.categoria !== 'pendiente' ? co[1].trim() : m.nota,
+      _comercio: co ? co[1].trim() : (txt.slice(0, 40) || 'Cobro'), _tarjeta: tj ? tj[1].toUpperCase() + ' ' + tj[2] : '' };
+  }
   function mezclar() {
     let movs = base.slice();
     for (const op of cola.get()) {
@@ -1299,7 +1556,7 @@ body::before { opacity: .04; }
       else if (op.accion === 'editar') movs = movs.map((m) => (m.id === op.mov.id ? op.mov : m));
       else if (op.accion === 'borrar') movs = movs.filter((m) => m.id !== op.mov.id);
     }
-    state.movs = movs.map((m) => ({ ...m, monto: num(m.monto) }));
+    state.movs = movs.map((m) => leerSms({ ...m, monto: num(m.monto) }));
   }
   function estadoCola() {
     const n = cola.get().length; const e = $('sync');
@@ -1393,7 +1650,7 @@ body::before { opacity: .04; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-10-30.1';
+  const VERSION = '2026-11-02.9';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
