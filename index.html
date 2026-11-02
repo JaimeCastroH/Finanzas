@@ -1535,7 +1535,8 @@ body::before { opacity: .04; }
   // Cobros que llegan por SMS (atajo de iPhone): el texto completo viene en la nota.
   // «Alertas PRF VISA 4390: has realizado una compra por USD 39.00 en el comercio: TEXACO SANTA TECLA  2026/10/31 14:24:33 Inf.»
   function leerSms(m) {
-    if (!(m.tipo === 'gasto' && (m.categoria === 'pendiente' || (m.origen === 'sms' && /comercio:/i.test(m.nota || ''))))) return m;
+    // La hoja no guarda «origen»: un cobro del SMS se reconoce por categoria «pendiente» o medio «sms» (tarjeta aún sin leer).
+    if (!(m.tipo === 'gasto' && (m.categoria === 'pendiente' || m.medio === 'sms'))) return m;
     const txt = String(m.nota || '');
     const tj = txt.match(/\b(VISA|AMEX|MASTERCARD|MC|D[ÉE]BITO)\s*(\d{4})\b/i);
     const mo = txt.match(/USD\s*([\d,]+(?:\.\d{1,2})?)/i);
@@ -1650,7 +1651,7 @@ body::before { opacity: .04; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-02.9';
+  const VERSION = '2026-11-02.10';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
