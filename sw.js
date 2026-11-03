@@ -1,6 +1,6 @@
 // Copia de la app para que abra sin señal. Siempre intenta la red primero.
 // No toca las llamadas a la hoja (Apps Script): esas pasan directo.
-const CACHE = 'finanzas-v1';
+const CACHE = 'finanzas-v2'; // v2: las letras ya van dentro de la app; se borra la copia vieja
 const BASE = ['./', 'index.html', 'manifest.json', 'icono.png'];
 
 self.addEventListener('install', (e) => {
@@ -20,8 +20,7 @@ self.addEventListener('fetch', (e) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   const propio = url.origin === self.location.origin;
-  const fuentes = url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
-  if (!propio && !fuentes) return;
+  if (!propio) return;
 
   // La página se guarda sin parámetros (?api=, ?nocache=) para no repetir copias ni guardar la clave.
   const navega = req.mode === 'navigate' || (propio && /\/(index\.html)?$/.test(url.pathname));

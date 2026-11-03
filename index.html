@@ -1080,7 +1080,7 @@ html, body { touch-action: manipulation; }
   // Si el día de pago cae en sábado o domingo, aparece desde el viernes anterior.
   // Si te pagan otro día, se anota desde Anotar → Entrada → Quincena.
   const DIA_SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
-  let qArmed = () => false, qForce = false;
+  let qArmed = () => false;
   function renderQuincena() {
     if (!state.cfg || qArmed()) return;
     const qd = quincena(), got = !!qd.q, t = today();
@@ -1088,7 +1088,7 @@ html, body { touch-action: manipulation; }
     const dn = parse(qd.pd.next).getDay(), viernes = finde(qd.pd.next);
     const antes = !got && !!viernes && t >= viernes;           // fin de semana: se paga el viernes
     const pend = !got && (!qd.adelantada || antes);
-    $('qCard').hidden = !(pend || qForce);
+    $('qCard').hidden = !pend;
     $('qBtn').disabled = got;
     $('qLbl').textContent = got ? 'Ya cayó ✓' : 'Cayó la rata';
     const diaPago = antes ? viernes : (finde(qd.pd.prev) || qd.pd.prev);
@@ -1103,7 +1103,7 @@ html, body { touch-action: manipulation; }
       $('qMonto').value = ingresoQ().toFixed(2);
       $('qFecha').value = today();
       $('qMonto').focus(); $('qMonto').select();
-    } else { qForce = false; renderQuincena(); }
+    } else renderQuincena();
   };
   $('qBtn').addEventListener('click', () => qToggle($('qForm').hidden));
   $('qCancel').addEventListener('click', () => qToggle(false));
@@ -1115,7 +1115,7 @@ html, body { touch-action: manipulation; }
     const qs = [await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Quincena', monto, fecha: f, nota: '', creado: now, origen: 'app' })];
     if (vac > 0) qs.push(await db.collection('movs').add({ tipo: 'ahorro', destino: 'vacaciones', monto: vac, fecha: f, nota: 'Apartado de la quincena', creado: now, origen: 'app' }));
     avisoDeshacer('Quincena anotada', qs, () => { $('qMsg').textContent = ''; $('qMsg').className = 'msg'; });
-    $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false'); qForce = false;
+    $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false');
     const msg = $('qMsg'); msg.className = 'msg notice';
     const deu = num(qp.deuda), var_ = num(state.cfg.varios);
     msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa: se queda en tu cuenta para diciembre') + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
@@ -1983,7 +1983,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.17';
+  const VERSION = '2026-11-03.18';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
