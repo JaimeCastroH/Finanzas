@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -368,15 +368,6 @@ html { background: #000; }
 /* Bloques: en vertical y en computadora no cambian nada (display: contents) */
 .blk { display: contents; }
 /* Teléfono en horizontal: todos los apartados fluyen en dos columnas que se equilibran solas */
-@media (orientation: landscape) and (max-height: 520px) {
-  .app { display: block; max-width: none; padding: 14px 22px 90px; columns: 2; column-gap: 16px; }
-  .band, .side, .lower, .main-col, .aside { display: contents; }
-  .app > .top, #hero, .blk { break-inside: avoid; -webkit-column-break-inside: avoid; margin: 0 0 12px; }
-  .blk { display: flex; flex-direction: column; gap: 10px; }
-  .blk:not(:has(> :not([hidden]))) { display: none; }
-  .app > .pie { column-span: all; }
-  .fab { left: auto; right: 18px; bottom: 14px; transform: none; height: 48px; padding: 0 18px 0 14px; }
-}
 body { background: transparent; }
 body::before { opacity: .06; }
 :root { --surface: rgba(18,18,16,.40); --surface-2: rgba(255,250,240,.06); --line: rgba(236,227,210,.13); --tint: rgba(236,227,210,.08); --track: rgba(236,227,210,.10); }
@@ -537,11 +528,6 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   .hero .big { font-size: 58px; }
   .fab { right: calc(50vw - 208px); bottom: 86px; }
 }
-@media (orientation: landscape) and (max-height: 520px) {
-  .app { padding-bottom: 110px; }
-  .tabs { bottom: 8px; }
-  .fab { bottom: 74px; right: 18px; }
-}
 @media (prefers-reduced-motion: reduce) { .wfill, .wtip { transition: none; } }
 /* Pantallas angostas: el botón de la placa baja de línea si no cabe junto al título */
 .tile .row { flex-wrap: wrap; row-gap: 6px; }
@@ -560,6 +546,30 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 .qchips label:has(input:checked) span { background: var(--surface-2); color: var(--sel-ok); }
 .qchips span svg { width: 18px; height: 18px; }
 .bchips button.sug { background: var(--surface-2); color: var(--sel); border-color: var(--line); }
+
+/* Sin zoom por doble toque */
+html, body { touch-action: manipulation; }
+
+/* Teléfono en horizontal: Inicio en dos columnas (la semana a la izquierda, lo demás a la derecha);
+   las otras pestañas en una sola columna centrada. La barra de pestañas queda abajo, más baja. */
+@media (orientation: landscape) and (max-height: 520px) {
+  .app { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 720px; margin-inline: auto; row-gap: 0; align-content: start;
+    padding: 12px max(22px, env(safe-area-inset-right, 0px)) 92px max(22px, env(safe-area-inset-left, 0px)); }
+  .band, .side, .lower, .main-col, .aside, .blk { display: contents; }
+  .app > *, .app [data-t] { margin: 0 0 12px; }
+  .app .duo > *, .app .duo > [data-t] { margin: 0; }
+  body[data-tab="inicio"] .app { max-width: 1000px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 16px; }
+  body[data-tab="inicio"] .app [data-t] { grid-column: 2; }
+  body[data-tab="inicio"] .app .duo > [data-t] { grid-column: auto; }
+  body[data-tab="inicio"] .app #emerg { grid-column: 1 / -1; }
+  body[data-tab="inicio"] .app > :is(.top, .sync, .offline, .pie) { grid-column: 1 / -1; }
+  body[data-tab="inicio"] #hero { grid-column: 1; grid-row: 2 / span 30; align-self: start; position: sticky; top: 12px; }
+  .tabs { bottom: calc(6px + env(safe-area-inset-bottom, 0px)); padding: 4px; width: min(420px, calc(100vw - 140px)); }
+  .tabs button { flex-direction: row; gap: 6px; padding: 7px 4px; }
+  .tabs button i { font-size: 15px; }
+  .fab { bottom: calc(10px + env(safe-area-inset-bottom, 0px)); right: max(18px, env(safe-area-inset-right, 0px)); width: 48px; height: 48px; }
+  .toast { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
+}
 </style>
 </head>
 <body data-tab="inicio">
@@ -1973,7 +1983,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.16';
+  const VERSION = '2026-11-03.17';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
