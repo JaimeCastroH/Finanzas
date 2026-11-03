@@ -86,7 +86,7 @@ h2 { font-size: 17px; font-weight: 700; }
 .eye { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface-2); color: var(--muted); display: grid; place-items: center; cursor: pointer; }
 .eye svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 .eye .x { display: none; } html.discreto .eye .x { display: inline; } html.discreto .eye { color: var(--brand); }
-html.discreto :is(#weekLeft, #wSub, .tile b, .fx .r b, .fbig b, .pay .r b, .mov .v, .debt .amt, .ev b, .ev span, .tcard td.n, .tsum b, .bx .top b, .libre b, .cam-r, .cam-pie b, #eSub, #sSub + *, .sfoot, .fx .t div + div) { filter: blur(7px); }
+html.discreto :is(#weekLeft, #wSub, #eTip, .tile b, .fx .r b, .fbig b, .pay .r b, .mov .v, .debt .amt, .ev b, .ev span, .tcard td.n, .tsum b, .bx .top b, .libre b, .cam-r, .cam-pie b, #eSub, #sSub + *, .sfoot, .fx .t div + div) { filter: blur(7px); }
 :is(#weekLeft, .tile b, .mov .v, .debt .amt) { transition: filter .25s; }
 .aj-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 0; border-top: 1px solid var(--line); cursor: pointer; }
 .aj-row > div:first-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
@@ -439,7 +439,14 @@ body[data-tab="deudas"] .app [data-t]:not([data-t~="deudas"]) { display: none !i
 .app > .pie { order: 9; }
 body[data-tab="pagos"] :is(#pagosHead, #pagos) { order: 1; }
 body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
-#emerg.over b { color: var(--bad); }
+/* Gastos varios: barra pequeña con el estilo de la semana */
+.ebar { position: relative; margin: 30px 2px 10px; }
+.wtrack.sm { height: 12px; }
+#emerg .wfill { background: linear-gradient(180deg, #a9c4ad 0%, var(--ok) 45%, #5f7d64 100%); }
+#emerg.over .wfill { background: linear-gradient(180deg, #e2786b 0%, var(--bad) 45%, #9a2f24 100%); }
+#emerg.over .wtip { color: #fff; background: linear-gradient(180deg, #d0594b, var(--red)); }
+#emerg.over .wtip::after { border-top-color: var(--red); }
+#emerg .libre + .libre { margin-top: -2px; }
 #emerg { grid-column: 1 / -1; }
 .duo { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 
@@ -601,8 +608,9 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     </div>
     <div class="tile" id="emerg" data-t="inicio" aria-label="Gastos varios" hidden>
       <div class="row"><span class="lbl">Gastos varios</span></div>
-      <b id="eLeft">—</b>
+      <div class="ebar" aria-hidden="true"><div class="wtrack sm"><div class="wfill" id="eFill"></div><div class="wtip" id="eTip">—</div></div></div>
       <span class="libre" id="eSub"></span>
+      <span class="libre" id="eLib"></span>
     </div>
     <div class="tile desk-only" data-t="deudas">
       <div class="row"><span class="lbl">Deuda total</span></div>
@@ -1640,8 +1648,14 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     if (eLim > 0) {
       const eLeft = round2(eLim - c.emergUsed);
       ec.classList.toggle('over', eLeft < 0);
-      $('eLeft').textContent = eLeft < 0 ? '−' + fmt(-eLeft) : fmt(eLeft);
-      $('eSub').textContent = eLeft < 0 ? 'te pasaste esta quincena' : 'de ' + fmt0(eLim) + ' esta quincena';
+      // Barra: lo que usaste de la quincena; el globito dice cuánto te queda o cuánto te pasaste.
+      const eu = Math.max(0, Math.min(1, c.emergUsed / eLim));
+      $('eFill').style.width = (eu * 100) + '%';
+      $('eTip').style.left = Math.min(85, Math.max(15, eu * 100)) + '%';
+      $('eTip').textContent = eLeft < 0 ? '+' + fmt(-eLeft) : 'Te quedan ' + fmt(eLeft);
+      $('emerg').setAttribute('aria-label', 'Gastos varios: ' + (eLeft < 0 ? 'te pasaste por ' + fmt(-eLeft) : 'te quedan ' + fmt(eLeft)));
+      $('eSub').textContent = 'Usaste ' + fmt(c.emergUsed) + ' de ' + fmt0(eLim);
+      $('eLib').textContent = 'Se libera el ' + short(c.emergNext);
     }
     $('tDeuda').textContent = fmt(c.debts.reduce((s, d) => s + Math.max(0, d.saldo), 0));
 
@@ -1701,7 +1715,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 
   // ---------- Signo de dólar en rojo ----------
   // Los montos se escriben como texto; aquí se envuelve el "$" en un span para pintarlo.
-  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, #eLeft, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
+  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
   function dolares(root) {
     (root || document).querySelectorAll(CON_DOLAR).forEach((e) => {
       if (e.querySelector('.dl') || !e.textContent.includes('$')) return;
@@ -1887,7 +1901,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.11';
+  const VERSION = '2026-11-03.12';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
