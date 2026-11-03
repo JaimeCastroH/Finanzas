@@ -573,23 +573,21 @@ html, body { touch-action: manipulation; }
   .toast { bottom: calc(70px + env(safe-area-inset-bottom, 0px)); }
 }
 
-/* Todas las barras: contorno finísimo y relleno adentro, delgadas para que no hagan ruido */
-.wtrack, .prog, .fprog, .cam-bar { box-sizing: border-box; background: transparent; border: .5px solid rgba(236,227,210,.3); border-radius: 99px; }
-.prog, .fprog, .cam-bar { overflow: hidden; }
-.prog, .fprog, .cam-bar { padding: 1.5px; }
+/* Todas las barras: contorno fino de 1 px y relleno adentro; delgadas pero con el borde visible */
+.wtrack, .prog, .fprog, .cam-bar { box-sizing: border-box; background: transparent; border: 1px solid rgba(236,227,210,.3); border-radius: 99px; }
+.prog, .fprog, .cam-bar { overflow: hidden; padding: 2px; }
 .prog span, .fprog span, .cam-bar span { border-radius: 99px; height: 100%; }
-.wtrack { height: 10px; }
-.wfill { left: 2px; top: 2px; bottom: 2px; }
-.wtrack.sm { height: 8px; }
-.wtrack.sm .wfill { left: 1.5px; top: 1.5px; bottom: 1.5px; }
-.sobre .prog, .fprog { height: 8px; }
-.fx.gas .fprog { height: 7px; }
-.debt .prog, .cam-bar { height: 7px; }
+.wtrack { height: 13px; }
+.wfill { left: 2.5px; top: 2.5px; bottom: 2.5px; }
+.wtrack.sm { height: 11px; }
+.wtrack.sm .wfill { left: 2px; top: 2px; bottom: 2px; }
+.sobre .prog, .fprog { height: 10px; }
+.fx.gas .fprog { height: 9px; }
+.debt .prog, .cam-bar { height: 8px; }
 .debt .prog span { background: var(--ok); }
 .sobre .prog span, .fprog span, .cam-bar span { background: var(--brand); }
 .fx.gas .fprog span, .cam-row.fin .cam-bar span { background: var(--ok); }
 .fx.gas.over .fprog span { background: var(--bad); }
-.wtip { border-width: .5px; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -1735,7 +1733,7 @@ html, body { touch-action: manipulation; }
     const hero = $('hero'); hero.classList.remove('ok', 'warn', 'bad'); hero.classList.add(left < 0 ? 'bad' : left < lim * 0.25 ? 'warn' : 'ok');
     // Barra: muestra lo que te queda de la semana; el globito va en la punta del relleno.
     const qf = Math.max(0, Math.min(1, left / lim));
-    $('wFill').style.width = 'calc(' + (qf * 100) + '% - ' + (qf * 4).toFixed(2) + 'px)';
+    $('wFill').style.width = 'calc(' + (qf * 100) + '% - ' + (qf * 5).toFixed(2) + 'px)';
     $('wTip').textContent = left < 0 ? 'Te pasaste' : Math.round(qf * 100) + '%';
     ponerTip($('wTip'), qf);
     $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
@@ -1755,7 +1753,7 @@ html, body { touch-action: manipulation; }
       ec.classList.toggle('over', eLeft < 0);
       // Barra: lo que usaste de la quincena; el globito dice cuánto te queda o cuánto te pasaste.
       const eu = Math.max(0, Math.min(1, c.emergUsed / eLim));
-      $('eFill').style.width = 'calc(' + (eu * 100) + '% - ' + (eu * 3).toFixed(2) + 'px)';
+      $('eFill').style.width = 'calc(' + (eu * 100) + '% - ' + (eu * 4).toFixed(2) + 'px)';
       $('eTip').textContent = eLeft < 0 ? '+' + fmt(-eLeft) : 'Te quedan ' + fmt(eLeft);
       ponerTip($('eTip'), eu);
       $('emerg').setAttribute('aria-label', 'Gastos varios: ' + (eLeft < 0 ? 'te pasaste por ' + fmt(-eLeft) : 'te quedan ' + fmt(eLeft)));
@@ -2014,7 +2012,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.21';
+  const VERSION = '2026-11-03.22';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
