@@ -526,6 +526,8 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   .fab { bottom: 74px; right: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .wfill, .wtip { transition: none; } }
+/* Pantallas angostas: el botón de la placa baja de línea si no cabe junto al título */
+.tile .row { flex-wrap: wrap; row-gap: 6px; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -1885,7 +1887,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.10';
+  const VERSION = '2026-11-03.11';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
