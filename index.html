@@ -1815,10 +1815,15 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     }
     cola.set(c.concat(inversas)); mezclar(); render(); estadoCola(); subir();
   }
+  // Se lee por POST: la clave va dentro del mensaje y no queda en la dirección ni en registros.
   async function leerHoja() {
-    const r = await fetch(API + (API.includes('?') ? '&' : '?') + 'k=' + encodeURIComponent(KEY), { cache: 'no-store' });
+    const r = await fetch(API, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: KEY, accion: 'leer' }) });
     return r.json();
   }
+  // Mensajes para los errores del puente que tocan la clave.
+  const errorClave = (e) => e === 'clave' ? 'La clave no coincide. Revísala en Ajustes o abre de nuevo tu enlace de configuración.'
+    : e === 'bloqueado' ? 'El puente se bloqueó unos minutos por claves equivocadas. Espera y vuelve a abrir la app.'
+    : e === 'config' ? 'Falta la clave en Apps Script (Propiedades del script).' : '';
   async function subir() {
     if (!API || enviando || !cola.get().length) return;
     if (fallo) {
@@ -1836,7 +1841,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
       catch (e) { enviando = null; fallo = true; errorHoja = false; estadoCola(); return; } // sin señal
       try { j = await r.json(); } catch (e) { j = { ok: false, error: 'servidor' }; }
       enviando = null;
-      if (!j.ok && j.error === 'clave') { fallo = true; avisar('La clave no coincide. Abre de nuevo tu enlace de configuración.'); return; }
+      if (!j.ok && errorClave(j.error)) { fallo = true; avisar(errorClave(j.error)); return; }
       if (!j.ok && j.error === 'servidor') { fallo = true; errorHoja = true; estadoCola(); return; } // se reintenta después
       fallo = false; errorHoja = false; version++;
       cola.set(cola.get().filter((x) => x.qid !== op.qid)); // si la hoja lo rechazó (p. ej. ya no existe), se descarta
@@ -1850,7 +1855,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     const v = version;
     try {
       const j = await leerHoja();
-      if (!j.ok) { avisar(j.error === 'clave' ? 'La clave no coincide. Abre de nuevo tu enlace de configuración.' : 'No se pudieron leer tus datos.'); return; }
+      if (!j.ok) { avisar(errorClave(j.error) || 'No se pudieron leer tus datos.'); return; }
       if (v !== version || enviando || cola.get().length) return;
       cache.set(j.datos); aplicar(j.datos); avisar(''); frescos = true;
     } catch (e) { avisar('Sin conexión. Mostrando lo último guardado.'); }
@@ -1880,7 +1885,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.9';
+  const VERSION = '2026-11-03.10';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
