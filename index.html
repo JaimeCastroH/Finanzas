@@ -439,13 +439,12 @@ body[data-tab="deudas"] .app [data-t]:not([data-t~="deudas"]) { display: none !i
 .app > .pie { order: 9; }
 body[data-tab="pagos"] :is(#pagosHead, #pagos) { order: 1; }
 body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
-/* Gastos varios: barra pequeña con el estilo de la semana */
+/* Gastos varios: barra pequeña con contorno, igual a la de la semana */
 .ebar { position: relative; margin: 30px 2px 10px; }
-.wtrack.sm { height: 12px; }
-#emerg .wfill { background: linear-gradient(180deg, #a9c4ad 0%, var(--ok) 45%, #5f7d64 100%); }
-#emerg.over .wfill { background: linear-gradient(180deg, #e2786b 0%, var(--bad) 45%, #9a2f24 100%); }
-#emerg.over .wtip { color: #fff; background: linear-gradient(180deg, #d0594b, var(--red)); }
-#emerg.over .wtip::after { border-top-color: var(--red); }
+.wtrack.sm { height: 14px; }
+#emerg .wfill { background: var(--ok); }
+#emerg.over .wfill { background: var(--bad); }
+#emerg.over .wtip { border-color: var(--bad); color: #f1a59a; }
 #emerg .libre + .libre { margin-top: -2px; }
 #emerg { grid-column: 1 / -1; }
 .duo { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
@@ -466,33 +465,33 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 .fab svg { width: 24px; height: 24px; }
 .toast { bottom: calc(150px + env(safe-area-inset-bottom, 0px)); }
 
-/* Cristal solo en lo principal; el resto en placas planas */
-.card, .tile { background: rgba(255,255,255,.035); border: 1px solid rgba(236,227,210,.08); box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
-.card::before, .tile::before { display: none; }
+/* Cristal con jerarquía: todo es vidrio. La semana, la placa de pago y las pestañas llevan vidrio grueso;
+   las demás tarjetas, vidrio fino. Hilo de luz solo arriba a la izquierda y abajo a la derecha. */
+.card, .tile { border: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.08), rgba(255,255,255,.015) 45%, rgba(255,255,255,.04)), rgba(8,8,10,.25);
+  box-shadow: 0 10px 24px rgba(0,0,0,.35);
+  -webkit-backdrop-filter: blur(8px) saturate(160%); backdrop-filter: blur(8px) saturate(160%); }
+.hero, .qcard, .tabs { border: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 50%, rgba(255,255,255,.07)), rgba(10,10,12,.2);
+  box-shadow: 0 18px 40px rgba(0,0,0,.5);
+  -webkit-backdrop-filter: blur(20px) saturate(200%) brightness(1.12); backdrop-filter: blur(20px) saturate(200%) brightness(1.12); }
+.qcard { box-shadow: inset 0 0 0 1px rgba(184,58,45,.5), 0 18px 40px rgba(0,0,0,.5); }
+.hero::before, .card::before, .tile::before, .tabs::before { display: block; content: ""; position: absolute; inset: 0; border-radius: inherit; padding: .6px; pointer-events: none; z-index: 2;
+  background: linear-gradient(140deg, rgba(255,255,255,.45), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 80%, rgba(255,255,255,.25));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); mask-composite: exclude; }
+.hero::before, .qcard::before, .tabs::before { padding: 1px;
+  background: linear-gradient(140deg, rgba(255,255,255,.9), rgba(255,255,255,0) 20%, rgba(255,255,255,0) 80%, rgba(255,255,255,.55)); }
 .card > *, .tile > * { text-shadow: none; }
-.hero, .qcard { border: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,.13), rgba(255,255,255,.03));
-  box-shadow: inset 0 1px 1px rgba(255,255,255,.45), inset 0 0 0 .5px rgba(255,255,255,.18), 0 14px 30px rgba(0,0,0,.45);
-  -webkit-backdrop-filter: blur(18px) saturate(180%); backdrop-filter: blur(18px) saturate(180%); }
-.hero::before { display: none; }
-#fondo .f1, #fondo .f2, #fondo .f3 { opacity: .75; }
 
-/* Semana: barra con canal hundido, relleno en relieve y globito */
+/* Semana: barra plana con contorno; el relleno va adentro con un pequeño margen y el dato en una píldora */
 .hero { padding: 22px 22px 20px; gap: 0; align-items: stretch; text-align: center; }
 .wbar { position: relative; margin: 30px 2px 18px; }
-.wtrack { position: relative; height: 16px; border-radius: 99px;
-  background: linear-gradient(180deg, rgba(0,0,0,.45), rgba(255,255,255,.04));
-  box-shadow: inset 0 2px 3px rgba(0,0,0,.7), inset 0 0 0 .5px rgba(0,0,0,.5), 0 1px 0 rgba(255,255,255,.10); }
-.wfill { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 99px; transition: width .5s ease;
-  background: linear-gradient(180deg, #efe2c9 0%, var(--brand) 45%, #b9a585 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.75), inset 0 -1px 1px rgba(0,0,0,.25), 0 1px 3px rgba(0,0,0,.55); }
-.wfill::after { content: ""; position: absolute; left: 6px; right: 6px; top: 2px; height: 40%; border-radius: 99px; background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,0)); }
-.hero.warn .wfill { background: linear-gradient(180deg, #f0cf8a 0%, var(--warn) 45%, #a87c2c 100%); }
-.wtip { position: absolute; bottom: calc(100% + 9px); left: 50%; transform: translateX(-50%); padding: 3px 9px; border-radius: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; line-height: 1.3;
-  color: #2a2620; background: linear-gradient(180deg, #f6efe2, #d9cdb8); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 2px 5px rgba(0,0,0,.5); transition: left .5s ease; }
-.wtip::after { content: ""; position: absolute; left: 50%; top: 100%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #d9cdb8; }
-.hero.bad .wtip { color: #fff; background: linear-gradient(180deg, #d0594b, var(--red)); }
-.hero.bad .wtip::after { border-top-color: var(--red); }
+.wtrack { position: relative; height: 16px; border-radius: 99px; background: transparent; border: 1px solid rgba(236,227,210,.28); }
+.wfill { position: absolute; left: 3px; top: 3px; bottom: 3px; width: 0; border-radius: 99px; background: var(--brand); transition: width .5s ease; }
+.hero.warn .wfill { background: var(--warn); }
+.wtip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 700; white-space: nowrap; line-height: 1.35;
+  color: var(--ink); background: rgba(20,19,18,.8); border: 1px solid rgba(236,227,210,.35); transition: left .5s ease; }
+.hero.bad .wtip { border-color: var(--bad); color: #f1a59a; }
 .hero .big, .hero .big:is(*) { font-size: clamp(40px, 12vw, 50px); line-height: 1; }
 .hero.bad .big { color: var(--bad); }
 .wsub { margin: 7px 0 0; font-size: 13px; color: var(--muted); }
@@ -511,13 +510,24 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 .btn.qgo { padding: 9px 14px; font-size: 13px; border-radius: 99px; box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
 
 
-/* Anotar: acceso a la quincena */
-.rata-link { display: flex; align-items: center; gap: 10px; width: 100%; font: inherit; text-align: left; color: var(--ink); cursor: pointer;
-  padding: 9px 12px; border-radius: 14px; background: rgba(184,58,45,.10); border: 1px solid rgba(184,58,45,.35); }
-.rata-link i { font-style: normal; font-family: "Shippori Mincho B1", serif; font-weight: 800; color: var(--brand); font-size: 16px; }
-.rata-link span { font-size: 14px; font-weight: 600; }
-.rata-link small { font-weight: 400; font-size: 12px; color: var(--muted); margin-left: 4px; }
-.rata-link:focus-visible { outline: 3px solid var(--brand-2); }
+/* Anotar: cuatro pestañas, Quincena dentro de Entrada y fecha/nota discretas */
+.seg.seg4 { grid-template-columns: repeat(4, 1fr); }
+#entradaFields { display: flex; flex-direction: column; gap: 10px; }
+.qchips { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.qchips label { position: relative; cursor: pointer; }
+.qchips input { position: absolute; opacity: 0; pointer-events: none; }
+.qchips span { display: flex; align-items: center; justify-content: center; gap: 6px; padding: 12px 8px; border-radius: 14px; background: var(--surface-2); border: 2px solid transparent; font-weight: 600; font-size: 14px; }
+.qchips span i { font-style: normal; font-family: "Shippori Mincho B1", serif; font-weight: 800; color: var(--brand); }
+.qchips label:has(input:checked) span { border-color: var(--green); background: rgba(236,227,210,.10); }
+.qchips label:has(input:focus-visible) span { outline: 3px solid var(--brand-2); }
+.qhint { margin: 0; font-size: 12.5px; color: var(--ok); background: rgba(78,104,81,.18); border-radius: 12px; padding: 9px 12px; }
+.opts-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { position: relative; display: inline-flex; align-items: center; gap: 4px; height: 38px; padding: 0 14px; border-radius: 99px; background: var(--surface-2); border: 1px solid var(--line); font: inherit; font-size: 14px; font-weight: 600; color: var(--ink); cursor: pointer; }
+.pill[hidden] { display: none; }
+.pill .pv { color: var(--muted); font-size: 11px; }
+.pill select, .pill select:is(*) { height: 36px; width: auto; padding: 0 20px 0 0; border: 0; background-color: transparent; background-position: right center; font: inherit; font-weight: 600; color: inherit; }
+#fechaPill input[type=date] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; margin: 0; padding: 0; border: 0; }
+.pill:focus-within, .pill:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 1px; }
 
 @media (min-width: 1000px) {
   .app { max-width: 1000px; }
@@ -535,6 +545,21 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 @media (prefers-reduced-motion: reduce) { .wfill, .wtip { transition: none; } }
 /* Pantallas angostas: el botón de la placa baja de línea si no cabe junto al título */
 .tile .row { flex-wrap: wrap; row-gap: 6px; }
+
+/* Íconos Material Symbols (Rounded, trazo fino) y selección solo con color */
+.tabs button[aria-current="page"] { background: none; color: var(--sel); }
+.ic svg { width: 20px; height: 20px; }
+:root { --sel: #e0695b; --sel-ok: #9fbfa6; }
+.seg { background: none; padding: 0; gap: 2px; }
+.seg label:has(input:checked) { background: none; color: var(--sel); }
+.seg label:has(#tEntrada:checked) { color: var(--sel-ok); }
+.chip, .chip:has(input:checked) { border-color: transparent; }
+.chip:has(input:checked) { background: var(--surface-2); color: var(--sel); }
+.chip:has(input:checked) .ic { color: var(--sel); }
+.qchips span, .qchips label:has(input:checked) span { border-color: transparent; }
+.qchips label:has(input:checked) span { background: var(--surface-2); color: var(--sel-ok); }
+.qchips span svg { width: 18px; height: 18px; }
+.bchips button.sug { background: var(--surface-2); color: var(--sel); border-color: var(--line); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -542,16 +567,17 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-comida" viewBox="0 0 24 24"><path d="M7 3v8M5 3v5a2 2 0 0 0 4 0V3M7 11v10M17 21V3c-2 1-3 4-3 7h3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-gasolina" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10M14 8l3 3v6a1.5 1.5 0 0 0 3 0V9l-3-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-varios" viewBox="0 0 24 24"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 10V7a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-  <symbol id="i-fijo" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M9 15l2 2 4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-otros" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.8" fill="currentColor"/><circle cx="12" cy="12" r="1.8" fill="currentColor"/><circle cx="19" cy="12" r="1.8" fill="currentColor"/></symbol>
-  <symbol id="i-ingreso" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-salida" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  <symbol id="i-interes" viewBox="0 0 24 24"><path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="7.5" cy="7.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16.5" cy="16.5" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol><symbol id="i-pago" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 10h19M6.5 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-  <symbol id="i-ahorro" viewBox="0 0 24 24"><path d="M19 9.5c1 .7 1.5 1.6 1.5 2.5h1v3h-1.4a6 6 0 0 1-2.1 2.4V20h-3v-1.5h-4V20h-3v-2.7A6 6 0 0 1 5 13c0-3.6 3.6-6 7-6 1.6 0 3 .3 4.2.9L18.5 6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="15.5" cy="11.5" r="1" fill="currentColor"/></symbol>
-  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-comida" viewBox="0 -960 960 960"><path fill="currentColor" d="M293.85-595.38v-251.93q0-9.64 6.57-16.17Q307-870 316.73-870q9.35 0 15.92 6.52 6.58 6.53 6.58 16.17v251.93h73.46v-251.93q0-9.64 6.58-16.17 6.58-6.52 16.31-6.52 9.73 0 16.11 6.52 6.39 6.53 6.39 16.17v251.54q0 55.31-34.77 93.92-34.77 38.62-84.08 46.54v342.62q0 9.64-6.77 16.17Q325.7-90 316.16-90q-9.54 0-15.93-6.52-6.38-6.53-6.38-16.17v-342.62q-49.7-7.92-84.46-46.54-34.77-38.61-34.77-93.92v-251.54q0-9.64 6.58-16.17 6.58-6.52 16.3-6.52 9.73 0 16.12 6.52 6.38 6.53 6.38 16.17v251.93h73.85ZM689.23-410h-76.48q-12.41 0-20.66-8.29-8.24-8.3-8.24-20.56v-259.61q0-74.39 36.92-122.96Q657.69-870 703.31-870q13.83 0 22.57 9.36 8.73 9.36 8.73 23.49v724.46q0 9.64-6.58 16.17-6.58 6.52-16.3 6.52-9.73 0-16.12-6.52-6.38-6.53-6.38-16.17V-410Z"/></symbol>
+  <symbol id="i-gasolina" viewBox="0 -960 960 960"><path fill="currentColor" d="M180-168.85v-593.46q0-23.53 17.08-40.61T237.69-820h236.69q23.53 0 40.61 17.08 17.09 17.08 17.09 40.61v265.69h56.53q20.53 0 35.46 14.93T639-446.23v209.99q0 22.99 16.27 38.62Q671.54-182 694.69-182q23.15 0 39.42-15.7 16.27-15.7 16.27-38.38v-285.38q-10.61 6-22.12 9.19-11.5 3.19-22.95 3.19-34.96 0-59.1-24.13-24.13-24.14-24.13-59.1 0-29.3 17.23-52.19 17.23-22.88 45.69-28.96L601.46-757q-6.08-5.71-6.27-14.16-.19-8.45 6.38-15.03 6.35-6.73 14.43-6.23t14.54 6.96l131.92 132.31q12.46 12.46 20.38 27.65 7.93 15.19 7.93 33.19v356.23q0 40.35-27.78 68.22-27.77 27.86-68 27.86-40.22 0-68.3-27.86-28.08-27.87-28.08-68.22v-207.84q0-5-3.46-8.66-3.46-3.65-8.84-3.65h-54.23v287.38q0 12.26-8.44 20.56-8.44 8.29-20.26 8.29H208.69q-12.2 0-20.44-8.29-8.25-8.3-8.25-20.56Zm45.39-375.46h261.3v-218q0-4.61-3.84-8.46-3.85-3.84-8.47-3.84H237.69q-4.61 0-8.46 3.84-3.84 3.85-3.84 8.46v218Zm479.99-5.15q17.54 0 30.16-12.69 12.61-12.69 12.61-30.23t-12.69-30.16q-12.69-12.61-30.23-12.61t-30.15 12.69q-12.62 12.69-12.62 30.23t12.69 30.15q12.69 12.62 30.23 12.62ZM225.39-185.39h261.3v-313.53h-261.3v313.53Zm261.3 0h-261.3 261.3Z"/></symbol>
+  <symbol id="i-varios" viewBox="0 -960 960 960"><path fill="currentColor" d="M170.46-391.77q-38.07 0-64.27-26.4Q80-444.57 80-482.23q0-37.66 26.4-64.06 26.4-26.4 64.06-26.4v-119.15q0-23.05 17.33-40.37 17.32-17.33 40.37-17.33h161.38q0-38.07 26.4-64.27Q442.34-840 480-840q37.66 0 64.06 26.4 26.4 26.4 26.4 64.06h161.38q23.05 0 40.37 17.33 17.33 17.32 17.33 40.37v119.15q38.07 0 64.27 26.4Q880-519.89 880-482.23q0 37.66-26.4 64.06-26.4 26.4-64.06 26.4v194.08q0 23.04-17.33 40.37Q754.89-140 731.84-140H228.16q-23.05 0-40.37-17.32-17.33-17.33-17.33-40.37v-194.08Zm177.39-84.61q14.84 0 25-10.39Q383-497.16 383-512q0-14.85-10.39-25t-25.23-10.15q-14.84 0-24.99 10.39-10.16 10.38-10.16 25.23 0 14.84 10.39 24.99 10.39 10.16 25.23 10.16Zm264.77 0q14.84 0 24.99-10.39 10.16-10.39 10.16-25.23 0-14.85-10.39-25t-25.23-10.15q-14.84 0-25 10.39Q577-526.38 577-511.53q0 14.84 10.39 24.99 10.39 10.16 25.23 10.16ZM347-293.85h266q9.64 0 16.17-6.57 6.52-6.58 6.52-16.31 0-9.35-6.52-15.92-6.53-6.58-16.17-6.58H347q-9.64 0-16.17 6.77-6.52 6.76-6.52 16.3 0 9.54 6.52 15.93 6.53 6.38 16.17 6.38ZM228.16-185.39h503.68q5 0 8.66-3.46 3.65-3.46 3.65-8.84v-494.15q0-5-3.65-8.66-3.66-3.65-8.66-3.65H228.16q-5 0-8.66 3.65-3.65 3.66-3.65 8.66v494.15q0 5.38 3.65 8.84 3.66 3.46 8.66 3.46ZM480-445.08Z"/></symbol>
+  <symbol id="i-fijo" viewBox="0 -960 960 960"><path fill="currentColor" d="M197.69-100q-23.53 0-40.61-17.08T140-157.69v-579.23q0-23.53 17.08-40.61t40.61-17.08h73.85v-44.93q0-10.44 7.11-17.76 7.1-7.31 17.6-7.31 10.93 0 18.3 7.31 7.37 7.32 7.37 17.76v44.93h317.69v-45.59q0-10.61 6.95-17.51 6.95-6.9 17.23-6.9 10.69 0 17.87 6.98 7.18 6.99 7.18 17.32v45.7h73.47q23.53 0 40.61 17.08T820-736.92v255q0 9.64-6.58 16.17-6.58 6.52-16.31 6.52-9.73 0-16.11-6.52-6.39-6.53-6.39-16.17V-555H185.39v397.31q0 4.61 3.84 8.46 3.85 3.84 8.46 3.84h282.85q9.64 0 16.17 6.59 6.52 6.58 6.52 16.3 0 9.73-6.52 16.11-6.53 6.39-16.17 6.39H197.69ZM760-6.15q-61.17 0-109.43-33.97-48.26-33.96-70.26-87.5-4.23-9.07 1.34-17.65 5.58-8.58 15.45-8.58 11.52 0 20.71 6.77 9.19 6.77 14.65 17.46 18.39 34.31 52.12 55.04Q718.31-53.85 760-53.85q60.55 0 103.35-42.8T906.15-200q0-60.55-42.8-103.35T760-346.15q-32.85 0-62.08 14.15-29.23 14.15-50.92 38.15h43q10.33 0 17.09 6.76 6.76 6.75 6.76 17.07 0 10.33-6.76 17.1-6.76 6.77-17.09 6.77h-95q-12.26 0-20.55-8.3-8.3-8.29-8.3-20.55v-95q0-10.33 6.76-17.09 6.75-6.76 17.07-6.76 10.33 0 17.1 6.76 6.77 6.76 6.77 17.09v41.62q27.76-29.47 65.69-47.47 37.92-18 80.46-18 80.45 0 137.15 56.7T953.85-200q0 80.45-56.7 137.15T760-6.15ZM185.39-600.38h589.22v-136.54q0-4.62-3.84-8.46-3.85-3.85-8.46-3.85H197.69q-4.61 0-8.46 3.85-3.84 3.84-3.84 8.46v136.54Zm0 0v-148.85 148.85Z"/></symbol>
+  <symbol id="i-otros" viewBox="0 -960 960 960"><path fill="currentColor" d="M237.69-100q-23.53 0-40.61-17.08T180-157.69v-484.62q0-23.53 17.08-40.61T237.69-700h99.62v-17.31q0-59.92 41.38-101.3Q420.08-860 480-860t101.31 41.39q41.38 41.38 41.38 101.3V-700h99.62q23.53 0 40.61 17.08T780-642.31v484.62q0 23.53-17.08 40.61T722.31-100H237.69Zm0-45.39h484.62q4.61 0 8.46-3.84 3.84-3.85 3.84-8.46v-484.62q0-4.61-3.84-8.46-3.85-3.84-8.46-3.84h-99.62v97.3q0 9.67-6.56 16.18-6.57 6.52-16.31 6.52-9.74 0-16.13-6.52-6.38-6.51-6.38-16.18v-97.3H382.69v97.3q0 9.67-6.56 16.18-6.57 6.52-16.31 6.52-9.74 0-16.13-6.52-6.38-6.51-6.38-16.18v-97.3h-99.62q-4.61 0-8.46 3.84-3.84 3.85-3.84 8.46v484.62q0 4.61 3.84 8.46 3.85 3.84 8.46 3.84Zm145-554.61h194.62v-17.31q0-41.07-28.12-69.19-28.11-28.11-69.19-28.11t-69.19 28.11q-28.12 28.12-28.12 69.19V-700Zm-157.3 554.61v-509.22 509.22Z"/></symbol>
+  <symbol id="i-ingreso" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-266.31v-491q0-9.91 6.39-16.3 6.39-6.39 16.31-6.39 9.91 0 16.3 6.39 6.38 6.39 6.38 16.3v491L732-496q6.76-6.31 15.84-6.69 9.08-.39 15.99 6.69 7.25 7.08 7.25 16T764-464L500.15-200.15q-4.53 4.53-9.39 6.53t-10.81 2q-5.95 0-10.76-2t-9.34-6.53L196-464q-6.69-6.69-6.88-15.73-.2-9.04 6.88-16.27 7.23-7.08 16.08-7.08 8.84 0 15.54 7.08l229.69 229.69Z"/></symbol>
+  <symbol id="i-salida" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-693.69 228-464q-6.76 6.31-15.84 6.69-9.08.39-15.99-6.69-7.25-7.08-7.25-16t7.08-16l263.85-263.85q4.53-4.53 9.39-6.73 4.86-2.19 10.81-2.19t10.76 2.19q4.81 2.2 9.34 6.73L764-496q6.69 6.69 6.88 15.73.2 9.04-6.88 16.27-7.23 7.08-16.08 7.08-8.84 0-15.54-7.08L502.69-693.69v491q0 9.91-6.39 16.3-6.39 6.39-16.31 6.39-9.91 0-16.3-6.39-6.38-6.39-6.38-16.3v-491Z"/></symbol>
+  <symbol id="i-interes" viewBox="0 -960 960 960"><path fill="currentColor" d="M299.1-541.92q-49.45 0-84.27-34.96Q180-611.83 180-661.28t34.96-84.28q34.95-34.82 84.4-34.82t84.27 34.95q34.83 34.96 34.83 84.41 0 49.44-34.95 84.27-34.96 34.83-84.41 34.83Zm-.01-45.39q31.06 0 52.53-21.32 21.46-21.32 21.46-52.38 0-31.07-21.32-52.53T299.37-735q-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46ZM661.02-180q-49.44 0-84.27-34.96-34.83-34.95-34.83-84.4t34.96-84.27q34.95-34.83 84.4-34.83t84.28 34.95q34.82 34.96 34.82 84.41 0 49.45-34.95 84.27Q710.47-180 661.02-180Zm-.01-45.39q31.07 0 52.53-21.32T735-299.09q0-31.06-21.32-52.53-21.32-21.46-52.39-21.46-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46Zm-461.16 25.54q-6.69-6.69-6.69-15.87t6.69-15.74l529.46-529.46q6.69-6.69 15.61-6.5 8.92.19 15.62 6.88 6.69 6.7 6.69 15.87 0 9.18-6.69 15.75L231.08-199.46q-6.69 6.69-15.62 6.5-8.92-.2-15.61-6.89Z"/></symbol><symbol id="i-pago" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 10h19M6.5 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-ahorro" viewBox="0 -960 960 960"><path fill="currentColor" d="M243.08-140q-20.23 0-37.82-13.37-17.58-13.37-23.1-32.71-25-87.54-40.97-148.26-15.97-60.73-25.02-104.69-9.05-43.95-12.61-76.79-3.56-32.83-3.56-64.36 0-83.36 58.23-141.59Q216.46-780 300-780h210q27-36 66-58t84-22q16.54 0 28.27 11.73T700-820q0 4.08-1.12 7.96-1.11 3.89-2.34 7.73-4.39 11.77-8.46 25.46-4.08 13.7-7.62 34.77L784.54-640h46.61q12.36 0 20.6 8.25 8.25 8.24 8.25 20.6v194.3q0 9.88-5.25 17.6-5.24 7.71-14.98 10.25l-88.85 29.53-53.31 178.01q-6.02 18.84-21.07 30.15Q661.49-140 641.92-140h-84.23q-23.59 0-40.64-17.05T500-197.69V-220H380v22.31q0 23.59-17.05 40.64T322.31-140h-79.23Zm-3.85-45.39h83.08q5.38 0 8.84-3.46t3.46-8.84v-67.7h210.78v67.7q0 5.38 3.46 8.84t8.84 3.46h84.23q3.85 0 7.12-2.3 3.27-2.31 4.81-6.54l59.92-200 100.84-34.62v-165.76h-48.92L634.61-725.69q.62-17 4.74-40.73 4.11-23.73 11.73-49.5-38 9.84-68.5 32.04-30.5 22.19-45.12 49.27H300q-64.36 0-109.49 45.12-45.12 45.13-45.12 109.49 0 41.23 21.03 141.69Q187.46-337.85 226.54-195q1.15 4.23 4.81 6.92 3.65 2.69 7.88 2.69ZM640-524.62q14.69 0 25.04-10.34 10.34-10.35 10.34-25.04t-10.34-25.04q-10.35-10.34-25.04-10.34t-25.04 10.34q-10.34 10.35-10.34 25.04t10.34 25.04q10.35 10.34 25.04 10.34Zm-142.69-100q9.66 0 16.18-6.56 6.51-6.57 6.51-16.31 0-9.74-6.51-16.12-6.52-6.39-16.18-6.39H342.69q-9.66 0-16.18 6.57-6.51 6.56-6.51 16.3 0 9.75 6.51 16.13 6.52 6.38 16.18 6.38h154.62ZM480-500.85Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-457.31H242.69q-9.64 0-16.16-6.58-6.53-6.58-6.53-16.31 0-9.72 6.53-16.11 6.52-6.38 16.16-6.38h214.62v-214.62q0-9.64 6.58-16.16 6.58-6.53 16.31-6.53 9.72 0 16.11 6.53 6.38 6.52 6.38 16.16v214.62h214.62q9.64 0 16.16 6.58 6.53 6.58 6.53 16.31 0 9.72-6.53 16.11-6.52 6.38-16.16 6.38H502.69v214.62q0 9.64-6.58 16.16-6.58 6.53-16.31 6.53-9.72 0-16.11-6.53-6.38-6.52-6.38-16.16v-214.62Z"/></symbol>
+  <symbol id="i-pago" viewBox="0 -960 960 960"><path fill="currentColor" d="M860-722.31v484.62q0 23.53-17.08 40.61T802.31-180H157.69q-23.53 0-40.61-17.08T100-237.69v-484.62q0-23.53 17.08-40.61T157.69-780h644.62q23.53 0 40.61 17.08T860-722.31ZM145.39-617.15h669.22v-105.16q0-4.61-3.84-8.46-3.85-3.84-8.46-3.84H157.69q-4.61 0-8.46 3.84-3.84 3.85-3.84 8.46v105.16Zm0 104.76v274.7q0 4.61 3.84 8.46 3.85 3.84 8.46 3.84h644.62q4.61 0 8.46-3.84 3.84-3.85 3.84-8.46v-274.7H145.39Zm0 287v-509.22 509.22Z"/></symbol>
 </svg>
 
 <main class="app" id="app">
@@ -722,31 +748,31 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     <div class="grab-zone" id="grab" aria-hidden="true"><div class="grab"></div></div>
     <div class="row" id="sheetHead"><h2 id="sheetTitle">Anotar</h2><button class="close" type="button" id="close" aria-label="Cerrar">×</button></div>
     <form id="form" class="stack" novalidate>
-      <div class="seg" role="radiogroup" aria-label="Tipo">
+      <div class="seg seg4" role="radiogroup" aria-label="Tipo">
         <label><input type="radio" name="tipo" id="tGasto" value="gasto" checked><span>Gasto</span></label>
         <label><input type="radio" name="tipo" id="tPago" value="pago"><span>Pago</span></label>
-        <label><input type="radio" name="tipo" id="tMov" value="mov"><span>Entrada/Salida</span></label>
+        <label><input type="radio" name="tipo" id="tEntrada" value="entrada"><span>Entrada</span></label>
+        <label><input type="radio" name="tipo" id="tSalida" value="salida"><span>Salida</span></label>
       </div>
-      <button class="rata-link" type="button" id="rataLink"><i aria-hidden="true">給</i><span>Cayó la rata <small>Anotar la quincena</small></span></button>
       <div class="amount"><span>$</span><input id="monto" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="Monto"></div>
 
-      <div id="gastoFields" class="stack" style="display:flex;flex-direction:column;gap:12px">
-        <div class="chips" role="radiogroup" aria-label="Categoría" id="cats"></div>
-        <div class="fields">
-          <div class="field"><label for="medio">Pagado con</label>
-            <select id="medio"><option value="visa">Visa Economía</option><option value="cuenta">Débito</option><option value="atl">Atlántida</option><option value="siman">Simán</option><option value="amex_rev">AMEX</option></select></div>
-          <div class="field"><label for="fechaG">Fecha</label><input type="date" id="fechaG"></div>
+      <div id="gastoFields"><div class="chips" role="radiogroup" aria-label="Categoría" id="cats"></div></div>
+      <div id="pagoFields" hidden><div class="field full"><label for="destinoPago">Pago a</label><select id="destinoPago"></select></div></div>
+      <div id="entradaFields" class="stack" hidden>
+        <div class="qchips" role="radiogroup" aria-label="Qué entró" id="entChips">
+          <label><input type="radio" name="ent" value="quincena"><span><svg aria-hidden="true"><use href="#i-ingreso"/></svg>Quincena</span></label>
+          <label><input type="radio" name="ent" value="otra" checked><span>Otra entrada</span></label>
         </div>
-        <label class="abono" id="abonoRow"><input type="checkbox" id="yaAbone" checked><span>Ya lo aboné a la Visa <small>Si aún no, desmárcala y te queda el aviso.</small></span></label>
+        <p class="qhint" id="qHint" hidden></p>
       </div>
-      <div id="pagoFields" hidden><div class="fields">
-        <div class="field"><label for="destinoPago">Pago a</label><select id="destinoPago"></select></div>
-        <div class="field"><label for="fechaP">Fecha</label><input type="date" id="fechaP"></div></div></div>
-      <div id="movFields" hidden><div class="fields">
-        <div class="field"><label for="dirMov">Tipo</label><select id="dirMov"><option value="entrada">Entrada</option><option value="salida">Salida</option></select></div>
-        <div class="field"><label for="fechaM">Fecha</label><input type="date" id="fechaM"></div></div></div>
 
-      <div class="field full"><label for="nota">Nota (opcional)</label><input type="text" id="nota" maxlength="80" placeholder="Ej. almuerzo con el equipo"></div>
+      <div class="opts-row">
+        <label class="pill" id="medioPill"><select id="medio" aria-label="Pagado con"><option value="visa">Visa</option><option value="cuenta">Débito</option><option value="atl">Atlántida</option><option value="siman">Simán</option><option value="amex_rev">AMEX</option></select></label>
+        <label class="pill" id="fechaPill"><span id="fechaTxt">Hoy</span><span aria-hidden="true" class="pv">▾</span><input type="date" id="fecha" aria-label="Fecha"></label>
+        <button class="pill" type="button" id="notaBtn" aria-expanded="false" aria-controls="notaRow">+ Nota</button>
+      </div>
+      <div class="field full" id="notaRow" hidden><label for="nota">Nota</label><input type="text" id="nota" maxlength="80" placeholder="Ej. almuerzo con el equipo"></div>
+      <label class="abono" id="abonoRow"><input type="checkbox" id="yaAbone" checked><span>Ya lo aboné a la Visa <small>Si aún no, desmárcala y te queda el aviso.</small></span></label>
       <button class="btn block" type="submit" id="save">Guardar</button>
       <div class="msg" id="msg" role="status"></div>
     </form>
@@ -813,30 +839,55 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     l.append(inp, icon(c.id), el('span', null, c.label)); $('cats').append(l);
   });
   const tipo = () => document.querySelector('input[name=tipo]:checked').value;
-  const showAbono = () => { $('abonoRow').hidden = !!editing || $('medio').value !== 'visa'; };
-  const showFields = () => { const t = tipo(); $('gastoFields').hidden = t !== 'gasto'; $('pagoFields').hidden = t !== 'pago'; $('movFields').hidden = t !== 'mov'; };
-  document.querySelectorAll('input[name=tipo]').forEach((r) => r.addEventListener('change', showFields));
-  showFields();
+  const showAbono = () => { $('abonoRow').hidden = !!editing || tipo() !== 'gasto' || $('medio').value !== 'visa'; };
+  const ent = () => (document.querySelector('input[name=ent]:checked') || {}).value;
+  const esQuincena = () => !editing && tipo() === 'entrada' && ent() === 'quincena';
+  let montoAuto = null; // monto que llenó la app al elegir Quincena (se borra si cambias a Otra entrada)
+  const fechaLbl = () => { const f = $('fecha').value || today(); $('fechaTxt').textContent = f === today() ? 'Hoy' : f === addDays(today(), -1) ? 'Ayer' : short(f); };
+  const showQuincena = () => {
+    const q = esQuincena();
+    if (q && !$('monto').value) { montoAuto = ingresoQ().toFixed(2); $('monto').value = montoAuto; }
+    if (!q && montoAuto !== null && $('monto').value === montoAuto) $('monto').value = '';
+    if (!q) montoAuto = null;
+    const vac = q ? vacEn($('fecha').value || today()) : 0;
+    $('qHint').hidden = !q;
+    $('qHint').textContent = 'Ya viene lleno con lo de siempre. ' + (vac > 0 ? 'Se apartan ' + fmt0(vac) + ' a tu ahorro.' : 'Esta quincena el ahorro está en pausa.');
+    $('save').textContent = editing ? 'Guardar cambios' : q ? 'Guardar quincena' : 'Guardar';
+  };
+  const showFields = () => {
+    const t = tipo();
+    $('gastoFields').hidden = t !== 'gasto'; $('pagoFields').hidden = t !== 'pago'; $('entradaFields').hidden = t !== 'entrada';
+    $('medioPill').hidden = t !== 'gasto'; $('entChips').hidden = !!editing;
+    showAbono(); showQuincena();
+  };
+  document.querySelectorAll('input[name=tipo], input[name=ent]').forEach((r) => r.addEventListener('change', showFields));
   $('medio').addEventListener('change', showAbono);
+  $('fecha').addEventListener('change', () => { fechaLbl(); showQuincena(); });
+  const verNota = (v) => { $('notaRow').hidden = !v; $('notaBtn').hidden = v; $('notaBtn').setAttribute('aria-expanded', String(v)); };
+  $('notaBtn').addEventListener('click', () => { verNota(true); $('nota').focus(); });
 
   const setTipo = (v) => { const r = document.querySelector('input[name=tipo][value="' + v + '"]'); if (r) r.checked = true; showFields(); };
+  // Al elegir Entrada, la quincena viene marcada si todavía no la anotaste.
+  const entPorDefecto = () => { const qd = state.cfg ? quincena() : null; const r = document.querySelector('input[name=ent][value="' + (qd && !qd.q ? 'quincena' : 'otra') + '"]'); if (r) r.checked = true; };
+  document.querySelector('input[name=tipo][value="entrada"]').addEventListener('change', () => { if (!editing) { entPorDefecto(); showFields(); } });
   const openSheet = (m) => {
-    editing = m && m.id ? m : null;
-    ['fechaG', 'fechaP', 'fechaM'].forEach((id) => { $(id).value = today(); });
+    editing = m && m.id ? m : null; montoAuto = null;
+    $('fecha').value = editing ? m.fecha : today();
     $('msg').textContent = ''; $('msg').className = 'msg';
     if (editing) {
       $('monto').value = num(m.monto).toFixed(2); $('nota').value = m.nota || '';
-      if (m.tipo === 'gasto') { setTipo('gasto'); const c = document.querySelector('input[name=cat][value="' + m.categoria + '"]') || document.querySelector('input[name=cat][value="otros"]'); c.checked = true; $('medio').value = m.medio || 'visa'; $('fechaG').value = m.fecha; }
-      else if (m.tipo === 'pago') { setTipo('pago'); $('destinoPago').value = m.a; $('fechaP').value = m.fecha; }
-      else { setTipo('mov'); $('dirMov').value = m.tipo === 'ingreso' ? 'entrada' : 'salida'; $('fechaM').value = m.fecha; }
-      $('sheetTitle').textContent = 'Editar'; $('save').textContent = 'Guardar cambios';
+      if (m.tipo === 'gasto') { setTipo('gasto'); const c = document.querySelector('input[name=cat][value="' + m.categoria + '"]') || document.querySelector('input[name=cat][value="otros"]'); c.checked = true; $('medio').value = m.medio || 'visa'; }
+      else if (m.tipo === 'pago') { setTipo('pago'); $('destinoPago').value = m.a; }
+      else setTipo(m.tipo === 'ingreso' ? 'entrada' : 'salida');
+      $('sheetTitle').textContent = 'Editar';
     } else {
       $('monto').value = ''; $('nota').value = '';
-      setTipo('gasto'); $('cat-' + CATS[0].id).checked = true;
-      $('sheetTitle').textContent = 'Anotar'; $('save').textContent = 'Guardar';
+      $('cat-' + CATS[0].id).checked = true; $('medio').value = 'visa';
+      setTipo('gasto');
+      $('sheetTitle').textContent = 'Anotar';
     }
-    $('yaAbone').checked = true; showAbono();
-    $('rataLink').hidden = !!editing;
+    verNota(!!$('nota').value); fechaLbl();
+    $('yaAbone').checked = true; showFields();
     $('scrim').hidden = false; $('sheet').hidden = false; $('app').inert = true; $('fab').inert = true;
     setTimeout(() => $('monto').focus(), 50);
   };
@@ -861,12 +912,9 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     document.body.dataset.tab = t;
     document.querySelectorAll('#tabs [data-go]').forEach((b) => { if (b.dataset.go === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     window.scrollTo(0, 0);
+    if (t === 'inicio' && state.last) render();
   };
   document.querySelectorAll('#tabs [data-go]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go)));
-  $('rataLink').addEventListener('click', () => {
-    closeSheet(); setTab('inicio'); qForce = true; renderQuincena();
-    if (!$('qBtn').disabled) qToggle(true);
-  });
   $('close').addEventListener('click', closeSheet);
   $('scrim').addEventListener('click', closeSheet);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
@@ -877,17 +925,22 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     if (!db) { msg.className = 'msg err'; msg.textContent = 'Sin conexión a tus datos en esta vista.'; return; }
     const monto = parseMonto($('monto').value);
     if (!(monto > 0)) { msg.className = 'msg err'; msg.textContent = 'Escribe un monto mayor que cero.'; $('monto').focus(); return; }
-    const t = tipo();
-    const doc = { tipo: t, monto, nota: $('nota').value.trim(), creado: new Date().toISOString(), origen: 'app' };
-    if (t === 'gasto') { doc.categoria = document.querySelector('input[name=cat]:checked').value; doc.medio = $('medio').value; doc.fecha = $('fechaG').value || today(); }
+    const t = tipo(), f = $('fecha').value || today();
+    if (esQuincena()) {
+      const btn = $('save'); btn.disabled = true; btn.textContent = 'Guardando…';
+      try { await guardarQuincena(monto, f); closeSheet(); }
+      catch (e) { msg.className = 'msg err'; msg.textContent = 'No se guardó. Revisa tu conexión e intenta de nuevo.'; }
+      finally { btn.disabled = false; showQuincena(); }
+      return;
+    }
+    const doc = { tipo: t, monto, fecha: f, nota: $('nota').value.trim(), creado: new Date().toISOString(), origen: 'app' };
+    if (t === 'gasto') { doc.categoria = document.querySelector('input[name=cat]:checked').value; doc.medio = $('medio').value; }
     if (t === 'pago') {
-      doc.a = $('destinoPago').value; doc.fecha = $('fechaP').value || today();
+      doc.a = $('destinoPago').value;
       if (!doc.a) { msg.className = 'msg err'; msg.textContent = 'Elige a qué tarjeta va el pago.'; return; }
     }
-    if (t === 'mov') {
-      doc.fecha = $('fechaM').value || today();
-      if ($('dirMov').value === 'entrada') { doc.tipo = 'ingreso'; doc.concepto = 'Entrada'; } else { doc.tipo = 'ahorro'; doc.destino = 'salida'; }
-    }
+    if (t === 'entrada') { doc.tipo = 'ingreso'; doc.concepto = 'Entrada'; }
+    if (t === 'salida') { doc.tipo = 'ahorro'; doc.destino = 'salida'; }
     const btn = $('save'); const label = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
     try {
       if (editing) {
@@ -1015,7 +1068,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Quincena ----------
   // La placa aparece sola el día de pago (15 y 30) y se queda hasta que anotes la quincena.
   // Si el día de pago cae en sábado o domingo, aparece desde el viernes anterior.
-  // Si te pagan otro día, se abre desde Anotar → «Cayó la rata» (qForce).
+  // Si te pagan otro día, se anota desde Anotar → Entrada → Quincena.
   const DIA_SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   let qArmed = () => false, qForce = false;
   function renderQuincena() {
@@ -1044,28 +1097,32 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   };
   $('qBtn').addEventListener('click', () => qToggle($('qForm').hidden));
   $('qCancel').addEventListener('click', () => qToggle(false));
+  // Anota la quincena (y el apartado al ahorro si no está en pausa) y muestra el resumen. La usan la placa y el panel Anotar.
+  async function guardarQuincena(monto, f) {
+    const qp = state.cfg.quincena_plan || {};
+    const now = new Date().toISOString();
+    const vac = vacEn(f);
+    const qs = [await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Quincena', monto, fecha: f, nota: '', creado: now, origen: 'app' })];
+    if (vac > 0) qs.push(await db.collection('movs').add({ tipo: 'ahorro', destino: 'vacaciones', monto: vac, fecha: f, nota: 'Apartado de la quincena', creado: now, origen: 'app' }));
+    avisoDeshacer('Quincena anotada', qs, () => { $('qMsg').textContent = ''; $('qMsg').className = 'msg'; });
+    $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false'); qForce = false;
+    const msg = $('qMsg'); msg.className = 'msg notice';
+    const deu = num(qp.deuda), var_ = num(state.cfg.varios);
+    msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa: se queda en tu cuenta para diciembre') + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
+      (var_ > 0 ? ' Tienes ' + fmt0(var_) + ' para gastos varios.' : '') + (qp.nota_deuda ? '\n' + qp.nota_deuda : '');
+    document.querySelectorAll('.duo .tile').forEach((t) => { t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); });
+    setTimeout(() => { msg.textContent = ''; msg.className = 'msg'; }, 12000);
+    renderQuincena();
+  }
   $('qForm').addEventListener('submit', async (ev) => {
     ev.preventDefault();
     const fm = $('qFormMsg'); fm.className = 'msg'; fm.textContent = '';
     if (!db || !state.cfg) { fm.className = 'msg err'; fm.textContent = 'Sin conexión a tus datos en esta vista.'; return; }
     const monto = parseMonto($('qMonto').value);
     if (!(monto > 0)) { fm.className = 'msg err'; fm.textContent = 'Escribe cuánto te cayó exactamente.'; $('qMonto').focus(); return; }
-    const qp = state.cfg.quincena_plan || {};
-    const now = new Date().toISOString(); const f = $('qFecha').value || today();
-    const vac = vacEn(f);
     const btn = $('qSave'); btn.disabled = true; btn.textContent = 'Guardando…';
-    try {
-      const qs = [await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Quincena', monto, fecha: f, nota: '', creado: now, origen: 'app' })];
-      if (vac > 0) qs.push(await db.collection('movs').add({ tipo: 'ahorro', destino: 'vacaciones', monto: vac, fecha: f, nota: 'Apartado de la quincena', creado: now, origen: 'app' }));
-      avisoDeshacer('Quincena anotada', qs, () => { $('qMsg').textContent = ''; $('qMsg').className = 'msg'; });
-      $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false'); qForce = false;
-      const msg = $('qMsg'); msg.className = 'msg notice';
-      const deu = num(qp.deuda), var_ = num(state.cfg.varios);
-      msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa: se queda en tu cuenta para diciembre') + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
-        (var_ > 0 ? ' Tienes ' + fmt0(var_) + ' para gastos varios.' : '') + (qp.nota_deuda ? '\n' + qp.nota_deuda : '');
-      document.querySelectorAll('.duo .tile').forEach((t) => { t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); });
-      setTimeout(() => { msg.textContent = ''; msg.className = 'msg'; }, 12000);
-    } catch (e) { fm.className = 'msg err'; fm.textContent = 'No se guardó. Intenta de nuevo.'; }
+    try { await guardarQuincena(monto, $('qFecha').value || today()); }
+    catch (e) { fm.className = 'msg err'; fm.textContent = 'No se guardó. Intenta de nuevo.'; }
     finally { btn.disabled = false; btn.textContent = 'Guardar quincena'; renderQuincena(); }
   });
 
@@ -1612,6 +1669,13 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   const sortedMovs = () => state.movs.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.creado || '').localeCompare(a.creado || ''));
 
   // ---------- Pantalla ----------
+  // Coloca la píldora sobre la punta del relleno sin que se salga de la barra.
+  function ponerTip(tip, frac) {
+    const W = tip.parentElement.clientWidth, w = tip.offsetWidth;
+    if (!W || !w) { tip.style.left = Math.min(85, Math.max(15, frac * 100)) + '%'; return; }
+    tip.style.left = Math.min(W - w / 2, Math.max(w / 2, frac * W)) + 'px';
+  }
+  window.addEventListener('resize', () => { if (state.last) render(); });
   function render() {
     const cfg = state.cfg;
     const sel = $('destinoPago');
@@ -1630,9 +1694,9 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     const hero = $('hero'); hero.classList.remove('ok', 'warn', 'bad'); hero.classList.add(left < 0 ? 'bad' : left < lim * 0.25 ? 'warn' : 'ok');
     // Barra: muestra lo que te queda de la semana; el globito va en la punta del relleno.
     const qf = Math.max(0, Math.min(1, left / lim));
-    $('wFill').style.width = (qf * 100) + '%';
-    $('wTip').style.left = Math.min(92, Math.max(8, qf * 100)) + '%';
+    $('wFill').style.width = 'calc(' + (qf * 100) + '% - ' + (qf * 6).toFixed(2) + 'px)';
     $('wTip').textContent = left < 0 ? 'Te pasaste' : Math.round(qf * 100) + '%';
+    ponerTip($('wTip'), qf);
     $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
     $('wSub').textContent = (left < 0 ? 'te pasaste esta semana' : 'te quedan esta semana') + ' · gastado ' + fmt(c.weekSpent);
     const t = today();
@@ -1650,9 +1714,9 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
       ec.classList.toggle('over', eLeft < 0);
       // Barra: lo que usaste de la quincena; el globito dice cuánto te queda o cuánto te pasaste.
       const eu = Math.max(0, Math.min(1, c.emergUsed / eLim));
-      $('eFill').style.width = (eu * 100) + '%';
-      $('eTip').style.left = Math.min(85, Math.max(15, eu * 100)) + '%';
+      $('eFill').style.width = 'calc(' + (eu * 100) + '% - ' + (eu * 6).toFixed(2) + 'px)';
       $('eTip').textContent = eLeft < 0 ? '+' + fmt(-eLeft) : 'Te quedan ' + fmt(eLeft);
+      ponerTip($('eTip'), eu);
       $('emerg').setAttribute('aria-label', 'Gastos varios: ' + (eLeft < 0 ? 'te pasaste por ' + fmt(-eLeft) : 'te quedan ' + fmt(eLeft)));
       $('eSub').textContent = 'Usaste ' + fmt(c.emergUsed) + ' de ' + fmt0(eLim);
       $('eLib').textContent = 'Se libera el ' + short(c.emergNext);
@@ -1901,7 +1965,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.12';
+  const VERSION = '2026-11-03.15';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
