@@ -619,6 +619,9 @@ html, body { touch-action: manipulation; }
 .k-pago { background: rgba(var(--acento-rgb), .22); color: var(--acento-txt); }
 .k-ingreso { background: rgba(var(--ok-rgb), .18); color: var(--ok); }
 .chip:has(input:checked) .ic { color: var(--sel); }
+
+/* Por clasificar: el botón de pago de deuda ocupa toda la fila */
+.bchips .bpago { grid-column: 1 / -1; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -1055,7 +1058,8 @@ html, body { touch-action: manipulation; }
     // hasta que llega el estado de cuenta y se anota el interés real (gasto «interes» con pago_id int-<deuda>-AAAA-MM).
     const hoy = today();
     const debts = (cfg.deudas || []).map((d) => {
-      const de = (m) => m.tipo === 'gasto' && m.medio === d.id, a = (m) => m.tipo === 'pago' && m.a === d.id;
+      // Un pago hecho con la Visa (desde: 'visa') suma a la Visa como si fuera una compra.
+      const de = (m) => (m.tipo === 'gasto' && m.medio === d.id) || (d.id === 'visa' && m.tipo === 'pago' && m.desde === 'visa' && m.a !== 'visa'), a = (m) => m.tipo === 'pago' && m.a === d.id;
       const saldoAl = (f) => num(d.saldo_base) + sum(movs.filter((m) => de(m) && m.fecha <= f)) - sum(movs.filter((m) => a(m) && m.fecha <= f));
       let saldo = num(d.saldo_base) + sum(movs.filter(de)) - sum(movs.filter(a));
       const it = (cfg.intereses || {})[d.id];
@@ -1082,7 +1086,7 @@ html, body { touch-action: manipulation; }
     movs.forEach((m) => {
       const v = num(m.monto);
       if (m.tipo === 'ingreso') cuenta += v;
-      else if (m.tipo === 'pago') cuenta -= v;
+      else if (m.tipo === 'pago') { if (m.desde !== 'visa') cuenta -= v; } // pagado con Visa: sale de la cuenta cuando abonas la Visa
       else if (m.tipo === 'ahorro' && m.desde !== 'externo') cuenta -= v;
       else if (m.tipo === 'gasto' && m.medio === 'cuenta') cuenta -= v;
       else if (m.tipo === 'ajuste') cuenta += v;
@@ -1110,7 +1114,7 @@ html, body { touch-action: manipulation; }
     const weekSpent = perDay.reduce((a, d) => a + d.v, 0);
 
     // Compras nuevas con la Visa que aún no se abonan (sin contar los pagos del calendario, que cubren el saldo anterior).
-    const visaPend = sum(movs.filter((m) => m.tipo === 'gasto' && m.medio === 'visa')) - sum(movs.filter((m) => m.tipo === 'pago' && m.a === 'visa' && !m.pago_id));
+    const visaPend = sum(movs.filter((m) => (m.tipo === 'gasto' && m.medio === 'visa') || (m.tipo === 'pago' && m.desde === 'visa' && m.a !== 'visa'))) - sum(movs.filter((m) => m.tipo === 'pago' && m.a === 'visa' && !m.pago_id));
 
     // Gastos varios: se cuenta solo lo de la quincena actual; lo que sobra no se acumula.
     const pd = periodo();
@@ -1544,6 +1548,10 @@ html, body { touch-action: manipulation; }
     return null;
   }
   // ---------- Por clasificar: cobros leídos de los SMS del banco ----------
+  // Comercio del SMS que corresponde a una deuda (Config → pagos_sms, p. ej. {"CREDISIMAN":"siman"}).
+  const deudaDeComercio = (com) => { const c = String(com || '').toUpperCase(), m = (state.cfg && state.cfg.pagos_sms) || {}; const k = Object.keys(m).find((x) => c.includes(x.toUpperCase())); return k ? m[k] : null; };
+  // Fila del calendario de pagos que cuadra con ese pago (misma deuda, mismo monto, todavía sin pagar).
+  const pagoDelCalendario = (deuda, monto) => (((state.cfg && state.cfg.pagos) || []).find((p) => !state.movs.some((m) => m.pago_id === p.id) && (p.partes || []).some((x) => x.a === deuda && Math.abs(num(x.monto) - monto) < 0.01)) || {}).id;
   function renderBandeja() {
     const pend = state.movs.filter((m) => m.tipo === 'gasto' && (m.categoria === 'pendiente' || m.medio === 'sms')).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
     $('bandHead').hidden = $('banda').hidden = !pend.length;
@@ -1572,8 +1580,24 @@ html, body { touch-action: manipulation; }
       }
       const del = el('button', 'del', 'No es mío / borrar'); del.type = 'button'; del.addEventListener('click', () => borrarMov(m));
       pie.append(del);
+      const deuda = deudaDeComercio(m._comercio);
+      if (deuda) {
+        const nom = ((state.cfg.deudas || []).find((d) => d.id === deuda) || {}).nombre || deuda;
+        const bp = el('button', 'sug bpago', 'Pago a ' + nom); bp.type = 'button';
+        bp.addEventListener('click', async () => {
+          if (!db) return;
+          const medio = medioSel ? medioSel.value : m.medio;
+          if (!medio || medio === 'sms') { medioSel.focus(); return; }
+          const monto = num(m.monto);
+          const doc = limpiar({ tipo: 'pago', a: deuda, desde: medio === 'visa' ? 'visa' : undefined, monto, fecha: m.fecha, nota: 'Pago por SMS · ' + (m._comercio || ''), pago_id: pagoDelCalendario(deuda, monto), creado: m.creado, origen: 'sms', editado: new Date().toISOString() });
+          const qs = [await db.doc('movs/' + m.id).set(doc)];
+          if (medio === 'visa' && abonoCb && abonoCb.checked) qs.push(await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto, fecha: today(), nota: 'Abono de compras con Visa', creado: new Date().toISOString(), origen: 'app' }));
+          avisoDeshacer('Pago a ' + nom + ' ' + fmt(monto) + (qs.length > 1 ? ' · abonado' : ''), qs);
+        });
+        chips.append(bp);
+      }
       for (const [id, lbl] of opts) {
-        const b = el('button', id === sug ? 'sug' : null, lbl); b.type = 'button';
+        const b = el('button', id === sug && !deuda ? 'sug' : null, lbl); b.type = 'button';
         b.addEventListener('click', async () => {
           if (!db) return;
           const medio = medioSel ? medioSel.value : m.medio;
@@ -1684,7 +1708,7 @@ html, body { touch-action: manipulation; }
       || (id ? id.charAt(0).toUpperCase() + id.slice(1) : '');
     let key = 'otros', what = 'Gasto', tipoLbl = 'Gasto', medio = MEDIO[m.medio] || '', sign = '−', inClass = '', filtro = m.categoria;
     if (m.tipo === 'gasto') { const c = CATS.find((x) => x.id === m.categoria); key = c ? c.id : 'otros'; what = c ? c.label : 'Otros'; filtro = key; }
-    else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); tipoLbl = 'Pago'; medio = ''; filtro = 'pago'; }
+    else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); tipoLbl = 'Pago'; medio = m.desde === 'visa' ? 'Con Visa' : ''; filtro = 'pago'; }
     else if (m.tipo === 'ingreso') { key = 'ingreso'; what = m.concepto || 'Entrada'; tipoLbl = 'Entrada'; sign = '+'; inClass = ' in'; medio = ''; filtro = 'ingreso'; }
     else if (m.tipo === 'ajuste') { key = 'otros'; what = 'Ajuste con el banco'; tipoLbl = 'Ajuste'; sign = num(m.monto) >= 0 ? '+' : '−'; inClass = num(m.monto) >= 0 ? ' in' : ''; medio = ''; filtro = 'ajuste'; }
     else if (m.destino === 'salida') { key = 'salida'; what = 'Salida'; tipoLbl = 'Salida'; medio = ''; filtro = 'salida'; }
@@ -1693,7 +1717,8 @@ html, body { touch-action: manipulation; }
     if (m.categoria === 'pendiente') { return { key: 'pago', what: m._comercio || 'Cobro por clasificar', tipoLbl: 'Por clasificar', medio: MEDIO[m.medio] || 'Tarjeta', nota: 'Por clasificar', sign, inClass, filtro, editable: false }; }
     if (m.categoria === 'interes') { return { key: 'interes', what: 'Interés ' + debtName(m.medio), tipoLbl: 'Intereses', medio: 'Estado de cuenta', nota: m.nota || '', sign, inClass, filtro, editable: false }; }
     if (m.categoria === 'fijo') { what = m.nota || 'Cobro fijo'; return { key, what, tipoLbl: 'Cobro fijo', medio, nota: 'Cobro fijo', sign, inClass, filtro, editable: false }; }
-    return { key, what, tipoLbl, medio, nota: m.nota || '', sign, inClass, filtro, editable: m.tipo !== 'ajuste' };
+    const auto = m.concepto === 'auto' ? 'auto' : ''; // anotado solo por el puente (comercio conocido o pago detectado)
+    return { key, what, tipoLbl, medio, nota: [auto, m.nota || ''].filter(Boolean).join(' · '), sign, inClass, filtro, editable: m.tipo !== 'ajuste' };
   }
   const editMov = (m) => { if (m.tipo === 'ahorro' && m.destino === 'vacaciones') ahToggle(true, m); else openSheet(m); };
   const borrarMov = async (m) => { if (!db) return; const q = await db.doc('movs/' + m.id).delete(); avisoDeshacer('Borrado: ' + desc(m).what + ' ' + fmt(Math.abs(num(m.monto))), [q]); };
@@ -1909,6 +1934,7 @@ html, body { touch-action: manipulation; }
       ingreso_quincena: num(c.ingreso_quincena), varios: num(c.varios_quincena), gasolina: num(c.gasolina_quincena), fijos_desde: String(c.fijos_desde || '').slice(0, 7),
       plan_deuda: c.plan_deuda || '',
       tarjetas: (() => { try { const x = JSON.parse(c.tarjetas || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
+      pagos_sms: (() => { try { const x = JSON.parse(c.pagos_sms || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       intereses: (() => { try { const x = JSON.parse(c.intereses || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       fijos: (() => { try { const f = JSON.parse(c.fijos || '[]'); return Array.isArray(f) ? f : []; } catch (e) { return []; } })(),
       ahorro_pausa: (() => { try { const x = JSON.parse(c.ahorro_pausa || 'null'); return x && x.desde && x.hasta ? x : null; } catch (e) { return null; } })(),
@@ -2064,7 +2090,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.27';
+  const VERSION = '2026-11-03.28';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
