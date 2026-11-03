@@ -612,6 +612,13 @@ html, body { touch-action: manipulation; }
 :root[data-paleta="momiji"] { --bg-base: #0B0705; --blob: 190,110,60; --glow: 200,80,40; --brand: #F1B65E; --on-brand: #1a1005; --red: #C2412A; --acento-txt: #EE6B4C; --sel: #EE6B4C; --acento-rgb: 214,90,52; --ok: #A9BD6E; --ok-rgb: 169,189,110; --sel-ok: #A9BD6E; --green: #6F8640; --brand-2: #6F8640; --ink: #F4EDE4; --muted: #9A8D80; }
 :root[data-paleta="neon"] { --bg-base: #05050B; --blob: 110,80,200; --glow: 255,61,139; --brand: #3EE6E0; --on-brand: #04201f; --red: #FF3D8B; --acento-txt: #FF5C9E; --sel: #FF5C9E; --acento-rgb: 255,61,139; --ok: #3EE6E0; --ok-rgb: 62,230,224; --sel-ok: #3EE6E0; --green: #1FA8A3; --brand-2: #1FA8A3; --ink: #ECEBFF; --muted: #8C8AA8; }
 :root[data-paleta] .fab { color: var(--on-brand); } :root[data-paleta="sumi"] .fab, :root[data-paleta="ai"] .fab, :root[data-paleta="sakura"] .fab, :root[data-paleta="momiji"] .fab, :root[data-paleta="neon"] .fab, :root[data-paleta="matcha"] .fab { color: #fff; }
+
+/* Íconos de gasto parejos: todos del color del tema sobre el mismo fondo (solo el elegido cambia al color de selección).
+   Los pagos van en el color de acento y las entradas en el color positivo, para distinguirlos. */
+.ic, .k-comida, .k-gasolina, .k-otros, .k-varios, .k-fijo, .k-salida, .k-ahorro, .k-interes { background: rgba(255,255,255,.06); color: var(--brand); }
+.k-pago { background: rgba(var(--acento-rgb), .22); color: var(--acento-txt); }
+.k-ingreso { background: rgba(var(--ok-rgb), .18); color: var(--ok); }
+.chip:has(input:checked) .ic { color: var(--sel); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -2057,7 +2064,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.26';
+  const VERSION = '2026-11-03.27';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
