@@ -230,7 +230,7 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .seg label:has(input:focus-visible) { outline: 3px solid var(--brand-2); }
 .amount { display: flex; align-items: center; justify-content: center; gap: 2px; padding-block: 4px; }
 .amount span { font-family: var(--num); font-size: 46px; font-weight: 800; color: var(--red); line-height: 1; }
-.amount input { width: 7ch; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 72px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; outline: none; text-align: left; line-height: 1.05; }
+.amount input { width: 7ch; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 72px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; outline: none; text-align: left; line-height: 1.05; padding: 0; margin: 0; text-indent: 0; -webkit-appearance: none; appearance: none; border-radius: 0; max-width: 78vw; }
 .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .chips .chip { font-size: 11.5px; line-height: 1.2; }
 /* Gastos varios */
@@ -874,7 +874,15 @@ html, body { touch-action: manipulation; }
     showAbono(); showQuincena();
   };
   document.querySelectorAll('input[name=tipo], input[name=ent]').forEach((r) => r.addEventListener('change', showFields));
-  const anchoMonto = () => { const n = ($('monto').value || $('monto').placeholder).length; $('monto').style.width = (Math.max(4, Math.min(9, n)) + 0.4) + 'ch'; };
+  // El campo del monto mide exactamente lo que se escribe (medido con la misma letra), así el $ queda pegado y nada se corta.
+  const lienzo = document.createElement('canvas').getContext('2d');
+  const anchoMonto = () => {
+    const i = $('monto'), cs = getComputedStyle(i), t = i.value || i.placeholder || '0.00';
+    lienzo.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    const ls = parseFloat(cs.letterSpacing) || 0;
+    i.style.width = Math.ceil(lienzo.measureText(t).width + ls * t.length + 10) + 'px';
+  };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(anchoMonto);
   $('monto').addEventListener('input', anchoMonto);
   $('medio').addEventListener('change', showAbono);
   $('fecha').addEventListener('change', () => { fechaLbl(); showQuincena(); });
@@ -1988,7 +1996,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.19';
+  const VERSION = '2026-11-03.20';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
