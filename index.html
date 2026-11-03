@@ -440,6 +440,7 @@ body[data-tab="deudas"] .app [data-t]:not([data-t~="deudas"]) { display: none !i
 body[data-tab="pagos"] :is(#pagosHead, #pagos) { order: 1; }
 body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 #emerg.over b { color: var(--bad); }
+#emerg { grid-column: 1 / -1; }
 .duo { grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); }
 
 .tabs { position: fixed; z-index: 21; left: 50%; transform: translateX(-50%); bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(440px, calc(100vw - 24px));
@@ -502,8 +503,6 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 .qt span:empty { display: none; }
 .btn.qgo { padding: 9px 14px; font-size: 13px; border-radius: 99px; box-shadow: inset 0 1px 0 rgba(255,255,255,.7); }
 
-/* Gasolina en Inicio */
-#gTile.over b { color: var(--bad); }
 
 /* Anotar: acceso a la quincena */
 .rata-link { display: flex; align-items: center; gap: 10px; width: 100%; font: inherit; text-align: left; color: var(--ink); cursor: pointer;
@@ -597,11 +596,6 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     <div class="tile" data-t="inicio">
       <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
       <b id="tAhorro">—</b>
-    </div>
-    <div class="tile" id="gTile" data-t="inicio" hidden>
-      <div class="row"><span class="lbl">Gasolina</span><button class="mini" type="button" id="gasAdd">Poner gas</button></div>
-      <b id="tGas">—</b>
-      <span class="libre" id="gSub"></span>
     </div>
     <div class="tile" id="emerg" data-t="inicio" aria-label="Gastos varios" hidden>
       <div class="row"><span class="lbl">Gastos varios</span></div>
@@ -859,10 +853,6 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
     window.scrollTo(0, 0);
   };
   document.querySelectorAll('#tabs [data-go]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go)));
-  $('gasAdd').addEventListener('click', () => {
-    openSheet(null); $('cat-gasolina').checked = true; $('medio').value = 'visa'; showAbono();
-    $('nota').value = 'Gasolina';
-  });
   $('rataLink').addEventListener('click', () => {
     closeSheet(); setTab('inicio'); qForce = true; renderQuincena();
     if (!$('qBtn').disabled) qToggle(true);
@@ -1014,16 +1004,23 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 
   // ---------- Quincena ----------
   // La placa aparece sola el día de pago (15 y 30) y se queda hasta que anotes la quincena.
+  // Si el día de pago cae en sábado o domingo, aparece desde el viernes anterior.
   // Si te pagan otro día, se abre desde Anotar → «Cayó la rata» (qForce).
+  const DIA_SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   let qArmed = () => false, qForce = false;
   function renderQuincena() {
     if (!state.cfg || qArmed()) return;
-    const qd = quincena(), got = !!qd.q, pend = !got && !qd.adelantada;
+    const qd = quincena(), got = !!qd.q, t = today();
+    const finde = (f) => { const d = parse(f).getDay(); return d === 6 ? addDays(f, -1) : d === 0 ? addDays(f, -2) : null; }; // viernes antes, si cae en fin de semana
+    const dn = parse(qd.pd.next).getDay(), viernes = finde(qd.pd.next);
+    const antes = !got && !!viernes && t >= viernes;           // fin de semana: se paga el viernes
+    const pend = !got && (!qd.adelantada || antes);
     $('qCard').hidden = !(pend || qForce);
     $('qBtn').disabled = got;
     $('qLbl').textContent = got ? 'Ya cayó ✓' : 'Cayó la rata';
-    $('qTitle').textContent = got ? 'La quincena ya está anotada' : pend ? (qd.pd.prev === today() ? 'Hoy es día de pago' : 'Día de pago: ' + short(qd.pd.prev)) : 'Anotar la quincena';
-    $('qSub').textContent = got ? '' : 'Lo de siempre: ' + fmt(ingresoQ());
+    const diaPago = antes ? viernes : (finde(qd.pd.prev) || qd.pd.prev);
+    $('qTitle').textContent = got ? 'La quincena ya está anotada' : pend ? (diaPago === t ? 'Hoy es día de pago' : 'Día de pago: ' + short(diaPago)) : 'Anotar la quincena';
+    $('qSub').textContent = got ? '' : (antes ? 'El ' + parse(qd.pd.next).getDate() + ' cae ' + DIA_SEMANA[dn] + ' · lo de siempre: ' : 'Lo de siempre: ') + fmt(ingresoQ());
   }
   qArmed = () => !$('qForm').hidden;
   const qToggle = (open) => {
@@ -1635,15 +1632,6 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 
     // Saldos
     $('tCuenta').textContent = fmt(c.cuenta);
-    const gLim = num(cfg.gasolina); $('gTile').hidden = !(gLim > 0);
-    if (gLim > 0) {
-      const gp = periodo();
-      const gUso = round2(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= gp.desde && m.fecha < gp.hasta).reduce((s, m) => s + num(m.monto), 0));
-      const gQ = round2(gLim - gUso);
-      $('gTile').classList.toggle('over', gQ < 0);
-      $('tGas').textContent = gQ < 0 ? '−' + fmt(-gQ) : fmt(gQ);
-      $('gSub').textContent = gQ < 0 ? 'te pasaste' : 'de ' + fmt0(gLim) + ' esta quincena';
-    }
     renderApartado(c);
     $('tAhorro').textContent = fmt(c.ahorro);
     const eLim = num(cfg.varios); const ec = $('emerg'); ec.hidden = !(eLim > 0);
@@ -1711,7 +1699,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
 
   // ---------- Signo de dólar en rojo ----------
   // Los montos se escriben como texto; aquí se envuelve el "$" en un span para pintarlo.
-  const CON_DOLAR = '#weekLeft, #tCuenta, #tGas, #sVal, #tAhorro, #tDeuda, #eLeft, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
+  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, #eLeft, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
   function dolares(root) {
     (root || document).querySelectorAll(CON_DOLAR).forEach((e) => {
       if (e.querySelector('.dl') || !e.textContent.includes('$')) return;
@@ -1892,7 +1880,7 @@ body[data-tab="pagos"] :is(#fijosHead, #fijos) { order: 2; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.7';
+  const VERSION = '2026-11-03.9';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
