@@ -588,6 +588,7 @@ html, body { touch-action: manipulation; }
 .sobre .prog span, .fprog span, .cam-bar span { background: var(--brand); }
 .fx.gas .fprog span, .cam-row.fin .cam-bar span { background: var(--ok); }
 .fx.gas.over .fprog span { background: var(--bad); }
+.hero.bad .wfill { background: var(--bad); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -1731,10 +1732,10 @@ html, body { touch-action: manipulation; }
     // Semana
     const lim = num(cfg.limite_semana) || 55; const left = lim - c.weekSpent;
     const hero = $('hero'); hero.classList.remove('ok', 'warn', 'bad'); hero.classList.add(left < 0 ? 'bad' : left < lim * 0.25 ? 'warn' : 'ok');
-    // Barra: muestra lo que te queda de la semana; el globito va en la punta del relleno.
-    const qf = Math.max(0, Math.min(1, left / lim));
+    // Barra: se va llenando con lo que gastas de la semana; el globito va en la punta del relleno.
+    const qf = Math.max(0, Math.min(1, c.weekSpent / lim));
     $('wFill').style.width = 'calc(' + (qf * 100) + '% - ' + (qf * 5).toFixed(2) + 'px)';
-    $('wTip').textContent = left < 0 ? 'Te pasaste' : Math.round(qf * 100) + '%';
+    $('wTip').textContent = left < 0 ? 'Te pasaste' : Math.round(qf * 100) + '% usado';
     ponerTip($('wTip'), qf);
     $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
     $('wSub').textContent = (left < 0 ? 'te pasaste esta semana' : 'te quedan esta semana') + ' · gastado ' + fmt(c.weekSpent);
@@ -2012,7 +2013,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.22';
+  const VERSION = '2026-11-03.23';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
