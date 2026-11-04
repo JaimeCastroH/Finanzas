@@ -622,6 +622,13 @@ html, body { touch-action: manipulation; }
 
 /* Por clasificar: el botón de pago de deuda ocupa toda la fila */
 .bchips .bpago { grid-column: 1 / -1; }
+
+/* Devoluciones debajo de su gasto */
+.devs { margin: -4px 0 6px 52px; padding-left: 10px; border-left: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.devln { display: flex; justify-content: space-between; align-items: center; gap: 10px; font: inherit; font-size: 12.5px; color: var(--muted); background: none; border: 0; padding: 3px 0; text-align: left; cursor: pointer; }
+.devln .v { font-family: var(--num); font-weight: 800; font-size: 14px; }
+.tuparte { font-size: 12.5px; font-weight: 600; color: var(--ok); padding: 2px 0 4px; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -846,7 +853,17 @@ html, body { touch-action: manipulation; }
       <div class="field full" id="notaRow" hidden><label for="nota">Nota</label><input type="text" id="nota" maxlength="80" placeholder="Ej. almuerzo con el equipo"></div>
       <label class="abono" id="abonoRow"><input type="checkbox" id="yaAbone" checked><span>Ya lo aboné a la Visa <small>Si aún no, desmárcala y te queda el aviso.</small></span></label>
       <button class="btn block" type="submit" id="save">Guardar</button>
+      <button class="btn block ghost" type="button" id="devBtn" hidden>Me devolvieron una parte</button>
       <div class="msg" id="msg" role="status"></div>
+    </form>
+    <form id="devForm" class="stack" novalidate hidden>
+      <p class="small muted" id="devTit" style="margin:0"></p>
+      <div class="amount"><span>$</span><input id="devMonto" inputmode="decimal" autocomplete="off" placeholder="0.00" aria-label="Cuánto te devolvieron"></div>
+      <div class="field full"><label for="devQuien">¿Quién te lo devolvió?</label><input type="text" id="devQuien" maxlength="40" placeholder="Ej. Rudy" autocomplete="off"></div>
+      <p class="qhint" id="devHint"></p>
+      <button class="btn block" type="submit" id="devSave">Guardar devolución</button>
+      <button class="btn block ghost" type="button" id="devCancel">Volver</button>
+      <div class="msg" id="devMsg" role="status"></div>
     </form>
   </div>
 </div>
@@ -936,8 +953,8 @@ html, body { touch-action: manipulation; }
   document.querySelectorAll('input[name=tipo], input[name=ent]').forEach((r) => r.addEventListener('change', showFields));
   // El campo del monto mide exactamente lo que se escribe (medido con la misma letra), así el $ queda pegado y nada se corta.
   const lienzo = document.createElement('canvas').getContext('2d');
-  const anchoMonto = () => {
-    const i = $('monto'), cs = getComputedStyle(i), t = i.value || i.placeholder || '0.00';
+  const anchoMonto = (el) => {
+    const i = el && el.nodeType ? el : $('monto'), cs = getComputedStyle(i), t = i.value || i.placeholder || '0.00';
     lienzo.font = cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
     const ls = parseFloat(cs.letterSpacing) || 0;
     i.style.width = Math.ceil(lienzo.measureText(t).width + ls * t.length + 10) + 'px';
@@ -971,6 +988,8 @@ html, body { touch-action: manipulation; }
     }
     verNota(!!$('nota').value); fechaLbl(); anchoMonto();
     $('yaAbone').checked = true; showFields();
+    $('devBtn').hidden = !(editing && editing.tipo === 'gasto' && ['comida', 'gasolina', 'otros', 'varios'].includes(editing.categoria));
+    $('form').hidden = false; $('devForm').hidden = true;
     $('scrim').hidden = false; $('sheet').hidden = false; $('app').inert = true; $('fab').inert = true;
     setTimeout(() => $('monto').focus(), 50);
   };
@@ -990,6 +1009,35 @@ html, body { touch-action: manipulation; }
       z.addEventListener('pointerup', end); z.addEventListener('pointercancel', end); });
   })();
   $('fab').addEventListener('click', () => openSheet(null));
+  // «Me devolvieron una parte»: entrada ligada al gasto que se está editando.
+  let devDe = null;
+  const devPreview = () => {
+    if (!devDe) return;
+    const ya = state.movs.filter((d) => esDev(d) && d.a === devDe.id).reduce((s, d) => s + num(d.monto), 0);
+    const v = parseMonto($('devMonto').value) || 0;
+    const cat = (CATS.find((c) => c.id === devDe.categoria) || {}).label || 'la categoría';
+    $('devHint').textContent = 'Tu parte queda en ' + fmt(round2(num(devDe.monto) - ya - v)) + '. Entra a tu cuenta y se descuenta de ' + cat + '.';
+  };
+  $('devBtn').addEventListener('click', () => {
+    devDe = editing; const D = desc(devDe);
+    $('sheetTitle').textContent = 'Me devolvieron';
+    $('devTit').textContent = (D.nota || D.what) + ' · ' + fmt(num(devDe.monto));
+    $('devMonto').value = ''; $('devQuien').value = ''; $('devMsg').textContent = '';
+    $('form').hidden = true; $('devForm').hidden = false; devPreview(); anchoMonto($('devMonto'));
+    setTimeout(() => $('devMonto').focus(), 50);
+  });
+  $('devMonto').addEventListener('input', () => { devPreview(); anchoMonto($('devMonto')); });
+  $('devCancel').addEventListener('click', () => { $('devForm').hidden = true; $('form').hidden = false; $('sheetTitle').textContent = 'Editar'; });
+  $('devForm').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const msg = $('devMsg'); msg.className = 'msg'; msg.textContent = '';
+    if (!db || !devDe) { msg.className = 'msg err'; msg.textContent = 'Sin conexión a tus datos en esta vista.'; return; }
+    const monto = parseMonto($('devMonto').value);
+    if (!(monto > 0)) { msg.className = 'msg err'; msg.textContent = 'Escribe cuánto te devolvieron.'; $('devMonto').focus(); return; }
+    const q = await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Devolución', categoria: devDe.categoria, a: devDe.id, monto, fecha: today(), nota: $('devQuien').value.trim(), creado: new Date().toISOString(), origen: 'app' });
+    avisoDeshacer(($('devQuien').value.trim() || 'Devolución') + ': +' + fmt(monto), [q]);
+    devDe = null; closeSheet();
+  });
   // Pestañas: Inicio, Movimientos, Pagos y Deudas.
   const setTab = (t) => {
     document.body.dataset.tab = t;
@@ -1028,7 +1076,7 @@ html, body { touch-action: manipulation; }
     try {
       if (editing) {
         const keep = {};
-        ['creado', 'origen', 'pago_id', 'desde'].forEach((k) => { if (editing[k] != null) keep[k] = editing[k]; });
+        ['creado', 'origen', 'pago_id', 'desde'].concat(esDev(editing) ? ['a', 'categoria'] : []).forEach((k) => { if (editing[k] != null) keep[k] = editing[k]; });
         if (doc.tipo === 'ingreso' && editing.tipo === 'ingreso' && editing.concepto) doc.concepto = editing.concepto;
         if (doc.tipo === 'ahorro' && editing.tipo === 'ahorro' && editing.destino) doc.destino = editing.destino;
         const q = await db.doc('movs/' + editing.id).set({ ...keep, ...doc, creado: keep.creado || doc.creado, editado: new Date().toISOString() });
@@ -1048,6 +1096,12 @@ html, body { touch-action: manipulation; }
   });
 
   // ---------- Cálculos ----------
+  // Devolución: alguien te pagó su parte de un gasto. Es una entrada (sube la cuenta) ligada al gasto (a = id del gasto)
+  // y con su categoría, para que la semana, gasolina y gastos varios cuenten solo tu parte.
+  const esDev = (m) => m.tipo === 'ingreso' && m.concepto === 'Devolución';
+  const fechaDev = (d) => { const g = state.movs.find((x) => x.id === d.a); return g ? g.fecha : d.fecha; };
+  const gastado = (cat, desde, hasta) => round2(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === cat && m.fecha >= desde && m.fecha < hasta).reduce((s, m) => s + num(m.monto), 0)
+    - state.movs.filter((m) => esDev(m) && m.categoria === cat && fechaDev(m) >= desde && fechaDev(m) < hasta).reduce((s, m) => s + num(m.monto), 0));
   function compute() {
     const cfg = state.cfg; if (!cfg) return null;
     const base = cfg.base_fecha || '0000-00-00';
@@ -1109,7 +1163,7 @@ html, body { touch-action: manipulation; }
     const wcats = CATS.filter((c) => c.semana).map((c) => c.id);
     const perDay = Array.from({ length: 7 }, (_, i) => {
       const f = addDays(ws, i);
-      return { f, v: sum(state.movs.filter((m) => m.tipo === 'gasto' && wcats.includes(m.categoria) && m.fecha === f)) };
+      return { f, v: sum(state.movs.filter((m) => m.tipo === 'gasto' && wcats.includes(m.categoria) && m.fecha === f)) - sum(state.movs.filter((m) => esDev(m) && wcats.includes(m.categoria) && fechaDev(m) === f)) };
     });
     const weekSpent = perDay.reduce((a, d) => a + d.v, 0);
 
@@ -1118,7 +1172,7 @@ html, body { touch-action: manipulation; }
 
     // Gastos varios: se cuenta solo lo de la quincena actual; lo que sobra no se acumula.
     const pd = periodo();
-    const emergUsed = round2(sum(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'varios' && m.fecha >= pd.desde && m.fecha < pd.hasta)));
+    const emergUsed = gastado('varios', pd.desde, pd.hasta);
 
     return { debts, cuenta, ahorro: round2(ahorro), weekSpent, perDay, visaPend: Math.max(0, round2(visaPend)), emergUsed, emergNext: pd.hasta };
   }
@@ -1659,7 +1713,7 @@ html, body { touch-action: manipulation; }
     // Gasolina: presupuesto por quincena; lo que no se usa queda libre en la cuenta el día de pago.
     if (gLim > 0) {
       const pd = periodo();
-      const usado = round2(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= pd.desde && m.fecha < pd.hasta).reduce((s, m) => s + num(m.monto), 0));
+      const usado = gastado('gasolina', pd.desde, pd.hasta);
       const queda = round2(gLim - usado);
       const row = el('div', 'fx gas' + (queda < 0 ? ' over' : ''));
       const t = el('div', 't'); t.append(el('div', null, 'Gasolina'),
@@ -1709,7 +1763,7 @@ html, body { touch-action: manipulation; }
     let key = 'otros', what = 'Gasto', tipoLbl = 'Gasto', medio = MEDIO[m.medio] || '', sign = '−', inClass = '', filtro = m.categoria;
     if (m.tipo === 'gasto') { const c = CATS.find((x) => x.id === m.categoria); key = c ? c.id : 'otros'; what = c ? c.label : 'Otros'; filtro = key; }
     else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); tipoLbl = 'Pago'; medio = m.desde === 'visa' ? 'Con Visa' : ''; filtro = 'pago'; }
-    else if (m.tipo === 'ingreso') { key = 'ingreso'; what = m.concepto || 'Entrada'; tipoLbl = 'Entrada'; sign = '+'; inClass = ' in'; medio = ''; filtro = 'ingreso'; }
+    else if (m.tipo === 'ingreso') { key = 'ingreso'; what = esDev(m) ? (m.nota ? m.nota + ' te devolvió' : 'Devolución') : (m.concepto || 'Entrada'); tipoLbl = esDev(m) ? 'Devolución' : 'Entrada'; sign = '+'; inClass = ' in'; medio = ''; filtro = 'ingreso'; if (esDev(m)) { const g = state.movs.find((x) => x.id === m.a); return { key, what, tipoLbl, medio: '', nota: g ? 'De ' + (desc(g).nota || desc(g).what) : '', sign, inClass, filtro, editable: true }; } }
     else if (m.tipo === 'ajuste') { key = 'otros'; what = 'Ajuste con el banco'; tipoLbl = 'Ajuste'; sign = num(m.monto) >= 0 ? '+' : '−'; inClass = num(m.monto) >= 0 ? ' in' : ''; medio = ''; filtro = 'ajuste'; }
     else if (m.destino === 'salida') { key = 'salida'; what = 'Salida'; tipoLbl = 'Salida'; medio = ''; filtro = 'salida'; }
     else { key = 'ahorro'; what = 'Ahorro'; tipoLbl = 'Ahorro'; sign = '+'; inClass = ' in'; medio = m.desde === 'externo' ? 'Dinero extra' : 'Desde tu cuenta'; filtro = 'ahorro'; }
@@ -1871,9 +1925,22 @@ html, body { touch-action: manipulation; }
     histDias = Math.max(1, Math.min(histDias, fechas.length));
     const visibles = new Set(fechas.slice(0, histDias));
     const diaTxt = (f) => f === t ? 'Hoy' : f === ayer ? 'Ayer' : DIAS[parse(f).getDay()].slice(0, 3) + ' ' + short(f);
-    list.filter((m) => visibles.has(m.fecha)).forEach((m) => {
+    const devsDe = (id) => list.filter((d) => esDev(d) && d.a === id);
+    const conPadre = new Set(list.filter((d) => esDev(d) && list.some((g) => g.id === d.a && visibles.has(g.fecha))).map((d) => d.id));
+    list.filter((m) => visibles.has(m.fecha) && !conPadre.has(m.id)).forEach((m) => {
       if (m.fecha !== lastF) { lastF = m.fecha; out.push(el('div', 'daygrp', diaTxt(m.fecha))); }
       out.push(rowFor(m));
+      const devs = m.tipo === 'gasto' ? devsDe(m.id) : [];
+      if (devs.length) {
+        const box = el('div', 'devs');
+        devs.forEach((d) => {
+          const ln = el('button', 'devln'); ln.type = 'button'; ln.setAttribute('aria-label', 'Editar devolución de ' + (d.nota || ''));
+          ln.append(el('span', null, '↳ ' + (d.nota ? d.nota + ' te devolvió' : 'Devolución')), el('span', 'v in', '+' + fmt(num(d.monto))));
+          ln.addEventListener('click', () => editMov(d)); box.append(ln);
+        });
+        box.append(el('div', 'tuparte', 'Tu parte: ' + fmt(round2(num(m.monto) - devs.reduce((s, d) => s + num(d.monto), 0)))));
+        out.push(box);
+      }
     });
     const sig = fechas[histDias];
     if (sig || histDias > 1) {
@@ -2090,7 +2157,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.28';
+  const VERSION = '2026-11-03.29';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
