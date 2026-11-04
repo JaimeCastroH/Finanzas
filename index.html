@@ -629,6 +629,14 @@ html, body { touch-action: manipulation; }
 .devln .v { font-family: var(--num); font-weight: 800; font-size: 14px; }
 .tuparte { font-size: 12.5px; font-weight: 600; color: var(--ok); padding: 2px 0 4px; }
 .btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+
+/* Tarjeta de la semana desplegable */
+.wmore { display: inline-flex; align-items: center; gap: 4px; align-self: center; margin-top: 8px; font: inherit; font-size: 12.5px; font-weight: 600; color: var(--sel); background: none; border: 0; padding: 4px 8px; border-radius: 99px; cursor: pointer; }
+.wmore:focus-visible { outline: 2px solid var(--sel); }
+.wlist { text-align: left; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); display: flex; flex-direction: column; gap: 2px; }
+.wtot { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+.wlist .daygrp { margin-top: 8px; }
+.wlist .mov { padding-block: 6px; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -669,6 +677,8 @@ html, body { touch-action: manipulation; }
     <div class="wbar" aria-hidden="true"><div class="wtrack"><div class="wfill" id="wFill"></div><div class="wtip" id="wTip">—</div></div></div>
     <div class="big" id="weekLeft">$—</div>
     <p class="wsub" id="wSub">te quedan esta semana</p>
+    <button class="wmore" type="button" id="wMore" aria-expanded="false" aria-controls="wList">Ver gastos de la semana <span aria-hidden="true">▾</span></button>
+    <div class="wlist" id="wList" hidden></div>
     <p class="note" id="weekNote" hidden></p>
     <div class="visa-alert" id="visaBanner" hidden><span id="visaTxt"></span><button class="mini" type="button" id="visaBtn">Ya aboné</button></div>
   </section>
@@ -1836,6 +1846,46 @@ html, body { touch-action: manipulation; }
   }
   [fMes, fTipo].forEach((x) => x.addEventListener('change', () => { renderTabla(sortedMovs()); dolares(); }));
   fQ.addEventListener('input', () => { renderTabla(sortedMovs()); dolares(); });
+  // Devoluciones debajo de un gasto, con «Tu parte» (se usa en Movimientos y en la tarjeta de la semana).
+  function bloqueDevs(m, lista) {
+    const devs = m.tipo === 'gasto' ? lista.filter((d) => esDev(d) && d.a === m.id) : [];
+    if (!devs.length) return null;
+    const box = el('div', 'devs');
+    devs.forEach((d) => {
+      const ln = el('button', 'devln'); ln.type = 'button'; ln.setAttribute('aria-label', 'Editar devolución de ' + (d.nota || ''));
+      ln.append(el('span', null, '↳ ' + (d.nota ? d.nota + ' te devolvió' : 'Devolución')), el('span', 'v in', '+' + fmt(num(d.monto))));
+      ln.addEventListener('click', () => editMov(d)); box.append(ln);
+    });
+    box.append(el('div', 'tuparte', 'Tu parte: ' + fmt(round2(num(m.monto) - devs.reduce((s, d) => s + num(d.monto), 0)))));
+    return box;
+  }
+  // Tarjeta de la semana: al tocarla se despliegan los gastos que cuentan para el límite.
+  let semanaAbierta = false;
+  function renderSemana(c) {
+    const b = $('wMore'), w = $('wList');
+    b.setAttribute('aria-expanded', String(semanaAbierta));
+    b.firstChild.textContent = semanaAbierta ? 'Ocultar gastos ' : 'Ver gastos de la semana ';
+    b.lastChild.textContent = semanaAbierta ? '▴' : '▾';
+    w.hidden = !semanaAbierta;
+    if (!semanaAbierta) return;
+    const ws = weekStart(), we = addDays(ws, 6), t = today(), ayer = addDays(t, -1);
+    const wcats = CATS.filter((x) => x.semana).map((x) => x.id);
+    const todos = sortedMovs();
+    const lista = todos.filter((m) => m.tipo === 'gasto' && wcats.includes(m.categoria) && m.fecha >= ws && m.fecha <= we);
+    const lim = num(state.cfg.limite_semana) || 55;
+    const out = [el('div', 'wtot', 'Gastado ' + fmt(c.weekSpent) + ' de ' + fmt0(lim))];
+    if (!lista.length) out.push(emptyP('Todavía no tienes gastos esta semana.'));
+    let lastF = null;
+    lista.forEach((m) => {
+      if (m.fecha !== lastF) { lastF = m.fecha; out.push(el('div', 'daygrp', m.fecha === t ? 'Hoy' : m.fecha === ayer ? 'Ayer' : DIAS[parse(m.fecha).getDay()].slice(0, 3) + ' ' + short(m.fecha))); }
+      out.push(rowFor(m));
+      const d = bloqueDevs(m, todos); if (d) out.push(d);
+    });
+    w.replaceChildren(...out);
+  }
+  $('wMore').addEventListener('click', () => { semanaAbierta = !semanaAbierta; if (state.last) { renderSemana(state.last); dolares($('wList')); } });
+  ['weekLeft', 'wFill', 'wSub'].forEach((id) => { const e = $(id); e.style.cursor = 'pointer'; e.addEventListener('click', () => $('wMore').click()); });
+  $('hero').querySelector('.wbar').addEventListener('click', () => $('wMore').click());
   const sortedMovs = () => state.movs.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.creado || '').localeCompare(a.creado || ''));
 
   // ---------- Pantalla ----------
@@ -1868,6 +1918,7 @@ html, body { touch-action: manipulation; }
     $('wTip').textContent = left < 0 ? 'Te pasaste' : Math.round(qf * 100) + '% usado';
     ponerTip($('wTip'), qf);
     $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
+    renderSemana(c);
     $('wSub').textContent = (left < 0 ? 'te pasaste esta semana' : 'te quedan esta semana') + ' · gastado ' + fmt(c.weekSpent);
     const t = today();
     const vb = $('visaBanner'); vb.hidden = !(c.visaPend > 0.004);
@@ -1925,22 +1976,11 @@ html, body { touch-action: manipulation; }
     histDias = Math.max(1, Math.min(histDias, fechas.length));
     const visibles = new Set(fechas.slice(0, histDias));
     const diaTxt = (f) => f === t ? 'Hoy' : f === ayer ? 'Ayer' : DIAS[parse(f).getDay()].slice(0, 3) + ' ' + short(f);
-    const devsDe = (id) => list.filter((d) => esDev(d) && d.a === id);
     const conPadre = new Set(list.filter((d) => esDev(d) && list.some((g) => g.id === d.a && visibles.has(g.fecha))).map((d) => d.id));
     list.filter((m) => visibles.has(m.fecha) && !conPadre.has(m.id)).forEach((m) => {
       if (m.fecha !== lastF) { lastF = m.fecha; out.push(el('div', 'daygrp', diaTxt(m.fecha))); }
       out.push(rowFor(m));
-      const devs = m.tipo === 'gasto' ? devsDe(m.id) : [];
-      if (devs.length) {
-        const box = el('div', 'devs');
-        devs.forEach((d) => {
-          const ln = el('button', 'devln'); ln.type = 'button'; ln.setAttribute('aria-label', 'Editar devolución de ' + (d.nota || ''));
-          ln.append(el('span', null, '↳ ' + (d.nota ? d.nota + ' te devolvió' : 'Devolución')), el('span', 'v in', '+' + fmt(num(d.monto))));
-          ln.addEventListener('click', () => editMov(d)); box.append(ln);
-        });
-        box.append(el('div', 'tuparte', 'Tu parte: ' + fmt(round2(num(m.monto) - devs.reduce((s, d) => s + num(d.monto), 0)))));
-        out.push(box);
-      }
+      const dv = bloqueDevs(m, list); if (dv) out.push(dv);
     });
     const sig = fechas[histDias];
     if (sig || histDias > 1) {
@@ -2157,7 +2197,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.29';
+  const VERSION = '2026-11-03.30';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
