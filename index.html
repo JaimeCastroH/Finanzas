@@ -202,6 +202,9 @@ label.mini { display: inline-block; }
 .debt .name { font-weight: 600; }
 .debt .rate { font-size: 12px; color: var(--muted); }
 .debt .rate.int { color: #e8a297; }
+.debt .rate.int.falta { color: var(--warn); }
+.tabs button i { position: relative; }
+.tabs button.aviso i::after { content: ""; position: absolute; top: -1px; right: -7px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
 .debt .amt { font-weight: 800; font-size: 17px; font-variant-numeric: tabular-nums; }
 .debt .right { text-align: right; }
 .prog { grid-column: 1 / -1; height: 6px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
@@ -277,6 +280,9 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .field.full { grid-column: 1 / -1; }
+.opc { display: flex; gap: 22px; padding: 6px 2px; }
+.opc button { background: none; border: 0; padding: 4px 0; font: inherit; font-size: 15px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.opc button[aria-checked="true"] { color: var(--sel); }
 .field label { font-size: 12px; color: var(--muted); font-weight: 500; }
 select, input[type=text], input[type=date] { -webkit-appearance: none; appearance: none; width: 100%; box-sizing: border-box; height: 48px; margin: 0; padding: 0 12px; display: block; text-align: left; font: inherit; font-size: 16px; color: var(--ink); background-color: var(--surface-2); border: 1px solid var(--line); border-radius: 12px; }
 select { padding-right: 34px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%239c917f' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
@@ -835,7 +841,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     <div class="row"><h2 id="ahTitle">Agregar al ahorro</h2><button class="close" type="button" id="ahClose" aria-label="Cerrar">×</button></div>
     <div class="fields">
       <div class="field"><label for="ahMonto">Monto</label><input type="text" id="ahMonto" inputmode="decimal" autocomplete="off" placeholder="0.00"></div>
-      <div class="field"><label for="ahDesde">De dónde sale</label><select id="ahDesde"><option value="cuenta">De mi cuenta</option><option value="externo">Dinero extra</option></select></div>
+      <div class="field full"><label id="ahDesdeLbl">De dónde sale</label><div class="opc" role="radiogroup" aria-labelledby="ahDesdeLbl"><button type="button" role="radio" data-v="cuenta" aria-checked="true">Mi cuenta</button><button type="button" role="radio" data-v="externo" aria-checked="false">Dinero extra</button></div><input type="hidden" id="ahDesde" value="cuenta"></div>
       <div class="field"><label for="ahFecha">Fecha</label><input type="date" id="ahFecha"></div>
       <div class="field"><label for="ahNota">Nota (opcional)</label><input type="text" id="ahNota" maxlength="60" placeholder="Ej. bono"></div>
     </div>
@@ -1380,7 +1386,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       $('ahFecha').value = ahEditing ? ahEditing.fecha : today();
       $('ahMonto').value = ahEditing ? num(ahEditing.monto).toFixed(2) : '';
       $('ahNota').value = ahEditing ? (ahEditing.nota || '') : '';
-      $('ahDesde').value = ahEditing && ahEditing.desde === 'externo' ? 'externo' : 'cuenta';
+      ahOrigen(ahEditing && ahEditing.desde === 'externo' ? 'externo' : 'cuenta');
       $('ahTitle').textContent = ahEditing ? 'Editar ahorro' : 'Agregar al ahorro';
       $('ahSave').textContent = ahEditing ? 'Guardar cambios' : 'Agregar al ahorro';
       $('ahForm').scrollIntoView({ block: 'nearest' });
@@ -1388,6 +1394,9 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     }
   };
   $('ahAdd').addEventListener('click', () => ahToggle($('ahForm').hidden, null));
+  // De dónde sale el ahorro: dos opciones de texto; la elegida va en color de acento.
+  function ahOrigen(v) { $('ahDesde').value = v; document.querySelectorAll('#ahForm .opc button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.v === v))); }
+  document.querySelectorAll('#ahForm .opc button').forEach((b) => b.addEventListener('click', () => ahOrigen(b.dataset.v)));
   $('ahClose').addEventListener('click', () => ahToggle(false));
   $('ahForm').addEventListener('submit', async (ev) => {
     ev.preventDefault();
@@ -1517,7 +1526,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     const dow = (new Date().getDay() + 6) % 7, finSemana = addDays(t, 6 - dow);
     const diasSemana = Math.min(dias, daysTo(finSemana) + 1);
     const semana = Math.max(0, lim - c.weekSpent) * (diasSemana / (7 - dow)) + Math.max(0, dias - diasSemana) * lim / 7;
-    const gasUsado = state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= pd.desde && m.fecha < hasta).reduce((a, m) => a + num(m.monto), 0);
+    const gasUsado = gastado('gasolina', pd.desde, hasta);
     const comp = antes.reduce((a, p) => a + partsSum(p), 0) + fijosHasta(addDays(hasta, -1)) + Math.max(0, gas - gasUsado) + Math.max(0, vari - c.emergUsed) + semana + c.visaPend + Math.max(0, (previstos() || {}).saldo || 0);
     const disp = c.cuenta - comp;
     // Grupo de pagos grandes: los pendientes del mismo mes que el primero después de la quincena.
@@ -1567,11 +1576,6 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     if (!fechas.length) return [];
     const lim = num(cfg.limite_semana) || 55, ing = ingresoQ();
     const gas = num(cfg.gasolina), vari = num(cfg.varios);
-    const fijosMes = (cfg.fijos || []).reduce((a, f) => a + num(f.monto), 0);
-    const fijosPend = (() => {
-      const mes = t.slice(0, 7); if (cfg.fijos_desde && mes < cfg.fijos_desde) return 0;
-      return (cfg.fijos || []).filter((f) => !state.movs.some((m) => m.pago_id === 'fijo-' + f.id + '-' + mes)).reduce((a, f) => a + num(f.monto), 0);
-    })();
     // Quincenas por cobrar: la actual si aún no se anotó, y las siguientes.
     // Quincenas por cobrar: si la de esta ventana ya se anotó, se empieza por la siguiente.
     // Una quincena vieja (más de 4 días) que no se anotó se da por cobrada antes de empezar a usar la app.
@@ -1580,12 +1584,14 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     const cobros = [];
     for (let i = 0; i < 12; i++) { cobros.push(x); x = paydays(x).next; }
     const dow = (new Date().getDay() + 6) % 7, finSemana = addDays(t, 6 - dow);
+    // Gasolina: lo que falta de la quincena en curso (igual que en Inicio) y, después, $gas cada 15 días.
+    const pdG = periodo(), gasResto = Math.max(0, gas - gastado('gasolina', pdG.desde, pdG.hasta)), diasG = Math.max(0, daysTo(pdG.hasta));
     const restoSemana = Math.max(0, lim - c.weekSpent);
     return fechas.map((D) => {
       const dias = Math.max(0, daysTo(D));
       const diasSemana = Math.min(dias, daysTo(finSemana) + 1);
       const semana = (dias ? restoSemana * (diasSemana / (7 - dow)) : 0) + Math.max(0, dias - diasSemana) * lim / 7;
-      const gasolina = dias * gas / 15;
+      const gasolina = dias <= diasG ? Math.min(gasResto, dias * gas / 15) : gasResto + (dias - diasG) * gas / 15;
       const q = cobros.filter((f) => f <= D).length;
       const varios = Math.max(0, vari - c.emergUsed) + q * vari;
       const fijos = fijosHasta(D);
@@ -2220,10 +2226,11 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       const w = el('div', 'debt');
       const left = el('div'); left.append(el('div', 'name', d.nombre), el('div', 'rate', d.detalle || ''));
       if (d.ultimo || d.proximo) {
-        const tx = d.ultimo && !d.ultimo.real ? 'Incluye ~' + fmt(d.estimado) + ' de interés estimado (corte ' + short(d.ultimo.fecha) + ')'
+        const falta = d.ultimo && !d.ultimo.real && d.estimado > 0.004;
+        const tx = d.ultimo && !d.ultimo.real ? (falta ? 'Falta anotar el interés del ' + short(d.ultimo.fecha) + ' · ~' + fmt(d.estimado) + ' estimado' : 'Interés del ' + short(d.ultimo.fecha) + ': ' + fmt(0))
           : d.proximo ? 'Próximo corte ' + short(d.proximo.fecha) + ': ~' + fmt(d.proximo.monto) + ' de interés'
           : 'Interés del ' + short(d.ultimo.fecha) + ': ' + fmt(d.ultimo.monto);
-        left.append(el('div', 'rate int', tx));
+        left.append(el('div', 'rate int' + (falta ? ' falta' : ''), tx));
       }
       const right = el('div', 'right'); right.append(el('div', 'amt', fmt(Math.max(0, d.saldo))));
       if (d.saldo <= 0.004) right.append(el('span', 'pill zero', 'En cero'));
@@ -2232,6 +2239,11 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       const bar = el('div', 'prog'); const s = el('span'); s.style.width = Math.max(0, Math.min(100, (1 - Math.max(0, d.saldo) / ref) * 100)) + '%'; bar.append(s);
       w.append(left, right, bar); return w;
     }));
+
+    // Punto ámbar en la pestaña 借 mientras falte anotar el interés real de algún corte.
+    const faltaInt = c.debts.some((d) => d.ultimo && !d.ultimo.real && d.estimado > 0.004);
+    const tabD = document.querySelector('#tabs [data-go="deudas"]');
+    if (tabD) { tabD.classList.toggle('aviso', faltaInt); tabD.setAttribute('aria-label', faltaInt ? 'Deudas: falta anotar un interés' : 'Deudas'); }
 
     renderCamino(c);
 
@@ -2468,7 +2480,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.34';
+  const VERSION = '2026-11-03.36';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
