@@ -1224,11 +1224,24 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     // Deudas. Las que cobran interés suman un estimado en cada fecha de corte,
     // hasta que llega el estado de cuenta y se anota el interés real (gasto «interes» con pago_id int-<deuda>-AAAA-MM).
     const hoy = today();
+    // Saldo de una deuda solo con compras y pagos (sin intereses ni cargos): sirve para saber si un cargo sigue vigente.
+    const saldoSimple = (id, f) => { const dd = (cfg.deudas || []).find((x) => x.id === id); if (!dd) return 0;
+      return num(dd.saldo_base) + sum(movs.filter((m) => m.tipo === 'gasto' && m.medio === id && m.fecha <= f)) - sum(movs.filter((m) => m.tipo === 'pago' && m.a === id && m.fecha <= f)); };
     const debts = (cfg.deudas || []).map((d) => {
+      // Cargos fijos que el banco suma a esta deuda cada mes (Config → cargos), p. ej. el seguro del OLE en la AMEX el día 15.
+      // «mientras»: solo se cobra si esa otra deuda todavía tiene saldo.
+      const cargoAl = (f) => { let t = 0; const b = parse(base);
+        for (const cg of ((cfg.cargos || {})[d.id] || [])) for (let k = 0; k < 60; k++) {
+          const fc = iso(new Date(b.getFullYear(), b.getMonth() + k, Math.min(num(cg.dia) || 15, lastDay(b.getFullYear(), b.getMonth() + k))));
+          if (fc > f) break; if (fc <= base) continue;
+          if (cg.mientras && saldoSimple(cg.mientras, fc) <= 0.005) continue;
+          t += num(cg.monto);
+        }
+        return t; };
       // Un pago hecho con la Visa (desde: 'visa') suma a la Visa como si fuera una compra.
       const de = (m) => (m.tipo === 'gasto' && m.medio === d.id) || (d.id === 'visa' && m.tipo === 'pago' && m.desde === 'visa' && m.a !== 'visa'), a = (m) => m.tipo === 'pago' && m.a === d.id;
-      const saldoAl = (f) => num(d.saldo_base) + sum(movs.filter((m) => de(m) && m.fecha <= f)) - sum(movs.filter((m) => a(m) && m.fecha <= f));
-      let saldo = num(d.saldo_base) + sum(movs.filter(de)) - sum(movs.filter(a));
+      const saldoAl = (f) => num(d.saldo_base) + sum(movs.filter((m) => de(m) && m.fecha <= f)) - sum(movs.filter((m) => a(m) && m.fecha <= f)) + cargoAl(f);
+      let saldo = num(d.saldo_base) + sum(movs.filter(de)) - sum(movs.filter(a)) + cargoAl(hoy);
       const it = (cfg.intereses || {})[d.id];
       let estimado = 0, ultimo = null, proximo = null;
       if (it && num(it.mensual) > 0) {
@@ -1631,6 +1644,9 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       const md = new Date(d0.getFullYear(), d0.getMonth() + k, 1), mes = iso(md).slice(0, 7);
       for (const p of pend.filter((x) => x.fecha.slice(0, 7) === mes)) for (const pt of (p.partes || [])) if (pt.a in bal) bal[pt.a] = Math.max(0, bal[pt.a] - num(pt.monto));
       for (const id of plan.orden) { const it = (cfg.intereses || {})[id]; if (!it) continue; const corte = mes + '-' + String(num(it.corte) || 12).padStart(2, '0'); if (corte > hoy) bal[id] *= 1 + num(it.mensual) / 100; }
+      for (const [id, lista] of Object.entries(cfg.cargos || {})) { if (!(id in bal) || !Array.isArray(lista)) continue;
+        for (const cg of lista) { const f = mes + '-' + String(Math.min(num(cg.dia) || 15, lastDay(md.getFullYear(), md.getMonth()))).padStart(2, '0');
+          if (f > hoy && (!cg.mientras || (bal[cg.mientras] || 0) > 0.005)) bal[id] += num(cg.monto); } }
       if (mes < ini) continue;
       if (inicial === null) inicial = tot();
       let b = num(plan.mensual) + Object.entries(plan.extra || {}).reduce((a, [m, v]) => a + (mes >= m ? num(v) : 0), 0);
@@ -2325,6 +2341,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       plan_deuda: c.plan_deuda || '',
       tarjetas: (() => { try { const x = JSON.parse(c.tarjetas || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       pagos_sms: (() => { try { const x = JSON.parse(c.pagos_sms || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
+      cargos: (() => { try { const x = JSON.parse(c.cargos || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       intereses: (() => { try { const x = JSON.parse(c.intereses || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       fijos: (() => { try { const f = JSON.parse(c.fijos || '[]'); return Array.isArray(f) ? f : []; } catch (e) { return []; } })(),
       ahorro_pausa: (() => { try { const x = JSON.parse(c.ahorro_pausa || 'null'); return x && x.desde && x.hasta ? x : null; } catch (e) { return null; } })(),
@@ -2480,7 +2497,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.36';
+  const VERSION = '2026-11-03.37';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
