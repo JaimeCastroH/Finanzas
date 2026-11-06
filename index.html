@@ -681,9 +681,10 @@ body[data-tab="reportes"] .app [data-t]:not([data-t~="reportes"]) { display: non
 .rm.curso .lb { font-style: italic; font-size: 10.5px; }
 .rm[aria-pressed="true"] .lb { color: var(--ink); font-weight: 600; }
 .rnota { margin: 16px 0 0; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
-.rb { width: 9px; min-height: 2px; transition: height .5s ease; }
+.rt { position: relative; display: flex; align-items: flex-end; width: 10px; height: 100%; border-radius: 99px; background: rgba(236,227,210,.08); }
+.rb { width: 100%; min-height: 0; border-radius: 99px; transition: height .5s ease; }
+.rm .col { gap: 6px; }
 /* Barras desnudas, sin ejes ni contorno */
-.rep .rb { border-radius: 4px 4px 1px 1px; }
 .rep .rb.in { background: rgba(var(--acento-rgb), .3); }
 .rep .rb.ga { background: var(--red); }
 html.discreto :is(.rtot, .rcentro em i, .rcat .rv, .rdet b, .rm .rq) { filter: blur(7px); }
@@ -710,6 +711,11 @@ select, input[type=text], input[type=date], input[type=password], .gasin input, 
 .wfill, .wtrack.sm .wfill { left: 0; top: 0; bottom: 0; }
 /* Hilos de luz de 1 px dentro de los botones pequeños y arriba de los paneles */
 .mini, .sheet { box-shadow: none !important; }
+/* Ajustar y + Extra: se abren a todo el ancho, justo debajo de las placas Cuenta y Ahorro */
+body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
+/* Foco en campos: sin contorno; el campo activo se aclara un poco */
+:is(input, select, textarea):is(:focus, :focus-visible):not(.amount input):not(.pill *):not([type=checkbox]):not([type=radio]) { outline: none; background-color: rgba(236,227,210,.12); }
+.pill:focus-within { background: rgba(236,227,210,.12); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -724,7 +730,7 @@ select, input[type=text], input[type=date], input[type=password], .gasin input, 
   <symbol id="i-otros" viewBox="0 -960 960 960"><path fill="currentColor" d="M237.69-100q-23.53 0-40.61-17.08T180-157.69v-484.62q0-23.53 17.08-40.61T237.69-700h99.62v-17.31q0-59.92 41.38-101.3Q420.08-860 480-860t101.31 41.39q41.38 41.38 41.38 101.3V-700h99.62q23.53 0 40.61 17.08T780-642.31v484.62q0 23.53-17.08 40.61T722.31-100H237.69Zm0-45.39h484.62q4.61 0 8.46-3.84 3.84-3.85 3.84-8.46v-484.62q0-4.61-3.84-8.46-3.85-3.84-8.46-3.84h-99.62v97.3q0 9.67-6.56 16.18-6.57 6.52-16.31 6.52-9.74 0-16.13-6.52-6.38-6.51-6.38-16.18v-97.3H382.69v97.3q0 9.67-6.56 16.18-6.57 6.52-16.31 6.52-9.74 0-16.13-6.52-6.38-6.51-6.38-16.18v-97.3h-99.62q-4.61 0-8.46 3.84-3.84 3.85-3.84 8.46v484.62q0 4.61 3.84 8.46 3.85 3.84 8.46 3.84Zm145-554.61h194.62v-17.31q0-41.07-28.12-69.19-28.11-28.11-69.19-28.11t-69.19 28.11q-28.12 28.12-28.12 69.19V-700Zm-157.3 554.61v-509.22 509.22Z"/></symbol>
   <symbol id="i-ingreso" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-266.31v-491q0-9.91 6.39-16.3 6.39-6.39 16.31-6.39 9.91 0 16.3 6.39 6.38 6.39 6.38 16.3v491L732-496q6.76-6.31 15.84-6.69 9.08-.39 15.99 6.69 7.25 7.08 7.25 16T764-464L500.15-200.15q-4.53 4.53-9.39 6.53t-10.81 2q-5.95 0-10.76-2t-9.34-6.53L196-464q-6.69-6.69-6.88-15.73-.2-9.04 6.88-16.27 7.23-7.08 16.08-7.08 8.84 0 15.54 7.08l229.69 229.69Z"/></symbol>
   <symbol id="i-salida" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-693.69 228-464q-6.76 6.31-15.84 6.69-9.08.39-15.99-6.69-7.25-7.08-7.25-16t7.08-16l263.85-263.85q4.53-4.53 9.39-6.73 4.86-2.19 10.81-2.19t10.76 2.19q4.81 2.2 9.34 6.73L764-496q6.69 6.69 6.88 15.73.2 9.04-6.88 16.27-7.23 7.08-16.08 7.08-8.84 0-15.54-7.08L502.69-693.69v491q0 9.91-6.39 16.3-6.39 6.39-16.31 6.39-9.91 0-16.3-6.39-6.38-6.39-6.38-16.3v-491Z"/></symbol>
-  <symbol id="i-interes" viewBox="0 -960 960 960"><path fill="currentColor" d="M299.1-541.92q-49.45 0-84.27-34.96Q180-611.83 180-661.28t34.96-84.28q34.95-34.82 84.4-34.82t84.27 34.95q34.83 34.96 34.83 84.41 0 49.44-34.95 84.27-34.96 34.83-84.41 34.83Zm-.01-45.39q31.06 0 52.53-21.32 21.46-21.32 21.46-52.38 0-31.07-21.32-52.53T299.37-735q-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46ZM661.02-180q-49.44 0-84.27-34.96-34.83-34.95-34.83-84.4t34.96-84.27q34.95-34.83 84.4-34.83t84.28 34.95q34.82 34.96 34.82 84.41 0 49.45-34.95 84.27Q710.47-180 661.02-180Zm-.01-45.39q31.07 0 52.53-21.32T735-299.09q0-31.06-21.32-52.53-21.32-21.46-52.39-21.46-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46Zm-461.16 25.54q-6.69-6.69-6.69-15.87t6.69-15.74l529.46-529.46q6.69-6.69 15.61-6.5 8.92.19 15.62 6.88 6.69 6.7 6.69 15.87 0 9.18-6.69 15.75L231.08-199.46q-6.69 6.69-15.62 6.5-8.92-.2-15.61-6.89Z"/></symbol><symbol id="i-pago" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 10h19M6.5 15h4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-interes" viewBox="0 -960 960 960"><path fill="currentColor" d="M299.1-541.92q-49.45 0-84.27-34.96Q180-611.83 180-661.28t34.96-84.28q34.95-34.82 84.4-34.82t84.27 34.95q34.83 34.96 34.83 84.41 0 49.44-34.95 84.27-34.96 34.83-84.41 34.83Zm-.01-45.39q31.06 0 52.53-21.32 21.46-21.32 21.46-52.38 0-31.07-21.32-52.53T299.37-735q-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46ZM661.02-180q-49.44 0-84.27-34.96-34.83-34.95-34.83-84.4t34.96-84.27q34.95-34.83 84.4-34.83t84.28 34.95q34.82 34.96 34.82 84.41 0 49.45-34.95 84.27Q710.47-180 661.02-180Zm-.01-45.39q31.07 0 52.53-21.32T735-299.09q0-31.06-21.32-52.53-21.32-21.46-52.39-21.46-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46Zm-461.16 25.54q-6.69-6.69-6.69-15.87t6.69-15.74l529.46-529.46q6.69-6.69 15.61-6.5 8.92.19 15.62 6.88 6.69 6.7 6.69 15.87 0 9.18-6.69 15.75L231.08-199.46q-6.69 6.69-15.62 6.5-8.92-.2-15.61-6.89Z"/></symbol>
   <symbol id="i-ahorro" viewBox="0 -960 960 960"><path fill="currentColor" d="M243.08-140q-20.23 0-37.82-13.37-17.58-13.37-23.1-32.71-25-87.54-40.97-148.26-15.97-60.73-25.02-104.69-9.05-43.95-12.61-76.79-3.56-32.83-3.56-64.36 0-83.36 58.23-141.59Q216.46-780 300-780h210q27-36 66-58t84-22q16.54 0 28.27 11.73T700-820q0 4.08-1.12 7.96-1.11 3.89-2.34 7.73-4.39 11.77-8.46 25.46-4.08 13.7-7.62 34.77L784.54-640h46.61q12.36 0 20.6 8.25 8.25 8.24 8.25 20.6v194.3q0 9.88-5.25 17.6-5.24 7.71-14.98 10.25l-88.85 29.53-53.31 178.01q-6.02 18.84-21.07 30.15Q661.49-140 641.92-140h-84.23q-23.59 0-40.64-17.05T500-197.69V-220H380v22.31q0 23.59-17.05 40.64T322.31-140h-79.23Zm-3.85-45.39h83.08q5.38 0 8.84-3.46t3.46-8.84v-67.7h210.78v67.7q0 5.38 3.46 8.84t8.84 3.46h84.23q3.85 0 7.12-2.3 3.27-2.31 4.81-6.54l59.92-200 100.84-34.62v-165.76h-48.92L634.61-725.69q.62-17 4.74-40.73 4.11-23.73 11.73-49.5-38 9.84-68.5 32.04-30.5 22.19-45.12 49.27H300q-64.36 0-109.49 45.12-45.12 45.13-45.12 109.49 0 41.23 21.03 141.69Q187.46-337.85 226.54-195q1.15 4.23 4.81 6.92 3.65 2.69 7.88 2.69ZM640-524.62q14.69 0 25.04-10.34 10.34-10.35 10.34-25.04t-10.34-25.04q-10.35-10.34-25.04-10.34t-25.04 10.34q-10.34 10.35-10.34 25.04t10.34 25.04q10.35 10.34 25.04 10.34Zm-142.69-100q9.66 0 16.18-6.56 6.51-6.57 6.51-16.31 0-9.74-6.51-16.12-6.52-6.39-16.18-6.39H342.69q-9.66 0-16.18 6.57-6.51 6.56-6.51 16.3 0 9.75 6.51 16.13 6.52 6.38 16.18 6.38h154.62ZM480-500.85Z"/></symbol>
   <symbol id="i-plus" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-457.31H242.69q-9.64 0-16.16-6.58-6.53-6.58-6.53-16.31 0-9.72 6.53-16.11 6.52-6.38 16.16-6.38h214.62v-214.62q0-9.64 6.58-16.16 6.58-6.53 16.31-6.53 9.72 0 16.11 6.53 6.38 6.52 6.38 16.16v214.62h214.62q9.64 0 16.16 6.58 6.53 6.58 6.53 16.31 0 9.72-6.53 16.11-6.52 6.38-16.16 6.38H502.69v214.62q0 9.64-6.58 16.16-6.58 6.53-16.31 6.53-9.72 0-16.11-6.53-6.38-6.52-6.38-16.16v-214.62Z"/></symbol>
   <symbol id="i-pago" viewBox="0 -960 960 960"><path fill="currentColor" d="M860-722.31v484.62q0 23.53-17.08 40.61T802.31-180H157.69q-23.53 0-40.61-17.08T100-237.69v-484.62q0-23.53 17.08-40.61T157.69-780h644.62q23.53 0 40.61 17.08T860-722.31ZM145.39-617.15h669.22v-105.16q0-4.61-3.84-8.46-3.85-3.84-8.46-3.84H157.69q-4.61 0-8.46 3.84-3.84 3.85-3.84 8.46v105.16Zm0 104.76v274.7q0 4.61 3.84 8.46 3.85 3.84 8.46 3.84h644.62q4.61 0 8.46-3.84 3.84-3.85 3.84-8.46v-274.7H145.39Zm0 287v-509.22 509.22Z"/></symbol>
@@ -1562,7 +1568,8 @@ select, input[type=text], input[type=date], input[type=password], .gasin input, 
     const env = (els) => { const els2 = els.filter(Boolean); if (!els2.length) return; const w = document.createElement('div'); w.className = 'blk'; els2[0].before(w); els2.forEach((e) => w.append(e)); };
     const side = document.querySelector('.side');
     if (side) { const k = [...side.children]; const q = k.findIndex((e) => e.id === 'qForm'), d = k.findIndex((e) => e.classList.contains('duo'));
-      env(k.slice(0, d)); env([k[d]]); env([document.getElementById('sobre')]); env([document.getElementById('emerg'), document.getElementById('ajForm'), document.getElementById('ahForm')]); }
+      env(k.slice(0, d)); env([k[d]]); env([document.getElementById('sobre')]); // Ajustar y + Extra van dentro de la cuadrícula, justo después de la placa de Ahorro (a todo el ancho por CSS).
+      const tAh = document.getElementById('ahAdd')?.closest('.tile'); if (tAh) tAh.after(document.getElementById('ajForm'), document.getElementById('ahForm')); }
     for (const col of document.querySelectorAll('.main-col, .aside')) {
       let grupo = [];
       for (const e of [...col.children]) { if (e.classList.contains('section-head') && grupo.length) { env(grupo); grupo = []; } grupo.push(e); }
@@ -2051,10 +2058,10 @@ select, input[type=text], input[type=date], input[type=password], .gasin input, 
     const cats = mk('div', 'rcats');
     if (!total) { dist.innerHTML = '<p class="rvacio">Sin movimientos este mes</p>'; cats.hidden = true; }
     else {
-      const R = 88, C = 2 * Math.PI * R, ancho = 3;
+      const R = 88, C = 2 * Math.PI * R, ancho = 10;
       const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 200 200'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Gastos del mes por categoría');
       const circ = (r, stroke, w, extra) => { const c = document.createElementNS(NS, 'circle'); Object.entries({ cx: 100, cy: 100, r, stroke, 'stroke-width': w, ...(extra || {}) }).forEach(([k, x]) => c.setAttribute(k, x)); svg.append(c); return c; };
-      circ(R, 'rgba(255,255,255,.05)', ancho);
+      circ(R, 'rgba(236,227,210,.08)', ancho); // franja tenue, como las barras
       let off = 0, i = 0;
       s.forEach((x) => {
         x.color = x.alerta ? 'var(--warn)' : REP_COL[Math.min(i++, REP_COL.length - 1)];
@@ -2111,9 +2118,8 @@ select, input[type=text], input[type=date], input[type=password], .gasin input, 
       b.setAttribute('aria-pressed', d.m === sel);
       b.setAttribute('aria-label', repNombre(d.m).largo + ': ingresos ' + fmt0(d.ing) + ', gastos ' + fmt0(d.gas) + ', pagos ' + fmt0(d.pag) + ', quedó ' + fmt0(d.quedo));
       const col = mk('div', 'col');
-      const a = mk('i', 'rb in'); a.style.height = h(d.ing) + 'px';
-      const g = mk('i', 'rb ga'); g.style.height = h(d.gas) + 'px';
-      col.append(a, g);
+      // Cada barra va sobre su franja tenue, igual que las demás barras de la app
+      [['in', d.ing], ['ga', d.gas]].forEach(([k, val]) => { const t = mk('i', 'rt'); const f = mk('i', 'rb ' + k); f.style.height = h(val) + 'px'; t.append(f); col.append(t); });
       const lb = mk('span', 'lb'); lb.textContent = d.m === mesHoy ? 'en curso' : repNombre(d.m).corto;
       const q = mk('span', 'rq' + (d.quedo < 0 ? ' neg' : '')); q.textContent = fmt0(d.quedo);
       b.append(col, lb, q);
@@ -2427,7 +2433,7 @@ select, input[type=text], input[type=date], input[type=password], .gasin input, 
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.31';
+  const VERSION = '2026-11-03.32';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
