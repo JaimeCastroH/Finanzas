@@ -232,7 +232,7 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .amount { display: flex; align-items: center; justify-content: center; gap: 2px; padding-block: 4px; }
 .amount span { font-family: var(--num); font-size: 46px; font-weight: 800; color: var(--red); line-height: 1; }
 .amount input { width: 7ch; min-width: 0; border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 72px; font-weight: 800; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; outline: none; text-align: left; line-height: 1.05; padding: 0; margin: 0; text-indent: 0; -webkit-appearance: none; appearance: none; border-radius: 0; max-width: 78vw; }
-.chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.chips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
 .chips .chip { font-size: 11.5px; line-height: 1.2; }
 /* Gastos varios */
 .ecard { padding: 14px 16px; gap: 10px; }
@@ -615,7 +615,7 @@ html, body { touch-action: manipulation; }
 
 /* Íconos de gasto parejos: todos del color del tema sobre el mismo fondo (solo el elegido cambia al color de selección).
    Los pagos van en el color de acento y las entradas en el color positivo, para distinguirlos. */
-.ic, .k-comida, .k-gasolina, .k-otros, .k-varios, .k-fijo, .k-salida, .k-ahorro, .k-interes { background: rgba(255,255,255,.06); color: var(--brand); }
+.ic, .k-comida, .k-gasolina, .k-otros, .k-varios, .k-previsto, .k-fijo, .k-salida, .k-ahorro, .k-interes { background: rgba(255,255,255,.06); color: var(--brand); }
 .k-pago { background: rgba(var(--acento-rgb), .22); color: var(--acento-txt); }
 .k-ingreso { background: rgba(var(--ok-rgb), .18); color: var(--ok); }
 .chip:has(input:checked) .ic { color: var(--sel); }
@@ -716,6 +716,13 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
 /* Foco en campos: sin contorno; el campo activo se aclara un poco */
 :is(input, select, textarea):is(:focus, :focus-visible):not(.amount input):not(.pill *):not([type=checkbox]):not([type=radio]) { outline: none; background-color: rgba(236,227,210,.12); }
 .pill:focus-within { background: rgba(236,227,210,.12); }
+
+/* Previstos: dentro de la placa de Gastos varios, separado solo por espacio. Es un apartado que se acumula, sin barra. */
+.pvbox { margin-top: 20px; display: flex; flex-direction: column; gap: 4px; }
+.pvrow { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+#pvVal { font-size: 22px; }
+.pvbox.neg #pvVal { color: var(--bad); }
+html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -732,6 +739,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
   <symbol id="i-salida" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-693.69 228-464q-6.76 6.31-15.84 6.69-9.08.39-15.99-6.69-7.25-7.08-7.25-16t7.08-16l263.85-263.85q4.53-4.53 9.39-6.73 4.86-2.19 10.81-2.19t10.76 2.19q4.81 2.2 9.34 6.73L764-496q6.69 6.69 6.88 15.73.2 9.04-6.88 16.27-7.23 7.08-16.08 7.08-8.84 0-15.54-7.08L502.69-693.69v491q0 9.91-6.39 16.3-6.39 6.39-16.31 6.39-9.91 0-16.3-6.39-6.38-6.39-6.38-16.3v-491Z"/></symbol>
   <symbol id="i-interes" viewBox="0 -960 960 960"><path fill="currentColor" d="M299.1-541.92q-49.45 0-84.27-34.96Q180-611.83 180-661.28t34.96-84.28q34.95-34.82 84.4-34.82t84.27 34.95q34.83 34.96 34.83 84.41 0 49.44-34.95 84.27-34.96 34.83-84.41 34.83Zm-.01-45.39q31.06 0 52.53-21.32 21.46-21.32 21.46-52.38 0-31.07-21.32-52.53T299.37-735q-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46ZM661.02-180q-49.44 0-84.27-34.96-34.83-34.95-34.83-84.4t34.96-84.27q34.95-34.83 84.4-34.83t84.28 34.95q34.82 34.96 34.82 84.41 0 49.45-34.95 84.27Q710.47-180 661.02-180Zm-.01-45.39q31.07 0 52.53-21.32T735-299.09q0-31.06-21.32-52.53-21.32-21.46-52.39-21.46-31.06 0-52.52 21.32-21.46 21.32-21.46 52.39 0 31.06 21.32 52.52 21.32 21.46 52.38 21.46Zm-461.16 25.54q-6.69-6.69-6.69-15.87t6.69-15.74l529.46-529.46q6.69-6.69 15.61-6.5 8.92.19 15.62 6.88 6.69 6.7 6.69 15.87 0 9.18-6.69 15.75L231.08-199.46q-6.69 6.69-15.62 6.5-8.92-.2-15.61-6.89Z"/></symbol>
   <symbol id="i-ahorro" viewBox="0 -960 960 960"><path fill="currentColor" d="M243.08-140q-20.23 0-37.82-13.37-17.58-13.37-23.1-32.71-25-87.54-40.97-148.26-15.97-60.73-25.02-104.69-9.05-43.95-12.61-76.79-3.56-32.83-3.56-64.36 0-83.36 58.23-141.59Q216.46-780 300-780h210q27-36 66-58t84-22q16.54 0 28.27 11.73T700-820q0 4.08-1.12 7.96-1.11 3.89-2.34 7.73-4.39 11.77-8.46 25.46-4.08 13.7-7.62 34.77L784.54-640h46.61q12.36 0 20.6 8.25 8.25 8.24 8.25 20.6v194.3q0 9.88-5.25 17.6-5.24 7.71-14.98 10.25l-88.85 29.53-53.31 178.01q-6.02 18.84-21.07 30.15Q661.49-140 641.92-140h-84.23q-23.59 0-40.64-17.05T500-197.69V-220H380v22.31q0 23.59-17.05 40.64T322.31-140h-79.23Zm-3.85-45.39h83.08q5.38 0 8.84-3.46t3.46-8.84v-67.7h210.78v67.7q0 5.38 3.46 8.84t8.84 3.46h84.23q3.85 0 7.12-2.3 3.27-2.31 4.81-6.54l59.92-200 100.84-34.62v-165.76h-48.92L634.61-725.69q.62-17 4.74-40.73 4.11-23.73 11.73-49.5-38 9.84-68.5 32.04-30.5 22.19-45.12 49.27H300q-64.36 0-109.49 45.12-45.12 45.13-45.12 109.49 0 41.23 21.03 141.69Q187.46-337.85 226.54-195q1.15 4.23 4.81 6.92 3.65 2.69 7.88 2.69ZM640-524.62q14.69 0 25.04-10.34 10.34-10.35 10.34-25.04t-10.34-25.04q-10.35-10.34-25.04-10.34t-25.04 10.34q-10.34 10.35-10.34 25.04t10.34 25.04q10.35 10.34 25.04 10.34Zm-142.69-100q9.66 0 16.18-6.56 6.51-6.57 6.51-16.31 0-9.74-6.51-16.12-6.52-6.39-16.18-6.39H342.69q-9.66 0-16.18 6.57-6.51 6.56-6.51 16.3 0 9.75 6.51 16.13 6.52 6.38 16.18 6.38h154.62ZM480-500.85Z"/></symbol>
+  <symbol id="i-previsto" viewBox="0 -960 960 960"><path fill="currentColor" d="M212.31-100q-29.92 0-51.12-21.19Q140-142.39 140-172.31v-447.92q-17.61-9.08-28.81-25.81Q100-662.77 100-684.62v-103.07q0-29.92 21.19-51.12Q142.39-860 172.31-860h615.38q29.92 0 51.12 21.19Q860-817.61 860-787.69v103.07q0 21.85-11.19 38.58-11.2 16.73-28.81 25.81v447.92q0 29.92-21.19 51.12Q777.61-100 747.69-100H212.31ZM200-612.31v438.08q0 6.15 4.42 10.19 4.43 4.04 10.97 4.04h532.3q5.39 0 8.85-3.46t3.46-8.85v-440H200Zm-27.69-60h615.38q5.39 0 8.85-3.46t3.46-8.85v-103.07q0-5.39-3.46-8.85t-8.85-3.46H172.31q-5.39 0-8.85 3.46t-3.46 8.85v103.07q0 5.39 3.46 8.85t8.85 3.46Zm224.23 249.62h167.31q12.38 0 20.42-8.23 8.04-8.24 8.04-20.62t-8.04-20.42q-8.04-8.04-20.42-8.04h-167.7q-12.38 0-20.42 8.04-8.04 8.04-8.04 20.42 0 12.38 8.23 20.62 8.23 8.23 20.62 8.23ZM480-386.15Z"/></symbol>
   <symbol id="i-plus" viewBox="0 -960 960 960"><path fill="currentColor" d="M457.31-457.31H242.69q-9.64 0-16.16-6.58-6.53-6.58-6.53-16.31 0-9.72 6.53-16.11 6.52-6.38 16.16-6.38h214.62v-214.62q0-9.64 6.58-16.16 6.58-6.53 16.31-6.53 9.72 0 16.11 6.53 6.38 6.52 6.38 16.16v214.62h214.62q9.64 0 16.16 6.58 6.53 6.58 6.53 16.31 0 9.72-6.53 16.11-6.52 6.38-16.16 6.38H502.69v214.62q0 9.64-6.58 16.16-6.58 6.53-16.31 6.53-9.72 0-16.11-6.53-6.38-6.52-6.38-16.16v-214.62Z"/></symbol>
   <symbol id="i-pago" viewBox="0 -960 960 960"><path fill="currentColor" d="M860-722.31v484.62q0 23.53-17.08 40.61T802.31-180H157.69q-23.53 0-40.61-17.08T100-237.69v-484.62q0-23.53 17.08-40.61T157.69-780h644.62q23.53 0 40.61 17.08T860-722.31ZM145.39-617.15h669.22v-105.16q0-4.61-3.84-8.46-3.85-3.84-8.46-3.84H157.69q-4.61 0-8.46 3.84-3.84 3.85-3.84 8.46v105.16Zm0 104.76v274.7q0 4.61 3.84 8.46 3.85 3.84 8.46 3.84h644.62q4.61 0 8.46-3.84 3.84-3.85 3.84-8.46v-274.7H145.39Zm0 287v-509.22 509.22Z"/></symbol>
 </svg>
@@ -795,6 +803,10 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
       <div class="ebar" aria-hidden="true"><div class="wtrack sm"><div class="wfill" id="eFill"></div><div class="wtip" id="eTip">—</div></div></div>
       <span class="libre" id="eSub"></span>
       <span class="libre" id="eLib"></span>
+      <div class="pvbox" id="pvBox" hidden>
+        <div class="pvrow"><span class="lbl">Previstos</span><b id="pvVal">—</b></div>
+        <span class="libre" id="pvSub"></span>
+      </div>
     </div>
     <div class="tile desk-only" data-t="deudas">
       <div class="row"><span class="lbl">Deuda total</span></div>
@@ -969,6 +981,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     { id: 'gasolina', label: 'Gasolina' },
     { id: 'otros', label: 'Otros', semana: true },
     { id: 'varios', label: 'Gastos varios' },
+    { id: 'previsto', label: 'Previstos' }, // gastos que llegan cada cierto tiempo: carro, veterinario, salud, regalos
     { id: 'fijo', label: 'Cobro fijo', oculto: true }, // se marca desde «Cobros fijos», no aparece al anotar
     { id: 'interes', label: 'Intereses', oculto: true },
     { id: 'pendiente', label: 'Por clasificar', oculto: true } // cobro leído de un SMS del banco // interés real del estado de cuenta; lo anota Claude
@@ -1081,7 +1094,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     }
     verNota(!!$('nota').value); fechaLbl(); anchoMonto();
     $('yaAbone').checked = true; showFields();
-    $('devBtn').hidden = !(editing && editing.tipo === 'gasto' && ['comida', 'gasolina', 'otros', 'varios'].includes(editing.categoria));
+    $('devBtn').hidden = !(editing && editing.tipo === 'gasto' && ['comida', 'gasolina', 'otros', 'varios', 'previsto'].includes(editing.categoria));
     $('form').hidden = false; $('devForm').hidden = true;
     $('scrim').hidden = false; $('sheet').hidden = false; $('app').inert = true; $('fab').inert = true;
     setTimeout(() => $('monto').focus(), 50);
@@ -1484,6 +1497,16 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     return total;
   }
   // Lo comprometido hasta la próxima quincena y el apartado para los pagos grandes que vienen después.
+  // Previstos: cada quincena cobrada desde «previstos_desde» se apartan «previstos_quincena»; los gastos «previsto» salen de ahí.
+  // Lo apartado no se gasta en otra cosa: se descuenta de «Libre» y de la proyección. Lo de antes de empezar solo se clasifica.
+  function previstos() {
+    const cfg = state.cfg || {}, monto = num(cfg.previstos), desde = cfg.previstos_desde;
+    if (!(monto > 0) || !desde) return null;
+    const q = state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena' && m.fecha >= desde).length;
+    const usado = state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'previsto' && m.fecha >= desde).reduce((a, m) => a + num(m.monto), 0)
+      - state.movs.filter((m) => esDev(m) && m.categoria === 'previsto' && fechaDev(m) >= desde).reduce((a, m) => a + num(m.monto), 0);
+    return { monto, desde, q, usado: round2(usado), saldo: round2(q * monto - usado), empezo: today() >= desde };
+  }
   function apartado(c) {
     const cfg = state.cfg, t = today(), pd = periodo(), hasta = pd.hasta;
     const hecho = (p) => state.movs.some((m) => m.pago_id === p.id);
@@ -1495,7 +1518,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     const diasSemana = Math.min(dias, daysTo(finSemana) + 1);
     const semana = Math.max(0, lim - c.weekSpent) * (diasSemana / (7 - dow)) + Math.max(0, dias - diasSemana) * lim / 7;
     const gasUsado = state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'gasolina' && m.fecha >= pd.desde && m.fecha < hasta).reduce((a, m) => a + num(m.monto), 0);
-    const comp = antes.reduce((a, p) => a + partsSum(p), 0) + fijosHasta(addDays(hasta, -1)) + Math.max(0, gas - gasUsado) + Math.max(0, vari - c.emergUsed) + semana + c.visaPend;
+    const comp = antes.reduce((a, p) => a + partsSum(p), 0) + fijosHasta(addDays(hasta, -1)) + Math.max(0, gas - gasUsado) + Math.max(0, vari - c.emergUsed) + semana + c.visaPend + Math.max(0, (previstos() || {}).saldo || 0);
     const disp = c.cuenta - comp;
     // Grupo de pagos grandes: los pendientes del mismo mes que el primero después de la quincena.
     const mesG = despues.length ? despues[0].fecha.slice(0, 7) : null;
@@ -1506,6 +1529,15 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     let proy = null;
     if (grupo.length) { const rows = proyeccion(c).filter((r) => r.D.slice(0, 7) === mesG); if (rows.length) proy = rows.reduce((a, r) => (r.saldo < a.saldo ? r : a)); }
     return { comp: round2(comp), disp: round2(disp), libre: round2(libre), meta: round2(meta), guardado: round2(guardado), grupo, mesG, proy, hasta };
+  }
+  function renderPrevistos() {
+    const p = previstos(), box = $('pvBox'); box.hidden = !p; if (!p) return;
+    $('pvVal').textContent = fmt(p.saldo);
+    box.classList.toggle('neg', p.saldo < 0);
+    const sub = $('pvSub');
+    if (!p.empezo) sub.replaceChildren(document.createTextNode('+' + fmt0(p.monto) + ' cada quincena · empieza el ' + short(p.desde)));
+    else sub.replaceChildren(document.createTextNode('Llevas '), el('b', null, fmt0(p.q * p.monto)), document.createTextNode(' apartados'),
+      document.createTextNode(p.usado > 0 ? ' · usaste ' : ' · +' + fmt0(p.monto) + ' cada quincena'), ...(p.usado > 0 ? [el('b', null, fmt(p.usado))] : []));
   }
   function renderApartado(c) {
     const a = apartado(c);
@@ -1559,7 +1591,8 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
       const fijos = fijosHasta(D);
       const pagos = pend.filter((p) => p.fecha <= D).reduce((a, p) => a + partsSum(p), 0);
       const netas = cobros.filter((f) => f <= D).reduce((a, f) => a + ing - vacEn(f), 0);
-      const saldo = c.cuenta + netas - c.visaPend - semana - gasolina - varios - fijos - pagos;
+      const pv = previstos(), prev = pv ? Math.max(0, pv.saldo) + cobros.filter((f) => f <= D && f >= pv.desde).length * pv.monto : 0;
+      const saldo = c.cuenta + netas - c.visaPend - semana - gasolina - varios - fijos - pagos - prev;
       return { D, nombres: pend.filter((p) => p.fecha === D).map((p) => p.nombre), monto: pend.filter((p) => p.fecha === D).reduce((a, p) => a + partsSum(p), 0), saldo };
     });
   }
@@ -1688,12 +1721,13 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
   function sugerir(comercio) {
     const k = normCom(comercio); if (!k) return null;
     const clave = k.split(' ').slice(0, 2).join(' ');
-    const prev = state.movs.filter((m) => m.tipo === 'gasto' && ['comida', 'gasolina', 'otros', 'varios'].includes(m.categoria) && normCom(m.nota).startsWith(clave))
+    const prev = state.movs.filter((m) => m.tipo === 'gasto' && ['comida', 'gasolina', 'otros', 'varios', 'previsto'].includes(m.categoria) && normCom(m.nota).startsWith(clave))
       .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
     if (prev.length) return prev[0].categoria;
     if (/TEXACO|PUMA|SHELL|ESSO|GASOLIN|\bUNO\b|SERVICENTRO/.test(k)) return 'gasolina';
     if (/PIZZA|POLLO|REST|CAFE|COFFEE|BURGER|MCDONALD|STARBUCKS|PEDIDOSYA|WENDY|SUBWAY|TACO|PUPUS|CHURCH|COMIDA|BAR\b/.test(k)) return 'comida';
-    if (/PARQUEO|PARKING|CENTRO COMERCIAL|FARMACIA|VETERINAR|AUTO|TALLER|LLANT/.test(k)) return 'varios';
+    if (/TALLER|LLANT|LUBRI|VETERINAR/.test(k)) return 'previsto';
+    if (/PARQUEO|PARKING|CENTRO COMERCIAL|FARMACIA|AUTO/.test(k)) return 'varios';
     return null;
   }
   // ---------- Por clasificar: cobros leídos de los SMS del banco ----------
@@ -1706,7 +1740,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     $('bandHead').hidden = $('banda').hidden = !pend.length;
     if (!pend.length) return;
     $('bandSub').textContent = pend.length + (pend.length === 1 ? ' cobro' : ' cobros') + ' · un toque y listo';
-    const opts = [['comida', 'Comidas y salidas'], ['gasolina', 'Gasolina'], ['otros', 'Otros'], ['varios', 'Gastos varios']];
+    const opts = [['comida', 'Comidas y salidas'], ['gasolina', 'Gasolina'], ['otros', 'Otros'], ['varios', 'Gastos varios'], ['previsto', 'Previstos']];
     $('banda').replaceChildren(...pend.map((m) => {
       const box = el('div', 'bx');
       const top = el('div', 'top'); const t = el('div', 't');
@@ -2178,6 +2212,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
       $('eSub').textContent = 'Usaste ' + fmt(c.emergUsed) + ' de ' + fmt0(eLim);
       $('eLib').textContent = 'Se libera el ' + short(c.emergNext);
     }
+    renderPrevistos();
     $('tDeuda').textContent = fmt(c.debts.reduce((s, d) => s + Math.max(0, d.saldo), 0));
 
     // Deudas
@@ -2274,7 +2309,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
     const c = d.config || {};
     state.cfg = {
       base_fecha: c.base_fecha, cuenta_base: num(c.cuenta_base), limite_semana: num(c.limite_semana),
-      ingreso_quincena: num(c.ingreso_quincena), varios: num(c.varios_quincena), gasolina: num(c.gasolina_quincena), fijos_desde: String(c.fijos_desde || '').slice(0, 7),
+      ingreso_quincena: num(c.ingreso_quincena), varios: num(c.varios_quincena), previstos: num(c.previstos_quincena), previstos_desde: String(c.previstos_desde || '').slice(0, 10), gasolina: num(c.gasolina_quincena), fijos_desde: String(c.fijos_desde || '').slice(0, 7),
       plan_deuda: c.plan_deuda || '',
       tarjetas: (() => { try { const x = JSON.parse(c.tarjetas || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
       pagos_sms: (() => { try { const x = JSON.parse(c.pagos_sms || '{}'); return x && typeof x === 'object' ? x : {}; } catch (e) { return {}; } })(),
@@ -2433,7 +2468,7 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.32';
+  const VERSION = '2026-11-03.33';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
