@@ -637,6 +637,79 @@ html, body { touch-action: manipulation; }
 .wtot { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
 .wlist .daygrp { margin-top: 8px; }
 .wlist .mov { padding-block: 6px; }
+
+/* ===== Reportes (表): gastos del mes por categoría e historial. Todo se calcula en el teléfono. ===== */
+body[data-tab="reportes"] .app [data-t]:not([data-t~="reportes"]) { display: none !important; }
+.rep { display: flex; flex-direction: column; gap: 16px; }
+.rmes { display: grid; grid-template-columns: 44px 1fr 44px; align-items: center; }
+.rmes button { height: 44px; border: 0; background: none; color: var(--muted); font: 800 20px "Shippori Mincho B1", serif; cursor: pointer; border-radius: 50%; }
+.rmes button:disabled { opacity: .2; cursor: default; }
+.rmes div { text-align: center; }
+.rmes b { display: block; font-weight: 600; font-size: 16px; }
+.rmes span { display: block; font-size: 11px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; min-height: 16px; }
+.ranillo { position: relative; width: min(220px, 60vw); aspect-ratio: 1; margin: 4px auto; }
+.ranillo svg { width: 100%; height: 100%; transform: rotate(-90deg); display: block; overflow: visible; }
+.ranillo circle { fill: none; transition: stroke-dasharray .5s ease, stroke-dashoffset .5s ease; }
+.rcentro { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; gap: 2px; }
+.rcentro small { font-size: 11px; color: var(--muted); letter-spacing: .14em; text-transform: uppercase; }
+.rtot { font-family: var(--num); font-weight: 800; font-size: 42px; line-height: 1.05; letter-spacing: 0; font-variant-numeric: tabular-nums; }
+.rcentro em { font-style: normal; font-size: 12px; color: var(--muted); }
+.rcentro em i { font-style: normal; color: var(--ink); font-family: var(--num); font-weight: 800; }
+.rvacio { color: var(--muted); font-size: 14px; text-align: center; padding: 48px 8px; margin: 0; }
+.rcats { display: flex; flex-direction: column; }
+.rcat { width: 100%; display: grid; grid-template-columns: 10px 1fr auto auto; gap: 12px; align-items: center; padding: 11px 2px; background: none; border: 0; color: var(--ink); font: inherit; text-align: left; cursor: pointer; }
+.rcat .rsw { width: 10px; height: 10px; border-radius: 3px; }
+.rcat .n { font-size: 14.5px; font-weight: 500; }
+.rcat .p { font-size: 12px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.rcat .rv { font-family: var(--num); font-weight: 800; font-size: 17px; min-width: 64px; text-align: right; font-variant-numeric: tabular-nums; }
+.rcat.alerta .n, .rcat.alerta .p { color: var(--warn); }
+.rdet { padding: 0 2px 12px 24px; display: flex; flex-direction: column; gap: 7px; font-size: 13px; color: var(--muted); }
+.rdet div { display: flex; justify-content: space-between; gap: 10px; }
+.rdet span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rdet b { font-family: var(--num); font-weight: 800; color: var(--ink); white-space: nowrap; }
+.rdet .dev b { color: var(--ok); }
+.rtit { font-size: 11px; font-weight: 600; letter-spacing: .22em; color: var(--muted); margin: 0; }
+.rley { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 11.5px; color: var(--muted); margin-top: 6px; }
+.rley i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+.rbars { display: flex; justify-content: space-around; align-items: flex-end; margin-top: 20px; }
+.rm { flex: 0 1 60px; display: flex; flex-direction: column; align-items: center; background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; }
+.rm .col { height: 130px; display: flex; align-items: flex-end; justify-content: center; gap: 5px; }
+.rm .lb { margin-top: 10px; font-size: 11.5px; color: var(--muted); }
+.rm .rq { margin-top: 2px; font-family: var(--num); font-weight: 800; font-size: 13px; color: var(--muted); }
+.rm .rq.neg { color: var(--acento-txt); }
+.rm.curso .col { opacity: .5; }
+.rm.curso .lb { font-style: italic; font-size: 10.5px; }
+.rm[aria-pressed="true"] .lb { color: var(--ink); font-weight: 600; }
+.rnota { margin: 16px 0 0; font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+.rb { width: 9px; min-height: 2px; transition: height .5s ease; }
+/* Barras desnudas, sin ejes ni contorno */
+.rep .rb { border-radius: 4px 4px 1px 1px; }
+.rep .rb.in { background: rgba(var(--acento-rgb), .3); }
+.rep .rb.ga { background: var(--red); }
+html.discreto :is(.rtot, .rcentro em i, .rcat .rv, .rdet b, .rm .rq) { filter: blur(7px); }
+:is(.rtot, .rcat .rv, .rm .rq) { transition: filter .25s; }
+@media (min-width: 1000px) { .rep { max-width: 640px; width: 100%; } }
+
+/* ===== Sin bordes: la separación es solo espacio y tono. Nada lleva contorno ni líneas divisorias. ===== */
+/* Tarjetas de cristal: se quita el hilo de luz; queda el vidrio */
+.hero::before, .card::before, .tile::before, .tabs::before, .qcard::before { display: none !important; }
+.qcard { box-shadow: 0 14px 30px rgba(0,0,0,.45) !important; }
+.tabs { box-shadow: 0 14px 30px rgba(0,0,0,.5) !important; }
+.fab { box-shadow: 0 10px 24px rgba(0,0,0,.5) !important; }
+/* Líneas divisorias entre filas */
+.fx + .fx, .aj-row, .cam-pie, .fdone, .debt, .sheet, .bx + .bx, .filters, .tcard th, .tcard td, .tsum, .devs, .wlist { border-color: transparent !important; }
+/* Botones, campos, chips y píldoras: sin contorno, con un fondo apenas visible */
+.card, .tile, .hero, .pay, .fx.pay, .abono, .visa-alert, .msg.notice, .sync, .wtip, .pill, .chip, .qchips span, .bchips button,
+select, input[type=text], input[type=date], input[type=password], .gasin input, .bx .pie select { border-color: transparent !important; }
+.eye, .mini.ghost, .btn.ghost, .hmore button, .gasin .mini.ghost { border-color: transparent !important; background: rgba(236,227,210,.07) !important; }
+.avatar { box-shadow: none; }
+.paletas i, .paletas label:has(input:checked) i { box-shadow: none; }
+/* Barras: sin contorno; la parte vacía es una franja tenue y el relleno ocupa todo el alto */
+.wtrack, .prog, .fprog, .cam-bar { border: 0 !important; background: rgba(236,227,210,.08) !important; }
+.prog, .fprog, .cam-bar { padding: 0; }
+.wfill, .wtrack.sm .wfill { left: 0; top: 0; bottom: 0; }
+/* Hilos de luz de 1 px dentro de los botones pequeños y arriba de los paneles */
+.mini, .sheet { box-shadow: none !important; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -794,6 +867,9 @@ html, body { touch-action: manipulation; }
   <section class="card" id="camino" aria-label="Proyección para quedar sin deudas" data-t="deudas" hidden></section>
   </div>
   </div>
+  <div class="section-head" data-kanji="表" data-t="reportes"><h2>Reportes</h2></div>
+  <section id="rep" class="rep" data-t="reportes" aria-label="Reportes"></section>
+
   <footer class="pie">
     <span class="sello" aria-hidden="true">共</span>
     <div><p class="firma">Made by Claudio y Jaime</p><p class="ver" id="ver"></p></div>
@@ -806,6 +882,7 @@ html, body { touch-action: manipulation; }
   <button type="button" data-go="movs"><i aria-hidden="true">記</i>Movimientos</button>
   <button type="button" data-go="pagos"><i aria-hidden="true">払</i>Pagos</button>
   <button type="button" data-go="deudas"><i aria-hidden="true">借</i>Deudas</button>
+  <button type="button" data-go="reportes"><i aria-hidden="true">表</i>Reportes</button>
 </nav>
 <button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet" aria-label="Anotar"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
 
@@ -1054,6 +1131,7 @@ html, body { touch-action: manipulation; }
     document.querySelectorAll('#tabs [data-go]').forEach((b) => { if (b.dataset.go === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     window.scrollTo(0, 0);
     if (t === 'inicio' && state.last) render();
+    if (t === 'reportes') renderReportes();
   };
   document.querySelectorAll('#tabs [data-go]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go)));
   $('close').addEventListener('click', closeSheet);
@@ -1896,6 +1974,158 @@ html, body { touch-action: manipulation; }
     tip.style.left = Math.min(W - w / 2, Math.max(w / 2, frac * W)) + 'px';
   }
   window.addEventListener('resize', () => { if (state.last) render(); });
+
+  // ---------- Reportes (表) ----------
+  // Reglas para que cuadre con Inicio:
+  //  · Gasto = tipo «gasto» (incluye fijos, intereses y «por clasificar»), menos las devoluciones de su categoría.
+  //  · Ingreso = tipo «ingreso» sin las devoluciones.
+  //  · Pagos = tipo «pago», menos los abonos de compras con Visa (a = visa sin pago_id): esos gastos ya se contaron.
+  //  · Ahorro y ajustes no cuentan.
+  const repMes = (f) => String(f || '').slice(0, 7);
+  const repSuma = (mes, n) => { let [y, m] = mes.split('-').map(Number); m += n; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } return y + '-' + pad(m); };
+  const repNombre = (mes) => { const [y, m] = mes.split('-').map(Number); return { largo: MESES[m - 1], corto: MES3[m - 1], y }; };
+  const repEsAbonoVisa = (m) => m.tipo === 'pago' && m.a === 'visa' && !m.pago_id;
+  function gastosPorCategoria(movs, mes, hastaDia) {
+    const t = {};
+    movs.forEach((m) => {
+      if (repMes(m.fecha) !== mes || (hastaDia && +String(m.fecha).slice(8, 10) > hastaDia)) return;
+      const v = num(m.monto), k = m.categoria || 'pendiente';
+      if (m.tipo === 'gasto') t[k] = (t[k] || 0) + v;
+      else if (esDev(m)) t[k] = (t[k] || 0) - v;
+    });
+    Object.keys(t).forEach((k) => { if (t[k] < 0.005) delete t[k]; });
+    return t;
+  }
+  function flujoMes(movs, mes) {
+    let ing = 0, gas = 0, pag = 0;
+    movs.forEach((m) => {
+      if (repMes(m.fecha) !== mes) return;
+      const v = num(m.monto);
+      if (m.tipo === 'gasto') gas += v;
+      else if (esDev(m)) gas -= v;
+      else if (m.tipo === 'ingreso') ing += v;
+      else if (m.tipo === 'pago' && !repEsAbonoVisa(m)) pag += v;
+    });
+    return { ing: round2(ing), gas: round2(gas), pag: round2(pag), quedo: round2(ing - gas - pag) };
+  }
+  // Las 5 categorías más grandes; si sobran dos o más, van juntas en «Resto». «Por clasificar» siempre aparte.
+  function rebanadas(porCat) {
+    const orden = Object.entries(porCat).filter(([k]) => k !== 'pendiente').sort((a, b) => b[1] - a[1]);
+    const nombre = (k) => (CATS.find((c) => c.id === k) || {}).label || k;
+    const s = orden.slice(0, 5).map(([k, v]) => ({ ids: [k], nombre: nombre(k), v }));
+    const sobra = orden.slice(5);
+    if (sobra.length === 1) s.push({ ids: [sobra[0][0]], nombre: nombre(sobra[0][0]), v: sobra[0][1] });
+    else if (sobra.length > 1) s.push({ ids: sobra.map((x) => x[0]), nombre: 'Resto', v: sobra.reduce((a, x) => a + x[1], 0) });
+    if (porCat.pendiente) s.push({ ids: ['pendiente'], nombre: 'Por clasificar', v: porCat.pendiente, alerta: true });
+    return s;
+  }
+  const repDl = (v, dec) => '<span class="dl">' + (v < 0 ? '−$' : '$') + '</span>' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  // Se alternan el acento y el crema del tema para que las rebanadas se distingan
+  const REP_COL = ['var(--red)', 'rgba(236,227,210,.78)', 'rgba(var(--acento-rgb),.5)', 'rgba(236,227,210,.4)', 'rgba(var(--acento-rgb),.28)', 'rgba(236,227,210,.2)'];
+  let repSel = null, repAbierta = null;
+  function renderReportes() {
+    const box = $('rep'); if (!box) return;
+    const movs = state.movs || [];
+    const hoy = today(), mesHoy = repMes(hoy), diaHoy = +hoy.slice(8, 10);
+    const fechas = movs.map((m) => m.fecha).filter(Boolean).sort();
+    const primero = fechas.length ? repMes(fechas[0]) : mesHoy;
+    if (!repSel || repSel > mesHoy) repSel = mesHoy;
+    if (repSel < primero) repSel = primero;
+    const sel = repSel, enCurso = sel === mesHoy, n = repNombre(sel);
+    const NS = 'http://www.w3.org/2000/svg';
+    const mk = (tag, cls) => { const e = document.createElement(tag); if (cls) e.className = cls; return e; };
+
+    // Mes
+    const cab = mk('div', 'rmes');
+    const ant = mk('button'); ant.type = 'button'; ant.textContent = '‹'; ant.setAttribute('aria-label', 'Mes anterior'); ant.disabled = sel <= primero;
+    const sig = mk('button'); sig.type = 'button'; sig.textContent = '›'; sig.setAttribute('aria-label', 'Mes siguiente'); sig.disabled = enCurso;
+    const tt = mk('div'); tt.innerHTML = '<b>' + n.largo[0].toUpperCase() + n.largo.slice(1) + ' ' + n.y + '</b><span>' + (enCurso ? 'en curso' : '') + '</span>';
+    ant.addEventListener('click', () => { repSel = repSuma(sel, -1); repAbierta = null; renderReportes(); });
+    sig.addEventListener('click', () => { repSel = repSuma(sel, 1); repAbierta = null; renderReportes(); });
+    cab.append(ant, tt, sig);
+
+    // Anillo
+    const porCat = gastosPorCategoria(movs, sel), s = rebanadas(porCat);
+    const total = round2(s.reduce((a, x) => a + x.v, 0));
+    const dist = mk('div', 'rdist');
+    const cats = mk('div', 'rcats');
+    if (!total) { dist.innerHTML = '<p class="rvacio">Sin movimientos este mes</p>'; cats.hidden = true; }
+    else {
+      const R = 88, C = 2 * Math.PI * R, ancho = 3;
+      const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 200 200'); svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', 'Gastos del mes por categoría');
+      const circ = (r, stroke, w, extra) => { const c = document.createElementNS(NS, 'circle'); Object.entries({ cx: 100, cy: 100, r, stroke, 'stroke-width': w, ...(extra || {}) }).forEach(([k, x]) => c.setAttribute(k, x)); svg.append(c); return c; };
+      circ(R, 'rgba(255,255,255,.05)', ancho);
+      let off = 0, i = 0;
+      s.forEach((x) => {
+        x.color = x.alerta ? 'var(--warn)' : REP_COL[Math.min(i++, REP_COL.length - 1)];
+        const len = x.v / total * C;
+        circ(R, x.color, ancho, { 'stroke-dasharray': len + ' ' + (C - len), 'stroke-dashoffset': -off });
+        off += len;
+      });
+      // Comparación: en curso, contra el mes anterior al mismo día; si no, contra el mes anterior completo.
+      // Solo si hay datos desde el inicio de ese mes, para no comparar contra un mes a medias.
+      const mAnt = repSuma(sel, -1);
+      let comp = '';
+      if (fechas.length && fechas[0] <= mAnt + '-01') {
+        const tAnt = Object.values(gastosPorCategoria(movs, mAnt, enCurso ? diaHoy : 0)).reduce((a, x) => a + x, 0);
+        comp = (enCurso ? 'al ' + diaHoy + ' de ' + repNombre(mAnt).largo : repNombre(mAnt).largo) + ': <i>' + fmt0(tAnt) + '</i>';
+      }
+      const an = mk('div', 'ranillo'); const cen = mk('div', 'rcentro');
+      cen.innerHTML = '<small>Gastado</small><div class="rtot">' + repDl(total, 2) + '</div>' + (comp ? '<em>' + comp + '</em>' : '');
+      an.append(svg, cen); dist.append(an);
+
+      // Categorías: al tocar una se despliegan sus movimientos del mes
+      s.forEach((x) => {
+        const b = mk('button', 'rcat' + (x.alerta ? ' alerta' : '')); b.type = 'button';
+        const clave = x.ids.join(','); b.setAttribute('aria-expanded', repAbierta === clave);
+        const pct = Math.round(x.v / total * 100);
+        b.innerHTML = '<span class="rsw" style="background:' + x.color + '"></span><span class="n"></span><span class="p">' + pct + '%</span><span class="rv">' + repDl(x.v, 2) + '</span>';
+        b.querySelector('.n').textContent = x.nombre;
+        b.addEventListener('click', () => { repAbierta = repAbierta === clave ? null : clave; renderReportes(); });
+        cats.append(b);
+        if (repAbierta === clave) {
+          const det = mk('div', 'rdet');
+          movs.filter((m) => repMes(m.fecha) === sel && x.ids.includes(m.categoria || 'pendiente') && (m.tipo === 'gasto' || esDev(m)))
+            .sort((a, c) => String(c.fecha).localeCompare(String(a.fecha)))
+            .forEach((m) => {
+              const r = mk('div', esDev(m) ? 'dev' : ''); const t = mk('span'); const b2 = mk('b');
+              t.textContent = short(m.fecha) + ' · ' + (esDev(m) ? (m.nota ? m.nota + ' te devolvió' : 'Devolución') : (m._comercio && m.categoria === 'pendiente' ? m._comercio : (m.nota || x.nombre)));
+              b2.textContent = (esDev(m) ? '−' : '') + fmt(num(m.monto));
+              r.append(t, b2); det.append(r);
+            });
+          cats.append(det);
+        }
+      });
+    }
+
+    // Historial: hasta 6 meses que terminan en el mes elegido (desde el primer mes con datos)
+    const hist = mk('div', 'rhist');
+    const meses = []; for (let k = 5; k >= 0; k--) { const m = repSuma(sel, -k); if (m >= primero) meses.push(m); }
+    const datos = meses.map((m) => ({ m, ...flujoMes(movs, m) }));
+    hist.innerHTML = '<p class="rtit">HISTORIAL</p><div class="rley"><span><i style="background:rgba(var(--acento-rgb),.35)"></i>Ingresos</span><span><i style="background:var(--red)"></i>Gastos</span></div>';
+    const bars = mk('div', 'rbars');
+    const max = Math.max(1, ...datos.map((d) => Math.max(d.ing, d.gas)));
+    const H = 130, h = (x) => Math.max(0, x) / max * H;
+    datos.forEach((d) => {
+      const b = mk('button', 'rm' + (d.m === mesHoy ? ' curso' : '')); b.type = 'button';
+      b.setAttribute('aria-pressed', d.m === sel);
+      b.setAttribute('aria-label', repNombre(d.m).largo + ': ingresos ' + fmt0(d.ing) + ', gastos ' + fmt0(d.gas) + ', pagos ' + fmt0(d.pag) + ', quedó ' + fmt0(d.quedo));
+      const col = mk('div', 'col');
+      const a = mk('i', 'rb in'); a.style.height = h(d.ing) + 'px';
+      const g = mk('i', 'rb ga'); g.style.height = h(d.gas) + 'px';
+      col.append(a, g);
+      const lb = mk('span', 'lb'); lb.textContent = d.m === mesHoy ? 'en curso' : repNombre(d.m).corto;
+      const q = mk('span', 'rq' + (d.quedo < 0 ? ' neg' : '')); q.textContent = fmt0(d.quedo);
+      b.append(col, lb, q);
+      b.addEventListener('click', () => { if (repSel !== d.m) { repSel = d.m; repAbierta = null; renderReportes(); } });
+      bars.append(b);
+    });
+    const nota = mk('p', 'rnota'); nota.textContent = 'Bajo cada mes, lo que quedó: ingresos menos gastos y pagos. Los abonos de compras con Visa no cuentan dos veces.';
+    hist.append(bars, nota);
+
+    box.replaceChildren(cab, dist, cats, hist);
+  }
+
   function render() {
     const cfg = state.cfg;
     const sel = $('destinoPago');
@@ -1904,7 +2134,7 @@ html, body { touch-action: manipulation; }
       sel.replaceChildren(...(cfg.deudas || []).slice().sort((a, b) => (a.orden || 9) - (b.orden || 9)).map((d) => new Option(d.nombre, d.id)));
       if (keep) sel.value = keep;
     }
-    renderQuincena(); renderPagos(); renderFijos(); renderBandeja();
+    renderQuincena(); renderPagos(); renderFijos(); renderBandeja(); renderReportes();
     const c = compute();
     state.last = c;
     if (!c) { if (state.loaded) { $('weekNote').hidden = false; $('weekNote').textContent = 'Falta la configuración. Pídemela en el chat.'; } return; }
@@ -2197,7 +2427,7 @@ html, body { touch-action: manipulation; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.30';
+  const VERSION = '2026-11-03.31';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
