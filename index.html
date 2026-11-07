@@ -247,6 +247,7 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .ev b { font-family: var(--num); font-weight: 800; font-size: 20px; font-variant-numeric: tabular-nums; }
 .ecard .prog span { background: var(--ok); }
 .libre { font-size: 12px; color: var(--muted); }
+.libre .lnk { background: none; border: 0; padding: 0; font: inherit; font-size: 12px; font-weight: 600; color: var(--sel); cursor: pointer; text-align: left; }
 .libre b { font-family: var(--num); font-size: 13px !important; font-weight: 800; color: var(--ink); letter-spacing: 0; }
 .sobre .prog span { background: var(--brand); }
 .abono { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; font-weight: 600; font-size: 14px; }
@@ -803,6 +804,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     <div class="tile" data-t="inicio">
       <div class="row"><span class="lbl">Ahorro</span><button class="mini" type="button" id="ahAdd" aria-expanded="false" aria-controls="ahForm">+ Extra</button></div>
       <b id="tAhorro">—</b>
+      <span class="libre"><button class="lnk" type="button" id="ahOut" aria-expanded="false" aria-controls="ahForm">Pasar a mi cuenta →</button></span>
     </div>
     <div class="tile" id="emerg" data-t="inicio" aria-label="Gastos varios" hidden>
       <div class="row"><span class="lbl">Gastos varios</span></div>
@@ -1029,6 +1031,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   const state = { cfg: null, movs: [], loaded: false, last: null };
   let editing = null;   // movimiento que se edita en el panel Anotar
   let ahEditing = null; // movimiento de ahorro que se edita
+  let ahModo = 'extra'; // 'extra': agregar al ahorro · 'retiro': pasar del ahorro a la cuenta
   let db = null;
 
   { const d = new Date(); $('today').textContent = DIAS[d.getDay()].replace(/^./, (c) => c.toUpperCase()) + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; }
@@ -1267,6 +1270,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       const v = num(m.monto);
       if (m.tipo === 'ingreso') cuenta += v;
       else if (m.tipo === 'pago') { if (m.desde !== 'visa') cuenta -= v; } // pagado con Visa: sale de la cuenta cuando abonas la Visa
+      else if (m.tipo === 'ahorro' && m.destino === 'retiro') cuenta += v; // del ahorro a la cuenta
       else if (m.tipo === 'ahorro' && m.desde !== 'externo') cuenta -= v;
       else if (m.tipo === 'gasto' && m.medio === 'cuenta') cuenta -= v;
       else if (m.tipo === 'ajuste') cuenta += v;
@@ -1275,7 +1279,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     // Ahorro: interés diario sobre el saldo, acreditado al cierre de cada mes.
     const rate = num(cfg.ahorro_tasa) / 100 / 365;
     const deps = {};
-    movs.forEach((m) => { if (m.tipo === 'ahorro' && m.destino === 'vacaciones') deps[m.fecha] = (deps[m.fecha] || 0) + num(m.monto); });
+    movs.forEach((m) => { if (m.tipo === 'ahorro' && (m.destino === 'vacaciones' || m.destino === 'retiro')) deps[m.fecha] = (deps[m.fecha] || 0) + (m.destino === 'retiro' ? -1 : 1) * num(m.monto); });
     let ahorro = num(cfg.ahorro_base), acc = 0;
     for (let d = parse(cfg.ahorro_fecha || base), end = parse(today()), guard = 0; d <= end && guard < 4000; guard++) {
       ahorro += deps[iso(d)] || 0;
@@ -1391,8 +1395,12 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   });
 
   // ---------- Ahorro extra ----------
-  const ahToggle = (open, m) => {
-    $('ahForm').hidden = !open; $('ahAdd').setAttribute('aria-expanded', String(open));
+  const ahToggle = (open, m, modo) => {
+    ahModo = (m && m.destino === 'retiro') || modo === 'retiro' ? 'retiro' : 'extra';
+    const r = ahModo === 'retiro';
+    $('ahForm').hidden = !open; $('ahAdd').setAttribute('aria-expanded', String(open && !r)); $('ahOut').setAttribute('aria-expanded', String(open && r));
+    $('ahDesdeLbl').closest('.field').hidden = r;
+    $('ahNota').placeholder = r ? 'Ej. viaje' : 'Ej. bono';
     ahEditing = open && m ? m : null;
     if (open) {
       $('ahMsg').textContent = '';
@@ -1400,13 +1408,14 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       $('ahMonto').value = ahEditing ? num(ahEditing.monto).toFixed(2) : '';
       $('ahNota').value = ahEditing ? (ahEditing.nota || '') : '';
       ahOrigen(ahEditing && ahEditing.desde === 'externo' ? 'externo' : 'cuenta');
-      $('ahTitle').textContent = ahEditing ? 'Editar ahorro' : 'Agregar al ahorro';
-      $('ahSave').textContent = ahEditing ? 'Guardar cambios' : 'Agregar al ahorro';
+      $('ahTitle').textContent = r ? (ahEditing ? 'Editar retiro' : 'Pasar a mi cuenta') : (ahEditing ? 'Editar ahorro' : 'Agregar al ahorro');
+      $('ahSave').textContent = ahEditing ? 'Guardar cambios' : (r ? 'Pasar a mi cuenta' : 'Agregar al ahorro');
       $('ahForm').scrollIntoView({ block: 'nearest' });
       $('ahMonto').focus();
     }
   };
-  $('ahAdd').addEventListener('click', () => ahToggle($('ahForm').hidden, null));
+  $('ahAdd').addEventListener('click', () => ahToggle($('ahForm').hidden || ahModo !== 'extra', null, 'extra'));
+  $('ahOut').addEventListener('click', () => ahToggle($('ahForm').hidden || ahModo !== 'retiro', null, 'retiro'));
   // De dónde sale el ahorro: dos opciones de texto; la elegida va en color de acento.
   function ahOrigen(v) { $('ahDesde').value = v; document.querySelectorAll('#ahForm .opc button').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.v === v))); }
   document.querySelectorAll('#ahForm .opc button').forEach((b) => b.addEventListener('click', () => ahOrigen(b.dataset.v)));
@@ -1419,10 +1428,12 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     if (!(monto > 0)) { msg.className = 'msg err'; msg.textContent = 'Escribe un monto mayor que cero.'; $('ahMonto').focus(); return; }
     const btn = $('ahSave'); btn.disabled = true;
     try {
-      const doc = { tipo: 'ahorro', destino: 'vacaciones', desde: $('ahDesde').value, monto, fecha: $('ahFecha').value || today(), nota: $('ahNota').value.trim() || 'Extra al ahorro', origen: 'app' };
+      const doc = ahModo === 'retiro'
+        ? { tipo: 'ahorro', destino: 'retiro', monto, fecha: $('ahFecha').value || today(), nota: $('ahNota').value.trim() || 'Del ahorro a mi cuenta', origen: 'app' }
+        : { tipo: 'ahorro', destino: 'vacaciones', desde: $('ahDesde').value, monto, fecha: $('ahFecha').value || today(), nota: $('ahNota').value.trim() || 'Extra al ahorro', origen: 'app' };
       const q = ahEditing ? await db.doc('movs/' + ahEditing.id).set({ ...doc, creado: ahEditing.creado || new Date().toISOString(), editado: new Date().toISOString() })
         : await db.collection('movs').add({ ...doc, creado: new Date().toISOString() });
-      avisoDeshacer((ahEditing ? 'Ahorro actualizado: ' : 'Al ahorro: ') + fmt(monto), [q]);
+      avisoDeshacer((ahModo === 'retiro' ? (ahEditing ? 'Retiro actualizado: ' : 'A tu cuenta: ') : (ahEditing ? 'Ahorro actualizado: ' : 'Al ahorro: ')) + fmt(monto), [q]);
       ahToggle(false);
     } catch (e) { msg.className = 'msg err'; msg.textContent = 'No se guardó. Intenta de nuevo.'; }
     finally { btn.disabled = false; }
@@ -1916,6 +1927,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     else if (m.tipo === 'pago') { key = 'pago'; what = 'Pago a ' + debtName(m.a); tipoLbl = 'Pago'; medio = m.desde === 'visa' ? 'Con Visa' : ''; filtro = 'pago'; }
     else if (m.tipo === 'ingreso') { key = 'ingreso'; what = esDev(m) ? (m.nota ? m.nota + ' te devolvió' : 'Devolución') : (m.concepto || 'Entrada'); tipoLbl = esDev(m) ? 'Devolución' : 'Entrada'; sign = '+'; inClass = ' in'; medio = ''; filtro = 'ingreso'; if (esDev(m)) { const g = state.movs.find((x) => x.id === m.a); return { key, what, tipoLbl, medio: '', nota: g ? 'De ' + (desc(g).nota || desc(g).what) : '', sign, inClass, filtro, editable: true }; } }
     else if (m.tipo === 'ajuste') { key = 'otros'; what = 'Ajuste con el banco'; tipoLbl = 'Ajuste'; sign = num(m.monto) >= 0 ? '+' : '−'; inClass = num(m.monto) >= 0 ? ' in' : ''; medio = ''; filtro = 'ajuste'; }
+    else if (m.destino === 'retiro') { key = 'ahorro'; what = 'Del ahorro a tu cuenta'; tipoLbl = 'Retiro'; sign = ''; inClass = ''; medio = ''; filtro = 'ahorro'; }
     else if (m.destino === 'salida') { key = 'salida'; what = 'Salida'; tipoLbl = 'Salida'; medio = ''; filtro = 'salida'; }
     else { key = 'ahorro'; what = 'Ahorro'; tipoLbl = 'Ahorro'; sign = '+'; inClass = ' in'; medio = m.desde === 'externo' ? 'Dinero extra' : 'Desde tu cuenta'; filtro = 'ahorro'; }
     if (m.tipo === 'gasto') tipoLbl = what;
@@ -1925,7 +1937,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     const auto = m.concepto === 'auto' ? 'auto' : ''; // anotado solo por el puente (comercio conocido o pago detectado)
     return { key, what, tipoLbl, medio, nota: [auto, m.nota || ''].filter(Boolean).join(' · '), sign, inClass, filtro, editable: m.tipo !== 'ajuste' };
   }
-  const editMov = (m) => { if (m.tipo === 'ahorro' && m.destino === 'vacaciones') ahToggle(true, m); else openSheet(m); };
+  const editMov = (m) => { if (m.tipo === 'ahorro' && (m.destino === 'vacaciones' || m.destino === 'retiro')) ahToggle(true, m); else openSheet(m); };
   const borrarMov = async (m) => { if (!db) return; const q = await db.doc('movs/' + m.id).delete(); avisoDeshacer('Borrado: ' + desc(m).what + ' ' + fmt(Math.abs(num(m.monto))), [q]); };
 
   function rowFor(m) {
@@ -2497,7 +2509,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.37';
+  const VERSION = '2026-11-03.38';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
