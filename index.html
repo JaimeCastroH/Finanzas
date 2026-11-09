@@ -112,6 +112,9 @@ label.mini { display: inline-block; }
 .cam-bar span { display: block; height: 100%; border-radius: 99px; background: var(--brand); }
 .cam-row.fin .cam-bar span { background: var(--ok); } .cam-row.fin .cam-r { color: var(--ok); font-family: var(--font); }
 .cam-r { text-align: right; font-family: var(--num); font-weight: 800; font-variant-numeric: tabular-nums; }
+.cerr { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 0 0 14px; font-size: 12.5px; color: var(--muted); }
+.cerr-s { display: flex; gap: 4px; } .cerr-s i { width: 22px; height: 8px; border-radius: 4px; background: rgba(236,227,210,.08); } .cerr-s i.on { background: var(--ok); }
+.cerr .intv { font-family: var(--num); font-weight: 800; font-size: 15px; color: var(--ink); }
 .cam-pie { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
 .cam-pie.ok b { color: var(--ok); } .cam-pie.bad b { color: var(--bad); }
 .fdone { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 10px; }
@@ -119,28 +122,21 @@ label.mini { display: inline-block; }
 
 /* Top */
 .top { display: flex; align-items: center; justify-content: space-between; padding-inline: 4px; }
-.top h1 { font-size: 24px; font-weight: 800; }
-.top p { margin: 0; font-size: 13px; color: var(--muted); }
+.top p { margin: 0; font-size: 15px; font-weight: 600; color: var(--muted); }
 .avatar { width: 46px; height: 46px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--brand); }
 
 /* Semana */
 .hero { border-radius: 28px; padding: 22px; background: linear-gradient(160deg, #201e1a 0%, #161512 100%); border: 1px solid var(--line); display: flex; flex-direction: column; gap: 16px; }
-.hero-main { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 20px; }
-.hero-main > div:last-child { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.hero .cap { margin: 0; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
 .hero .big { font-size: clamp(34px, 10vw, 46px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; font-variant-numeric: tabular-nums; }
 .hero .note { font-size: 13px; color: var(--muted); margin: 4px 0 0; white-space: pre-line; line-height: 1.4; }
-.hero-main > div:last-child { min-width: 0; }
 .visa-alert { background: var(--warn-soft); color: var(--warn); border-radius: 14px; padding: 10px 12px; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
 .visa-alert span { flex: 1; min-width: 0; }
 .visa-alert .mini { background: var(--warn); color: var(--on-brand); }
 .mov .info { cursor: pointer; min-width: 0; border-radius: 8px; }
 .mov .info:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 2px; }
-.mov .edit-hint { font-size: 11px; color: var(--muted); }
 
 /* Botones */
 .btn { font: inherit; font-weight: 700; border: 0; border-radius: 14px; padding: 12px 16px; background: var(--brand); color: var(--on-brand); cursor: pointer; font-size: 15px; white-space: nowrap; }
-.btn.arm, .mini.arm { background: var(--ink); color: var(--surface); }
 .btn:disabled { opacity: .6; cursor: default; }
 .btn.block { width: 100%; padding: 15px; font-size: 16px; }
 .mini { font: inherit; font-size: 12px; font-weight: 700; border: 0; color: var(--on-brand); background: var(--brand); border-radius: 99px; padding: 6px 12px; cursor: pointer; white-space: nowrap; }
@@ -193,7 +189,6 @@ label.mini { display: inline-block; }
 .mov .v { font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
 .mov .v.in { color: var(--ok); }
 .del { font: inherit; font-size: 11px; border: 0; background: transparent; color: var(--muted); padding: 2px 0; cursor: pointer; }
-.del.arm { color: var(--bad); font-weight: 700; }
 .empty { color: var(--muted); font-size: 14px; text-align: center; padding: 14px 8px; margin: 0; }
 
 /* Deudas */
@@ -271,6 +266,9 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .bx .pie select { font: inherit; font-size: 13px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; }
 .bx .del { font: inherit; font-size: 12px; color: var(--muted); background: none; border: 0; cursor: pointer; text-decoration: underline; }
 .sfoot { margin: 0; font-size: 12px; color: var(--muted); }
+.sfoot.srow { display: flex; justify-content: space-between; align-items: baseline; color: var(--muted); font-size: 13px; }
+.sfoot.srow.ok, .sfoot.srow.bad { color: var(--muted); }
+.sfoot.srow b { font-family: "Num", sans-serif; font-size: 22px; } .sfoot.srow.ok b { color: var(--ok); } .sfoot.srow.bad b { color: var(--bad); }
 .sfoot.bad { color: #e8a297; } .sfoot.ok { color: var(--ok); }
 .ecard.over .ev b { color: var(--bad); } .ecard.over .prog span { background: var(--bad); }
 .chip { position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: var(--surface-2); border: 2px solid transparent; font-size: 12px; font-weight: 600; text-align: center; }
@@ -311,12 +309,10 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (min-width: 1000px) {
   .app { max-width: 1260px; padding: 30px 36px 120px; gap: 22px; }
-  .top h1 { font-size: 30px; }
   .avatar { width: 52px; height: 52px; }
   .band { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 22px; align-items: stretch; }
   .side { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
   .hero { justify-content: center; padding: 30px 48px 30px 34px; }
-  .hero-main { gap: 34px; }
   .hero .big { font-size: 58px; }
   .duo { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .app .desk-only { display: flex; }
@@ -353,7 +349,6 @@ body::before { content: ""; position: fixed; inset: 0; z-index: 15; pointer-even
 .tcard td.a { text-align: right; white-space: nowrap; width: 1%; }
 .tcard td.a button { font: inherit; font-size: 12px; border: 0; background: transparent; color: var(--muted); cursor: pointer; padding: 4px 6px; border-radius: 6px; }
 .tcard td.a button:hover { color: var(--ink); background: var(--surface); }
-.tcard td.a button.arm { color: var(--bad); font-weight: 700; }
 .tcard td.a button:focus-visible { outline: 3px solid var(--brand-2); }
 .tcard .empty { padding: 28px; }
 .tsum { display: flex; flex-wrap: wrap; gap: 8px 28px; padding: 13px 18px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
@@ -694,7 +689,7 @@ body[data-tab="reportes"] .app [data-t]:not([data-t~="reportes"]) { display: non
 /* Barras desnudas, sin ejes ni contorno */
 .rep .rb.in { background: rgba(var(--acento-rgb), .3); }
 .rep .rb.ga { background: var(--red); }
-html.discreto :is(.rtot, .rcentro em i, .rcat .rv, .rdet b, .rm .rq) { filter: blur(7px); }
+html.discreto :is(.rtot, .rcentro em i, .rcat .rv, .rdet b, .rm .rq, .cerr .intv) { filter: blur(7px); }
 :is(.rtot, .rcat .rv, .rm .rq) { transition: filter .25s; }
 @media (min-width: 1000px) { .rep { max-width: 640px; width: 100%; } }
 
@@ -755,7 +750,6 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   <header class="top">
     <div>
       <p id="today">—</p>
-      <h1>Hola, Jaime</h1>
     </div>
     <div class="top-r">
       <button class="eye" type="button" id="eyeBtn" aria-label="Ocultar montos" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="o" d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle class="o" cx="12" cy="12" r="3"/><path class="x" d="M4 4l16 16"/></svg></button>
@@ -1574,7 +1568,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   }
   function renderApartado(c) {
     const a = apartado(c);
-    $('tLibre').hidden = false;
+    $('tLibre').hidden = !!a.grupo.length;
     $('tLibre').replaceChildren(document.createTextNode('Libre '), el('b', null, fmt(a.libre)));
     $('tLibre').title = 'Lo que queda después de lo comprometido hasta el ' + short(a.hasta) + ' y de apartar para los pagos de ' + (a.mesG ? MESES[parse(a.mesG + '-01').getMonth()] : 'después');
     const sb = $('sobre'); sb.hidden = !a.grupo.length; if (!a.grupo.length) return;
@@ -1587,8 +1581,8 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     const f = $('sFoot');
     if (a.proy) {
       const ok = a.proy.saldo >= 0;
-      f.className = 'sfoot ' + (ok ? 'ok' : 'bad');
-      f.textContent = (ok ? 'Vas bien: al ' : 'Al ') + short(a.proy.D) + (ok ? ' te sobrarían ~' : ' te faltarían ~') + fmt0(Math.abs(a.proy.saldo)) + ' con lo que falta por cobrar.';
+      f.className = 'sfoot srow ' + (ok ? 'ok' : 'bad');
+      f.replaceChildren(el('span', null, (ok ? 'Sobran al ' : 'Faltan al ') + short(a.proy.D)), el('b', null, (ok ? '+' : '−') + fmt0(Math.abs(a.proy.saldo))));
     } else f.textContent = '';
   }
   function proyeccion(c) {
@@ -2072,16 +2066,17 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     return t;
   }
   function flujoMes(movs, mes) {
-    let ing = 0, gas = 0, pag = 0;
+    let ing = 0, gas = 0, pag = 0, ret = 0, apa = 0;
     movs.forEach((m) => {
       if (repMes(m.fecha) !== mes) return;
       const v = num(m.monto);
+      if (m.tipo === 'ahorro') { if (m.destino === 'retiro') ret += v; else if (m.destino !== 'salida' && m.desde !== 'externo') apa += v; return; }
       if (m.tipo === 'gasto') gas += v;
       else if (esDev(m)) gas -= v;
       else if (m.tipo === 'ingreso') ing += v;
       else if (m.tipo === 'pago' && !repEsAbonoVisa(m)) pag += v;
     });
-    return { ing: round2(ing), gas: round2(gas), pag: round2(pag), quedo: round2(ing - gas - pag) };
+    return { ing: round2(ing + ret), gas: round2(gas), pag: round2(pag), ret: round2(ret), quedo: round2(ing + ret - gas - pag) };
   }
   // Las 5 categorías más grandes; si sobran dos o más, van juntas en «Resto». «Por clasificar» siempre aparte.
   function rebanadas(porCat) {
@@ -2194,7 +2189,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
       b.addEventListener('click', () => { if (repSel !== d.m) { repSel = d.m; repAbierta = null; renderReportes(); } });
       bars.append(b);
     });
-    const nota = mk('p', 'rnota'); nota.textContent = 'Bajo cada mes, lo que quedó: ingresos menos gastos y pagos. Los abonos de compras con Visa no cuentan dos veces.';
+    const nota = mk('p', 'rnota'); nota.textContent = 'Bajo cada mes, lo que quedó: ingresos menos gastos y pagos. Lo que pasas del ahorro a tu cuenta se suma como ingreso.';
     hist.append(bars, nota);
 
     box.replaceChildren(cab, dist, cats, hist);
@@ -2223,7 +2218,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     ponerTip($('wTip'), qf);
     $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
     renderSemana(c);
-    $('wSub').textContent = (left < 0 ? 'te pasaste esta semana' : 'te quedan esta semana') + ' · gastado ' + fmt(c.weekSpent);
+    $('wSub').textContent = 'gastado ' + fmt(c.weekSpent) + ' de ' + fmt0(state.cfg.limite_semana);
     const t = today();
     const vb = $('visaBanner'); vb.hidden = !(c.visaPend > 0.004);
     $('visaTxt').textContent = 'Abona ' + fmt(c.visaPend) + ' a la Visa: son compras que aún no cubres.';
@@ -2274,6 +2269,13 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     if (tabD) { tabD.classList.toggle('aviso', faltaInt); tabD.setAttribute('aria-label', faltaInt ? 'Deudas: falta anotar un interés' : 'Deudas'); }
 
     renderCamino(c);
+    const IDS = ['amex_rev', 'amex_ole', 'siman', 'atl_cuotas'];
+    const cerr = IDS.filter((id) => { const d = c.debts.find((x) => x.id === id); return d && d.saldo <= 0.004; }).length;
+    { const cam = $('camino'); if (!cam.hidden) { const r = el('div', 'cerr'); const segs = el('div', 'cerr-s');
+      IDS.forEach((id, i) => segs.append(el('i', i < cerr ? 'on' : null)));
+      r.append(el('span', null, cerr + ' de ' + IDS.length + ' deudas en cero'), segs); cam.prepend(r); } }
+    const intPag = round2(state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'interes').reduce((a, m) => a + num(m.monto), 0));
+    if (intPag > 0 && !$('camino').hidden) { const ri = el('div', 'cerr'); ri.append(el('span', null, 'Intereses pagados'), el('b', 'intv', fmt(intPag))); $('camino').querySelector('.cerr').after(ri); }
 
     // Movimientos
     const list = sortedMovs();
@@ -2313,7 +2315,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
 
   // ---------- Signo de dólar en rojo ----------
   // Los montos se escriben como texto; aquí se envuelve el "$" en un span para pintarlo.
-  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n';
+  const CON_DOLAR = '#weekLeft, #tCuenta, #sVal, #tAhorro, #tDeuda, .pay .r b, .fx .r b, .debt .amt, .mov .v, .tcard td.n, .sfoot.srow b, .cerr .intv';
   function dolares(root) {
     (root || document).querySelectorAll(CON_DOLAR).forEach((e) => {
       if (e.querySelector('.dl') || !e.textContent.includes('$')) return;
@@ -2509,7 +2511,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.38';
+  const VERSION = '2026-11-03.39';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
