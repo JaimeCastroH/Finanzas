@@ -737,6 +737,8 @@ body::before { display: none !important; }
 .tile { border-radius: 28px; padding: 18px; }
 .hero > *, .card > *, .tile > *, .qcard > * { text-shadow: none !important; }
 .sheet { background: var(--m-card) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; border: 0 !important; }
+/* En el teléfono el panel se prolonga hacia abajo con su mismo color, por si no llega al borde de la pantalla */
+@media (max-width: 999px) { .sheet { box-shadow: 0 120px 0 0 var(--m-card) !important; } }
 .tcard th { background: var(--m-card) !important; }
 .toast { background: var(--m-chip) !important; border: 0 !important; box-shadow: 0 10px 24px rgba(0,0,0,.35) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 22px; }
 .eye, .avatar-btn .avatar { background: var(--m-card) !important; }
@@ -774,8 +776,16 @@ body::before { display: none !important; }
   .tabs { background: var(--m-bg) !important; border-radius: 0; width: 100vw; bottom: 0; padding: 10px 8px calc(14px + env(safe-area-inset-bottom, 0px)); }
   .tabs button { font-size: 10.5px; gap: 3px; }
   .tabs button i { font-size: 21px; }
-  .fab, .fab:is(*) { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+  .tabs { --tabs-h: calc(63px + max(8px, env(safe-area-inset-bottom, 0px) - 8px)); box-sizing: border-box; height: var(--tabs-h); padding: 10px 8px 0; align-items: flex-start; }
+  .fab, .fab:is(*) { bottom: calc(77px + max(8px, env(safe-area-inset-bottom, 0px) - 8px)); }
   .app { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
+}
+/* iPhone, abierta desde el ícono de inicio: la zona de los elementos fijos termina antes del borde de abajo (le falta el alto de la barra de estado).
+   Se alarga la página y las pestañas y el + se colocan midiendo desde arriba con el alto completo de la pantalla, para que lleguen al borde. */
+html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
+@media (display-mode: standalone) and (max-width: 999px) and (min-height: 521px) {
+  .tabs { bottom: auto; top: calc(100vh - var(--tabs-h)); }
+  .fab, .fab:is(*) { bottom: auto; top: calc(100vh - 77px - max(8px, env(safe-area-inset-bottom, 0px) - 8px) - 54px); }
 }
 @media (min-width: 1000px) { .hero { justify-content: flex-start; } .hero .big, .hero .big:is(*) { font-size: 58px; } }
 /* En horizontal y en computadora las pestañas siguen flotando: un tono más claro para que se separen del fondo */
@@ -2568,7 +2578,7 @@ body::before { display: none !important; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.41';
+  const VERSION = '2026-11-03.42';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
