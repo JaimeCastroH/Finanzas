@@ -32,7 +32,7 @@ body { margin: 0; }
   --green: #4e6851; --ok: #8aa991; --red: #b83a2d;
   --warn: #d9a441; --warn-soft: #2e2615; --bad: #d0594b; --bad-soft: #2f1a16;
   --font: "Montserrat", "Segoe UI", system-ui, sans-serif;
-  --num: "Num", "Shippori Mincho B1", "Hiragino Mincho ProN", "Yu Mincho", Georgia, serif;
+  --num: "Montserrat", "Segoe UI", system-ui, sans-serif;
   color-scheme: dark;
 }
 [hidden] { display: none !important; }
@@ -268,7 +268,7 @@ form.stack { display: flex; flex-direction: column; gap: 16px; }
 .sfoot { margin: 0; font-size: 12px; color: var(--muted); }
 .sfoot.srow { display: flex; justify-content: space-between; align-items: baseline; color: var(--muted); font-size: 13px; }
 .sfoot.srow.ok, .sfoot.srow.bad { color: var(--muted); }
-.sfoot.srow b { font-family: "Num", sans-serif; font-size: 22px; } .sfoot.srow.ok b { color: var(--ok); } .sfoot.srow.bad b { color: var(--bad); }
+.sfoot.srow b { font-family: var(--num); font-size: 22px; } .sfoot.srow.ok b { color: var(--ok); } .sfoot.srow.bad b { color: var(--bad); }
 .sfoot.bad { color: #e8a297; } .sfoot.ok { color: var(--ok); }
 .ecard.over .ev b { color: var(--bad); } .ecard.over .prog span { background: var(--bad); }
 .chip { position: relative; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 4px; border-radius: 16px; background: var(--surface-2); border: 2px solid transparent; font-size: 12px; font-weight: 600; text-align: center; }
@@ -414,7 +414,6 @@ body::before { opacity: .06; }
 @media (min-width: 1000px) { .toast { left: auto; right: 36px; transform: none; bottom: 108px; } @keyframes toastIn { from { opacity: 0; } to { opacity: 1; } } }
 
 /* Números: Rajdhani Bold (geométrica, de la referencia), incluida en la app para que funcione sin señal */
-@font-face { font-family: "Num"; src: url(data:font/woff2;base64,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) format("woff2"); font-weight: 100 900; font-display: block; unicode-range: U+0020, U+0024-0025, U+002B-002F, U+0030-0039, U+007E, U+2212; }
 .hero .big, .tile b, .pay .r b, .pay .d b, .mov .v, .debt .amt, .amount input, .fx .r b, .ev b, .tcard td.n, .tsum b { letter-spacing: 0; font-feature-settings: "tnum"; font-synthesis: none; }
 .dl { color: var(--red); }
 .mov .v.in .dl, .tcard td.n.in .dl { color: inherit; }
@@ -1062,8 +1061,8 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     { id: 'varios', label: 'Gastos varios' },
     { id: 'previsto', label: 'Previstos' }, // gastos que llegan cada cierto tiempo: carro, veterinario, salud, regalos
     { id: 'fijo', label: 'Cobro fijo', oculto: true }, // se marca desde «Cobros fijos», no aparece al anotar
-    { id: 'interes', label: 'Intereses', oculto: true },
-    { id: 'pendiente', label: 'Por clasificar', oculto: true } // cobro leído de un SMS del banco // interés real del estado de cuenta; lo anota Claude
+    { id: 'interes', label: 'Intereses', oculto: true }, // interés real del estado de cuenta; lo anota Claude
+    { id: 'pendiente', label: 'Por clasificar', oculto: true } // cobro leído de un SMS del banco
   ];
   const MEDIO = { visa: 'Visa', cuenta: 'Débito', atl: 'Atlántida', amex_rev: 'AMEX', amex_ole: 'AMEX OLE', siman: 'Simán' };
   const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -1085,10 +1084,12 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   const whenTxt = (n) => n === 0 ? 'Hoy' : n === 1 ? 'Mañana' : n > 1 ? 'En ' + n + ' días' : 'Venció hace ' + (-n) + (n === -1 ? ' día' : ' días');
   const num = (x) => +x || 0;
   const round2 = (x) => Math.round(x * 100) / 100;
-  // Acepta 7.50, 7,50 (coma decimal del teclado), $1,200.00 y 1200.
+  // Acepta 7.50, 7,50 (coma decimal del teclado), $1,200.00, 1.200,50 y 1200.
   const parseMonto = (s) => {
     let t = String(s || '').replace(/[$\s]/g, '');
-    t = /^\d+,\d{1,2}$/.test(t) ? t.replace(',', '.') : t.replace(/,/g, '');
+    const p = t.lastIndexOf('.'), c = t.lastIndexOf(',');
+    if (p >= 0 && c >= 0) t = p > c ? t.replace(/,/g, '') : t.replace(/\./g, '').replace(',', '.'); // 1,234.56 o 1.234,56: el último signo es el decimal
+    else t = /^\d+,\d{1,2}$/.test(t) ? t.replace(',', '.') : t.replace(/,/g, '');
     return round2(parseFloat(t));
   };
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
@@ -1278,7 +1279,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       closeSheet();
     } catch (e) {
       msg.className = 'msg err';
-      msg.textContent = e && e.code === 'quota_exceeded' ? 'Se llenó el espacio de datos. Pídeme en el chat que archive movimientos viejos.' : 'No se guardó. Revisa tu conexión e intenta de nuevo.';
+      msg.textContent = 'No se guardó. Revisa tu conexión e intenta de nuevo.';
     } finally { btn.disabled = false; btn.textContent = label; }
   });
 
@@ -1408,7 +1409,6 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // La placa aparece sola el día de pago (15 y 30) y se queda hasta que anotes la quincena.
   // Si el día de pago cae en sábado o domingo, aparece desde el viernes anterior.
   // Si te pagan otro día, se anota desde Anotar → Entrada → Quincena.
-  const DIA_SEMANA = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
   let qArmed = () => false;
   function renderQuincena() {
     if (!state.cfg || qArmed()) return;
@@ -1422,7 +1422,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     $('qLbl').textContent = got ? 'Ya cayó ✓' : 'Cayó la rata';
     const diaPago = antes ? viernes : (finde(qd.pd.prev) || qd.pd.prev);
     $('qTitle').textContent = got ? 'La quincena ya está anotada' : pend ? (diaPago === t ? 'Hoy es día de pago' : 'Día de pago: ' + short(diaPago)) : 'Anotar la quincena';
-    $('qSub').textContent = got ? '' : (antes ? 'El ' + parse(qd.pd.next).getDate() + ' cae ' + DIA_SEMANA[dn] + ' · lo de siempre: ' : 'Lo de siempre: ') + fmt(ingresoQ());
+    $('qSub').textContent = got ? '' : (antes ? 'El ' + parse(qd.pd.next).getDate() + ' cae ' + DIAS[dn] + ' · lo de siempre: ' : 'Lo de siempre: ') + fmt(ingresoQ());
   }
   qArmed = () => !$('qForm').hidden;
   const qToggle = (open) => {
@@ -1447,7 +1447,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     $('qForm').hidden = true; $('qBtn').setAttribute('aria-expanded', 'false');
     const msg = $('qMsg'); msg.className = 'msg notice';
     const deu = num(qp.deuda), var_ = num(state.cfg.varios);
-    msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa: se queda en tu cuenta para diciembre') + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
+    msg.textContent = 'Entraron ' + fmt(monto) + '. ' + (vac > 0 ? 'Abona ' + fmt0(vac) + ' a tu ahorro' : 'Esta quincena el ahorro está en pausa y se queda en tu cuenta' + ((state.cfg.ahorro_pausa || {}).motivo ? ' (' + String(state.cfg.ahorro_pausa.motivo).toLowerCase() + ')' : '')) + (deu > 0 ? ' y aparta ' + fmt(deu) + ' para deuda' : '') + '.' +
       (var_ > 0 ? ' Tienes ' + fmt0(var_) + ' para gastos varios.' : '') + (qp.nota_deuda ? '\n' + qp.nota_deuda : '');
     document.querySelectorAll('.duo .tile').forEach((t) => { t.classList.remove('flash'); void t.offsetWidth; t.classList.add('flash'); });
     setTimeout(() => { msg.textContent = ''; msg.className = 'msg'; }, 12000);
@@ -1671,7 +1671,6 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     if (!fechas.length) return [];
     const lim = num(cfg.limite_semana) || 55, ing = ingresoQ();
     const gas = num(cfg.gasolina), vari = num(cfg.varios);
-    // Quincenas por cobrar: la actual si aún no se anotó, y las siguientes.
     // Quincenas por cobrar: si la de esta ventana ya se anotó, se empieza por la siguiente.
     // Una quincena vieja (más de 4 días) que no se anotó se da por cobrada antes de empezar a usar la app.
     const qn = quincena(), pd = qn.pd;
@@ -1829,9 +1828,9 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       .sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
     if (prev.length) return prev[0].categoria;
     if (/TEXACO|PUMA|SHELL|ESSO|GASOLIN|\bUNO\b|SERVICENTRO/.test(k)) return 'gasolina';
-    if (/PIZZA|POLLO|REST|CAFE|COFFEE|BURGER|MCDONALD|STARBUCKS|PEDIDOSYA|WENDY|SUBWAY|TACO|PUPUS|CHURCH|COMIDA|BAR\b/.test(k)) return 'comida';
+    if (/PIZZA|POLLO|RESTAUR|\bREST\b|CAFE|COFFEE|BURGER|MCDONALD|STARBUCKS|PEDIDOSYA|WENDY|SUBWAY|TACO|PUPUS|CHURCH|COMIDA|BAR\b/.test(k)) return 'comida';
     if (/TALLER|LLANT|LUBRI|VETERINAR/.test(k)) return 'previsto';
-    if (/PARQUEO|PARKING|CENTRO COMERCIAL|FARMACIA|AUTO/.test(k)) return 'varios';
+    if (/PARQUEO|PARKING|CENTRO COMERCIAL|FARMACIA|AUTOLAVADO|CAR ?WASH/.test(k)) return 'varios';
     return null;
   }
   // ---------- Por clasificar: cobros leídos de los SMS del banco ----------
@@ -2283,7 +2282,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     renderQuincena(); renderPagos(); renderFijos(); renderBandeja(); renderReportes();
     const c = compute();
     state.last = c;
-    if (!c) { if (state.loaded) { $('weekNote').hidden = false; $('weekNote').textContent = 'Falta la configuración. Pídemela en el chat.'; } return; }
+    if (!c) { if (state.loaded) { $('weekNote').hidden = false; $('weekNote').textContent = 'Falta la configuración en tu hoja (pestaña Config).'; } return; }
 
     // Semana
     const lim = num(cfg.limite_semana) || 55; const left = lim - c.weekSpent;
@@ -2359,7 +2358,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     renderTabla(list);
     $('histCount').textContent = list.length ? list.length + (list.length === 1 ? ' movimiento' : ' movimientos') : '';
     const h = $('hist');
-    if (!list.length) { h.replaceChildren(emptyP('Todavía no hay movimientos. Toca «Anotar» o escríbeme en el chat: «gasté $12 en comida con la Visa».')); return; }
+    if (!list.length) { h.replaceChildren(emptyP('Todavía no hay movimientos. Toca + para anotar el primero.')); return; }
     // En el teléfono se ve un día a la vez; «Ver el …» agrega el día anterior.
     const out = []; let lastF = null; const ayer = addDays(t, -1);
     const fechas = [...new Set(list.map((m) => m.fecha))];
@@ -2445,6 +2444,10 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     mezclar(); render();
   }
   const avisar = (t) => { $('weekNote').hidden = !t; $('weekNote').textContent = t || ''; };
+  // Avisos que deben quedarse aunque la lectura salga bien: un cambio que la hoja no aceptó (2 minutos) y filas sin fecha.
+  let rechazo = '', rechazoHasta = 0;
+  const notaDatos = () => (Date.now() < rechazoHasta && rechazo) ? rechazo
+    : state.sinFecha ? (state.sinFecha === 1 ? 'Hay 1 movimiento sin fecha en tu hoja: no cuenta' : 'Hay ' + state.sinFecha + ' movimientos sin fecha en tu hoja: no cuentan') + ' en los saldos hasta que le pongas fecha.' : '';
 
   // ---------- Sincronización con cola ----------
   // Todo cambio se guarda primero en el teléfono (cola) y se sube a la hoja en orden.
@@ -2483,7 +2486,10 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       else if (op.accion === 'editar') movs = movs.map((m) => (m.id === op.mov.id ? op.mov : m));
       else if (op.accion === 'borrar') movs = movs.filter((m) => m.id !== op.mov.id);
     }
-    state.movs = movs.map((m) => leerSms({ ...m, monto: num(m.monto) }));
+    const todos = movs.map((m) => leerSms({ ...m, monto: num(m.monto) }));
+    // Una fila escrita a mano sin fecha no se puede ubicar en ningún día: se deja fuera y se avisa.
+    state.movs = todos.filter((m) => /^\d{4}-\d{2}-\d{2}/.test(String(m.fecha || '')));
+    state.sinFecha = todos.length - state.movs.length;
   }
   function estadoCola() {
     const n = cola.get().length; const e = $('sync');
@@ -2547,6 +2553,8 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       if (!j.ok && j.error === 'servidor') { fallo = true; errorHoja = true; estadoCola(); return; } // se reintenta después
       fallo = false; errorHoja = false; version++;
       cola.set(cola.get().filter((x) => x.qid !== op.qid)); // si la hoja lo rechazó (p. ej. ya no existe), se descarta
+      // ...pero se avisa, menos al borrar algo que ya no estaba (el resultado es el mismo).
+      if (!j.ok && !(op.accion === 'borrar' && j.error === 'no_encontrado')) { rechazo = 'Tu hoja no aceptó un cambio' + (j.error === 'no_encontrado' ? ': ese movimiento ya no está en la hoja' : '') + '. Revisa Movimientos.'; rechazoHasta = Date.now() + 120000; avisar(rechazo); }
       if (j.datos) { guardarFirma(j); cache.set(j.datos); aplicar(j.datos); } else { mezclar(); render(); }
     }
     estadoCola();
@@ -2559,8 +2567,8 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       const j = await leerHoja(true);
       if (!j.ok) { avisar(errorClave(j.error) || 'No se pudieron leer tus datos.'); return; }
       if (v !== version || enviando || cola.get().length) return;
-      if (j.sinCambios) { avisar(''); frescos = true; return; }
-      guardarFirma(j); cache.set(j.datos); aplicar(j.datos); avisar(''); frescos = true;
+      if (j.sinCambios) { avisar(notaDatos()); frescos = true; return; }
+      guardarFirma(j); cache.set(j.datos); aplicar(j.datos); avisar(notaDatos()); frescos = true;
     } catch (e) { avisar('Sin conexión. Mostrando lo último guardado.'); }
   }
   // Misma forma que usaba la app antes; cada operación devuelve su qid para poder deshacerla.
@@ -2588,7 +2596,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.44';
+  const VERSION = '2026-11-03.45';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
