@@ -725,6 +725,61 @@ body[data-tab] .app .duo > form.card[data-t] { grid-column: 1 / -1; }
 #pvVal { font-size: 22px; }
 .pvbox.neg #pvVal { color: var(--bad); }
 html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
+/* ===== .40 Estilo mate: superficies planas y grises (sin vidrio, luces ni grano), tarjeta de la semana alineada a la izquierda,
+   números en Montserrat y pestañas sin caja. El gris toma un tinte leve de cada tema. ===== */
+:root { --m-bg: #1c1b1a; --m-card: #292826; --m-chip: #383633; --num: "Montserrat", "Segoe UI", system-ui, sans-serif; }
+:root[data-paleta] { --m-bg: color-mix(in srgb, rgb(var(--blob)) 5%, #1a1a1a); --m-card: color-mix(in srgb, rgb(var(--blob)) 8%, #272727); --m-chip: color-mix(in srgb, rgb(var(--blob)) 10%, #353535); }
+#fondo { background: var(--m-bg) !important; } #fondo i { display: none !important; animation: none !important; }
+body::before { display: none !important; }
+.hero, .card, .tile, .qcard { background: var(--m-card) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 32px; }
+.tile { border-radius: 28px; padding: 18px; }
+.hero > *, .card > *, .tile > *, .qcard > * { text-shadow: none !important; }
+.sheet { background: var(--m-card) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; box-shadow: none !important; border: 0 !important; }
+.tcard th { background: var(--m-card) !important; }
+.toast { background: var(--m-chip) !important; border: 0 !important; box-shadow: 0 10px 24px rgba(0,0,0,.35) !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 22px; }
+.eye, .avatar-btn .avatar { background: var(--m-card) !important; }
+.wtip { background: var(--m-chip) !important; border: 0 !important; }
+.wtrack, .prog, .fprog, .cam-bar { background: var(--m-chip) !important; }
+.mini.ghost, .btn.ghost, .hmore button, .gasin .mini.ghost { background: var(--m-chip) !important; }
+.pay, .fx.pay { background: var(--m-chip) !important; border: 0 !important; }
+.pay.soon { background: color-mix(in srgb, var(--warn) 16%, var(--m-chip)) !important; } .pay.late { background: color-mix(in srgb, var(--bad) 18%, var(--m-chip)) !important; }
+.visa-alert { border: 0 !important; border-radius: 20px; }
+/* Botones: todos en el color de botones del tema, también el + */
+.fab, .fab:is(*) { background: var(--brand) !important; color: var(--on-brand) !important; box-shadow: none !important; }
+/* Números en Montserrat, con el $ más pequeño y en el color de acento */
+.hero .big, .tile b, .rtot, .rcat .rv, .ev b, .sfoot.srow b, .mov .v, .debt .amt, .pay .r b, .pay .d b, .fx .r b, .fbig b, .tcard td.n, .tsum b, .devln .v, .rcentro em i, .amount input, .amount span { font-family: var(--num) !important; font-weight: 700 !important; letter-spacing: -.02em !important; }
+.dl { font-size: .78em; font-weight: 600; margin-right: .1em; vertical-align: .08em; }
+.hero .big .dl, .rtot .dl { font-size: .55em; margin-right: .18em; vertical-align: .32em; }
+.tile b .dl { font-size: .62em; vertical-align: .24em; }
+.amount span { font-size: clamp(24px, 7.5vw, 34px) !important; align-self: center; margin-top: -12px; }
+.amount input { font-size: clamp(40px, 13.5vw, 62px) !important; width: 4.6em !important; }
+.tile b { font-size: 26px; }
+.rtot { font-size: clamp(26px, 8.2vw, 34px); }
+/* Tarjeta de la semana: etiqueta arriba, monto grande a la izquierda y la barra debajo */
+.hero { text-align: left; padding: 24px 24px 22px; }
+.hero::after { content: "ESTA SEMANA"; position: absolute; top: 24px; left: 24px; font-size: 12px; font-weight: 600; letter-spacing: .08em; color: var(--muted); z-index: 1; }
+.hero > * { order: 6; }
+.hero .big, .hero .big:is(*) { order: 1; margin-top: 30px; font-size: 46px; }
+.hero .wsub { order: 2; }
+.hero .wbar { order: 3; margin-top: 18px; }
+.hero .wmore { order: 4; align-self: flex-start; padding-left: 0; margin-top: 12px; }
+.hero .note { text-align: left; }
+.hero .wtrack { height: 8px; }
+.hero .wtip { top: -42px; bottom: auto; left: auto !important; right: 0; transform: none !important; }
+/* Pestañas sin caja: una franja del color del fondo, pegada abajo */
+.tabs { background: var(--m-card) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+@media (max-width: 999px) and (min-height: 521px) {
+  .tabs { background: var(--m-bg) !important; border-radius: 0; width: 100vw; bottom: 0; padding: 10px 8px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .tabs button { font-size: 10.5px; gap: 3px; }
+  .tabs button i { font-size: 21px; }
+  .fab, .fab:is(*) { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
+  .app { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (min-width: 1000px) { .hero { justify-content: flex-start; } .hero .big, .hero .big:is(*) { font-size: 58px; } }
+/* En horizontal y en computadora las pestañas siguen flotando: un tono más claro para que se separen del fondo */
+@media (min-width: 1000px), (max-height: 520px) { .tabs { background: var(--m-chip) !important; } }
+/* Reportes: puntos redondos */
+.rcat .rsw { border-radius: 50%; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -2090,8 +2145,8 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
     return s;
   }
   const repDl = (v, dec) => '<span class="dl">' + (v < 0 ? '−$' : '$') + '</span>' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-  // Se alternan el acento y el crema del tema para que las rebanadas se distingan
-  const REP_COL = ['var(--red)', 'rgba(236,227,210,.78)', 'rgba(var(--acento-rgb),.5)', 'rgba(236,227,210,.4)', 'rgba(var(--acento-rgb),.28)', 'rgba(236,227,210,.2)'];
+  // Cada rebanada toma un color distinto del tema: acento, positivo y color de botones
+  const REP_COL = ['var(--acento-txt)', 'var(--ok)', 'var(--brand)', 'rgba(var(--acento-rgb),.45)', 'rgba(var(--ok-rgb),.4)', 'rgba(255,255,255,.2)'];
   let repSel = null, repAbierta = null;
   function renderReportes() {
     const box = $('rep'); if (!box) return;
@@ -2511,7 +2566,7 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.39';
+  const VERSION = '2026-11-03.40';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
