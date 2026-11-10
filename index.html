@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Finanzas">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#1c1b1a">
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob:; connect-src 'self' https://script.google.com https://script.googleusercontent.com; worker-src 'self'; manifest-src 'self'; base-uri 'none'; form-action 'none'; object-src 'none'">
 <link rel="manifest" href="manifest.json">
@@ -729,6 +729,8 @@ html.discreto :is(#pvVal, #pvSub b) { filter: blur(7px); }
    números en Montserrat y pestañas sin caja. El gris toma un tinte leve de cada tema. ===== */
 :root { --m-bg: #1c1b1a; --m-card: #292826; --m-chip: #383633; --num: "Montserrat", "Segoe UI", system-ui, sans-serif; }
 :root[data-paleta] { --m-bg: color-mix(in srgb, rgb(var(--blob)) 5%, #1a1a1a); --m-card: color-mix(in srgb, rgb(var(--blob)) 8%, #272727); --m-chip: color-mix(in srgb, rgb(var(--blob)) 10%, #353535); }
+/* El fondo de la página va en el mismo gris: en el iPhone se asoma arriba (barra de estado) y abajo, donde la capa fija no llega */
+html { background: var(--m-bg) !important; }
 #fondo { background: var(--m-bg) !important; } #fondo i { display: none !important; animation: none !important; }
 body::before { display: none !important; }
 .hero, .card, .tile, .qcard { background: var(--m-card) !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 32px; }
@@ -2566,7 +2568,7 @@ body::before { display: none !important; }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.40';
+  const VERSION = '2026-11-03.41';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
