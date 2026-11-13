@@ -29,7 +29,7 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     fetch(req)
       .then((res) => {
-        if (res && (res.ok || res.type === 'opaque')) {
+        if (res && res.ok) {
           const copia = res.clone();
           caches.open(CACHE).then((c) => c.put(clave, copia));
         }
