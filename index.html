@@ -803,6 +803,18 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 .tile .lbl { color: var(--brand); }
 .pay .d b { color: var(--acento-txt); }
 .tabs button[aria-current="page"] i { text-shadow: 0 0 18px rgba(var(--acento-rgb), .8); }
+
+/* ===== .46: Pagos y Deudas en una pestaña con selector, y el + al centro de la barra ===== */
+/* El + vive dentro de la barra, entre Movimientos y Pagos: sigue a la barra en todos los tamaños y no tapa nada. */
+#tabs .fab, #tabs .fab:is(*) { position: static; transform: none; flex: 0 0 auto; align-self: center; width: 54px; height: 54px; margin: 0 8px; padding: 0; border-radius: 50%; display: grid; place-items: center; gap: 0; }
+@media (max-width: 999px) and (min-height: 521px) { #tabs .fab, #tabs .fab:is(*) { align-self: flex-start; margin-top: -6px; } }
+@media (min-width: 1000px), (max-height: 520px) { #tabs .fab, #tabs .fab:is(*) { width: 44px; height: 44px; margin: 0 6px; } #tabs .fab svg { width: 22px; height: 22px; } }
+/* Selector Pagos · Deudas: solo color de texto, como el resto de selecciones */
+.seg { display: flex; gap: 22px; padding: 4px 4px 0; margin-bottom: 16px; }
+.seg button { font: inherit; font-size: 22px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; position: relative; }
+.seg button[aria-pressed="true"] { color: var(--sel); }
+.seg button.aviso::after { content: ""; position: absolute; top: 2px; right: -9px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+.seg button:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 2px; border-radius: 6px; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -926,6 +938,10 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   </div>
 
   <div class="lower">
+  <div class="seg" id="pdSeg" data-t="pagos deudas" role="group" aria-label="Ver">
+    <button type="button" data-sub="pagos" aria-pressed="true">Pagos</button>
+    <button type="button" data-sub="deudas" aria-pressed="false">Deudas</button>
+  </div>
   <div class="main-col">
   <div class="section-head" data-kanji="新" id="bandHead" data-t="inicio" hidden><h2>Por clasificar</h2><span class="small muted" id="bandSub"></span></div>
   <section class="card" id="banda" aria-label="Cobros por clasificar" data-t="inicio" hidden></section>
@@ -978,11 +994,10 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 <nav class="tabs" id="tabs" aria-label="Secciones">
   <button type="button" data-go="inicio" aria-current="page"><i aria-hidden="true">今</i>Inicio</button>
   <button type="button" data-go="movs"><i aria-hidden="true">記</i>Movimientos</button>
+  <button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet" aria-label="Anotar"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
   <button type="button" data-go="pagos"><i aria-hidden="true">払</i>Pagos</button>
-  <button type="button" data-go="deudas"><i aria-hidden="true">借</i>Deudas</button>
   <button type="button" data-go="reportes"><i aria-hidden="true">表</i>Reportes</button>
 </nav>
-<button class="fab" type="button" id="fab" aria-haspopup="dialog" aria-controls="sheet" aria-label="Anotar"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
 
 <div class="scrim" id="scrim" hidden></div>
 <div class="sheet" id="ajustes" role="dialog" aria-modal="true" aria-labelledby="ajTit" hidden>
@@ -1225,15 +1240,21 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     avisoDeshacer(($('devQuien').value.trim() || 'Devolución') + ': +' + fmt(monto), [q]);
     devDe = null; closeSheet();
   });
-  // Pestañas: Inicio, Movimientos, Pagos y Deudas.
+  // Pestañas: Inicio, Movimientos, Pagos y Reportes. Pagos tiene dos vistas (Pagos y Deudas) que se eligen con el selector de arriba;
+  // por dentro siguen siendo las pestañas «pagos» y «deudas», y 払 vuelve a la última vista que se usó.
+  let subPD = 'pagos';
   const setTab = (t) => {
+    if (t === 'pagos' || t === 'deudas') subPD = t;
     document.body.dataset.tab = t;
-    document.querySelectorAll('#tabs [data-go]').forEach((b) => { if (b.dataset.go === t) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    const go = t === 'deudas' ? 'pagos' : t;
+    document.querySelectorAll('#tabs [data-go]').forEach((b) => { if (b.dataset.go === go) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+    document.querySelectorAll('#pdSeg [data-sub]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sub === t)));
     window.scrollTo(0, 0);
     if (t === 'inicio' && state.last) render();
     if (t === 'reportes') renderReportes();
   };
-  document.querySelectorAll('#tabs [data-go]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go)));
+  document.querySelectorAll('#tabs [data-go]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.go === 'pagos' ? subPD : b.dataset.go)));
+  document.querySelectorAll('#pdSeg [data-sub]').forEach((b) => b.addEventListener('click', () => setTab(b.dataset.sub)));
   $('close').addEventListener('click', closeSheet);
   $('scrim').addEventListener('click', closeSheet);
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('sheet').hidden) closeSheet(); });
@@ -2339,10 +2360,12 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       w.append(left, right, bar); return w;
     }));
 
-    // Punto ámbar en la pestaña 借 mientras falte anotar el interés real de algún corte.
+    // Punto ámbar en la pestaña 払 y en «Deudas» del selector mientras falte anotar el interés real de algún corte.
     const faltaInt = c.debts.some((d) => d.ultimo && !d.ultimo.real && d.estimado > 0.004);
-    const tabD = document.querySelector('#tabs [data-go="deudas"]');
-    if (tabD) { tabD.classList.toggle('aviso', faltaInt); tabD.setAttribute('aria-label', faltaInt ? 'Deudas: falta anotar un interés' : 'Deudas'); }
+    const tabP = document.querySelector('#tabs [data-go="pagos"]');
+    if (tabP) { tabP.classList.toggle('aviso', faltaInt); tabP.setAttribute('aria-label', faltaInt ? 'Pagos: falta anotar un interés en Deudas' : 'Pagos'); }
+    const segD = document.querySelector('#pdSeg [data-sub="deudas"]');
+    if (segD) { segD.classList.toggle('aviso', faltaInt); segD.setAttribute('aria-label', faltaInt ? 'Deudas: falta anotar un interés' : 'Deudas'); }
 
     renderCamino(c);
     const IDS = ['amex_rev', 'amex_ole', 'siman', 'atl_cuotas'];
@@ -2596,7 +2619,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.45';
+  const VERSION = '2026-11-03.46';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
