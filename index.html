@@ -815,6 +815,9 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 .seg button[aria-pressed="true"] { color: var(--sel); }
 .seg button.aviso::after { content: ""; position: absolute; top: 2px; right: -9px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
 .seg button:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 2px; border-radius: 6px; }
+/* .47: en los temas de acento rojo o rosa (Original, Yozakura, Neón) la barra de la semana va en el color positivo mientras vas bien,
+   para que no se confunda con «Te pasaste». Cerca del límite sigue en ámbar y al pasarte en rojo. */
+:root:not([data-paleta]) .hero.ok .wfill, :root[data-paleta="sakura"] .hero.ok .wfill, :root[data-paleta="neon"] .hero.ok .wfill { background: var(--ok); }
 </style>
 </head>
 <body data-tab="inicio">
@@ -2619,7 +2622,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.46';
+  const VERSION = '2026-11-03.47';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
