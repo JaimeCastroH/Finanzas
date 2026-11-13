@@ -742,12 +742,12 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 #tabs .fab, #tabs .fab:is(*) { position: static; transform: none; flex: 0 0 auto; align-self: center; width: 54px; height: 54px; margin: 0 8px; padding: 0; border-radius: 50%; display: grid; place-items: center; gap: 0; }
 @media (max-width: 999px) and (min-height: 521px) { #tabs .fab, #tabs .fab:is(*) { align-self: flex-start; margin-top: -6px; } }
 @media (min-width: 1000px), (max-height: 520px) { #tabs .fab, #tabs .fab:is(*) { width: 44px; height: 44px; margin: 0 6px; } #tabs .fab svg { width: 22px; height: 22px; } }
-/* Selector Pagos · Deudas: solo color de texto, como el resto de selecciones */
-.seg { display: flex; gap: 22px; padding: 4px 4px 0; margin-bottom: 16px; }
-.seg button { font: inherit; font-size: 22px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; position: relative; }
-.seg button[aria-pressed="true"] { color: var(--sel); }
-.seg button.aviso::after { content: ""; position: absolute; top: 2px; right: -9px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
-.seg button:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 2px; border-radius: 6px; }
+/* Selector Pagos · Deudas: solo color de texto, como el resto de selecciones (clase propia: «.seg» es el selector de tipo del panel Anotar) */
+.pdseg { display: flex; gap: 22px; padding: 4px 4px 0; margin-bottom: 16px; }
+.pdseg button { font: inherit; font-size: 22px; font-weight: 700; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; position: relative; }
+.pdseg button[aria-pressed="true"] { color: var(--sel); }
+.pdseg button.aviso::after { content: ""; position: absolute; top: 2px; right: -9px; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+.pdseg button:focus-visible { outline: 3px solid var(--brand-2); outline-offset: 2px; border-radius: 6px; }
 /* .47: en los temas de acento rojo o rosa (Original, Yozakura, Neón) la barra de la semana va en el color positivo mientras vas bien,
    para que no se confunda con «Te pasaste». Cerca del límite sigue en ámbar y al pasarte en rojo. */
 :root:not([data-paleta]) .hero.ok .wfill, :root[data-paleta="sakura"] .hero.ok .wfill, :root[data-paleta="neon"] .hero.ok .wfill { background: var(--ok); }
@@ -874,7 +874,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   </div>
 
   <div class="lower">
-  <div class="seg" id="pdSeg" data-t="pagos deudas" role="group" aria-label="Ver">
+  <div class="pdseg" id="pdSeg" data-t="pagos deudas" role="group" aria-label="Ver">
     <button type="button" data-sub="pagos" aria-pressed="true">Pagos</button>
     <button type="button" data-sub="deudas" aria-pressed="false">Deudas</button>
   </div>
