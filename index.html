@@ -2031,7 +2031,11 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     const auto = m.concepto === 'auto' ? 'auto' : ''; // anotado solo por el puente (comercio conocido o pago detectado)
     return { key, what, tipoLbl, medio, nota: [auto, m.nota || ''].filter(Boolean).join(' · '), sign, inClass, filtro, editable: m.tipo !== 'ajuste' };
   }
-  const editMov = (m) => { if (m.tipo === 'ahorro' && (m.destino === 'vacaciones' || m.destino === 'retiro')) ahToggle(true, m); else openSheet(m); };
+  // El formulario de ahorro vive en Inicio: si se edita un ahorro o un retiro desde Movimientos, primero se pasa a Inicio para que se vea.
+  const editMov = (m) => {
+    if (m.tipo === 'ahorro' && (m.destino === 'vacaciones' || m.destino === 'retiro')) { if (document.body.dataset.tab !== 'inicio') setTab('inicio'); ahToggle(true, m); }
+    else openSheet(m);
+  };
   const borrarMov = async (m) => { if (!db) return; const q = await db.doc('movs/' + m.id).delete(); avisoDeshacer('Borrado: ' + desc(m).what + ' ' + fmt(Math.abs(num(m.monto))), [q]); };
 
   function rowFor(m) {
@@ -2622,7 +2626,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.47';
+  const VERSION = '2026-11-03.48';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
