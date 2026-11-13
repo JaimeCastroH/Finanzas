@@ -25,6 +25,7 @@ body { margin: 0; }
 [hidden] { display: none !important; }
 
 /* Single dark look by choice: warm near-black ground with a muted American-retro palette (cream, brick red, sage green). Phone-first money app: weekly ring, quincena, balances, payments, history, bottom sheet to add entries. */
+:root { padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 :root {
   --bg: #111110; --surface: #1b1a17; --surface-2: #23211d; --ink: #ece3d2; --muted: #9c917f; --line: #2e2b25;
   --brand: #dcc9a9; --brand-2: #4e6851; --on-brand: #1b1a17; --tint: #26241f; --track: #2a2824;
@@ -706,6 +707,7 @@ body::before { display: none !important; }
   .tabs button i { font-size: 21px; }
   .tabs { --tabs-h: calc(63px + max(8px, env(safe-area-inset-bottom, 0px) - 8px)); box-sizing: border-box; height: var(--tabs-h); padding: 10px 8px 0; align-items: flex-start; }
   .fab, .fab:is(*) { bottom: calc(77px + max(8px, env(safe-area-inset-bottom, 0px) - 8px)); }
+  .app { padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px)); }
 }
 /* iPhone, abierta desde el ícono de inicio: la zona de los elementos fijos termina antes del borde de abajo (le falta el alto de la barra de estado).
    Se alarga la página y las pestañas y el + se colocan midiendo desde arriba con el alto completo de la pantalla, para que lleguen al borde. */
@@ -2557,7 +2559,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.49';
+  const VERSION = '2026-11-03.50';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
