@@ -1502,6 +1502,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 
   // ---------- Próximos pagos ----------
   const partsSum = (p) => (p.partes || []).reduce((s, x) => s + num(x.monto), 0);
+  const esPlan = (p) => String(p.id || '').startsWith('plan-');
   function renderPagos() {
     const cfg = state.cfg; if (!cfg) return;
     const done = (p) => state.movs.some((m) => m.pago_id === p.id);
@@ -1582,13 +1583,15 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     const comp = antes.reduce((a, p) => a + partsSum(p), 0) + fijosHasta(addDays(hasta, -1)) + Math.max(0, gas - gasUsado) + Math.max(0, vari - c.emergUsed) + semana + c.visaPend + Math.max(0, (previstos() || {}).saldo || 0);
     const disp = c.cuenta - comp;
     // Grupo de pagos grandes: los pendientes del mismo mes que el primero después de la quincena.
-    const mesG = despues.length ? despues[0].fecha.slice(0, 7) : null;
-    const grupo = despues.filter((p) => p.fecha.slice(0, 7) === mesG);
+    // .52: las filas del plan de deuda (id «plan-…») que caen en día de pago se pagan con esa misma quincena: no se apartan antes.
+    const aparte = despues.filter((p) => !(esPlan(p) && paydays(addDays(p.fecha, -1)).next === p.fecha));
+    const mesG = aparte.length ? aparte[0].fecha.slice(0, 7) : null;
+    const grupo = aparte.filter((p) => p.fecha.slice(0, 7) === mesG);
     const meta = grupo.reduce((a, p) => a + partsSum(p), 0);
     const guardado = Math.max(0, Math.min(disp, meta));
     const libre = Math.max(0, disp - meta);
     let proy = null;
-    if (grupo.length) { const rows = proyeccion(c).filter((r) => r.D.slice(0, 7) === mesG); if (rows.length) proy = rows.reduce((a, r) => (r.saldo < a.saldo ? r : a)); }
+    if (grupo.length) { const fG = new Set(grupo.map((p) => p.fecha)); const rows = proyeccion(c).filter((r) => fG.has(r.D)); if (rows.length) proy = rows.reduce((a, r) => (r.saldo < a.saldo ? r : a)); }
     return { comp: round2(comp), disp: round2(disp), libre: round2(libre), meta: round2(meta), guardado: round2(guardado), grupo, mesG, proy, hasta };
   }
   function renderPrevistos() {
@@ -1676,19 +1679,27 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     const hoy = today(), d0 = parse(hoy);
     const hecho = (p) => state.movs.some((m) => m.pago_id === p.id);
     const pend = (cfg.pagos || []).filter((p) => !hecho(p));
-    const ini = pend.length ? pend.map((p) => p.fecha.slice(0, 7)).sort().pop() : hoy.slice(0, 7);
+    // .52: las filas del plan (id «plan-…») no mueven el mes en que empieza la simulación del plan.
+    const pendBase = pend.filter((p) => !esPlan(p));
+    const ini = pendBase.length ? pendBase.map((p) => p.fecha.slice(0, 7)).sort().pop() : hoy.slice(0, 7);
     const filas = []; let fin = null, sobra = 0, inicial = null;
     for (let k = 0; k < 36; k++) {
       const md = new Date(d0.getFullYear(), d0.getMonth() + k, 1), mes = iso(md).slice(0, 7);
-      for (const p of pend.filter((x) => x.fecha.slice(0, 7) === mes)) for (const pt of (p.partes || [])) if (pt.a in bal) bal[pt.a] = Math.max(0, bal[pt.a] - num(pt.monto));
+      for (const p of pendBase.filter((x) => x.fecha.slice(0, 7) === mes)) for (const pt of (p.partes || [])) if (pt.a in bal) bal[pt.a] = Math.max(0, bal[pt.a] - num(pt.monto));
       for (const id of plan.orden) { const it = (cfg.intereses || {})[id]; if (!it) continue; const corte = mes + '-' + String(num(it.corte) || 12).padStart(2, '0'); if (corte > hoy) bal[id] *= 1 + num(it.mensual) / 100; }
       for (const [id, lista] of Object.entries(cfg.cargos || {})) { if (!(id in bal) || !Array.isArray(lista)) continue;
         for (const cg of lista) { const f = mes + '-' + String(Math.min(num(cg.dia) || 15, lastDay(md.getFullYear(), md.getMonth()))).padStart(2, '0');
           if (f > hoy && (!cg.mientras || (bal[cg.mientras] || 0) > 0.005)) bal[id] += num(cg.monto); } }
+      // Las filas del plan se pagan con las quincenas del mes, después del corte: van donde iría la plata del plan.
+      for (const p of pend.filter((x) => esPlan(x) && x.fecha.slice(0, 7) === mes)) for (const pt of (p.partes || [])) if (pt.a in bal) bal[pt.a] = Math.max(0, bal[pt.a] - num(pt.monto));
       if (mes < ini) continue;
       if (inicial === null) inicial = tot();
       let b = num(plan.mensual) + Object.entries(plan.extra || {}).reduce((a, [m, v]) => a + (mes >= m ? num(v) : 0), 0);
-      if (mes > ini) for (const [id, v] of Object.entries(plan.minimos || {})) { if (!(id in bal)) continue; const x = Math.min(bal[id], num(v), b); bal[id] -= x; b -= x; }
+      // .52: lo que ya está en Pagos como fila del plan (id «plan-…», pagada o no) sale de la plata del plan de ese mes, para no contarlo dos veces.
+      const filasMes = (cfg.pagos || []).filter((p) => p.fecha.slice(0, 7) === mes);
+      b = Math.max(0, b - filasMes.filter(esPlan).reduce((a, p) => a + partsSum(p), 0));
+      const conPlan = new Set(filasMes.filter(esPlan).flatMap((p) => (p.partes || []).map((x) => x.a)));
+      for (const [id, v] of Object.entries(plan.minimos || {})) { if (!(id in bal) || mes === ini || conPlan.has(id)) continue; const x = Math.min(bal[id], num(v), b); bal[id] -= x; b -= x; }
       for (const id of plan.orden) { const x = Math.min(bal[id], b); bal[id] -= x; b -= x; }
       filas.push({ mes, md, resto: tot() });
       if (tot() < 0.01) { fin = md; sobra = b; break; }
@@ -2559,7 +2570,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.51';
+  const VERSION = '2026-11-03.52';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
