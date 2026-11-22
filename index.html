@@ -1348,15 +1348,27 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     return { prev: c.filter((x) => x <= t).pop(), next: c.find((x) => x > t) };
   }
   // Quincena en curso. Si la quincena se anotó unos días antes de la fecha de pago, el periodo nuevo arranca ese día.
-  // Una sola regla para la quincena en curso: la ventana empieza 4 días antes del día de pago,
-  // así una quincena que llega antes (o se anota antes) cuenta para el periodo correcto.
+  // .53: cada quincena anotada se liga a un día de pago (15 o 30), en orden de fecha:
+  //  · hasta 4 días antes de un día de pago, es la de ese día;
+  //  · si no, es la del día de pago anterior (se anotó tarde), mientras ese día no tenga ya la suya;
+  //  · si ya la tiene, llegó muy adelantada (hasta 12 días antes, p. ej. en diciembre) y es la del día de pago siguiente.
+  // Antes solo se reconocía una quincena adelantada hasta 4 días: una más adelantada se esperaba otra vez en la proyección.
+  function diasCobrados() {
+    const t = today(), dias = new Map();
+    state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena' && m.fecha <= t).map((m) => m.fecha).sort().forEach((f) => {
+      const p = paydays(f);
+      const dia = f >= addDays(p.next, -4) ? p.next : !dias.has(p.prev) ? p.prev : f >= addDays(p.next, -12) ? p.next : null;
+      if (dia && !dias.has(dia)) dias.set(dia, f);
+    });
+    return dias;
+  }
   function quincena() {
-    const t = today(), pd = paydays();
-    const adelantada = t >= addDays(pd.next, -4);
-    const ventana = adelantada ? addDays(pd.next, -4) : addDays(pd.prev, -4);
-    const q = state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena' && m.fecha >= ventana && m.fecha <= t).map((m) => m.fecha).sort().pop();
-    const cobrada = adelantada ? (q ? pd.next : null) : (q ? pd.prev : null); // día de pago que ya se anotó
-    return { pd, ventana, q, cobrada, adelantada };
+    const t = today(), pd = paydays(), dias = diasCobrados();
+    const sig = dias.get(pd.next), ant = dias.get(pd.prev);
+    const adelantada = !!sig || t >= addDays(pd.next, -4);
+    const q = adelantada ? sig : ant;                       // fecha en que se anotó la quincena en curso
+    const cobrada = q ? (adelantada ? pd.next : pd.prev) : null; // día de pago que ya se anotó
+    return { pd, q, cobrada, adelantada };
   }
   function periodo() {
     const { pd, q, adelantada } = quincena();
@@ -1567,7 +1579,9 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   function previstos() {
     const cfg = state.cfg || {}, monto = num(cfg.previstos), desde = cfg.previstos_desde;
     if (!(monto > 0) || !desde) return null;
-    const q = state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena' && m.fecha >= desde).length;
+    // .53: cuenta los días de pago ya cobrados desde «previstos_desde», no la fecha en que se anotó la quincena:
+    // una quincena del 15 que cae el 14 también aparta.
+    const q = [...diasCobrados().keys()].filter((dia) => dia >= desde).length;
     const usado = state.movs.filter((m) => m.tipo === 'gasto' && m.categoria === 'previsto' && m.fecha >= desde).reduce((a, m) => a + num(m.monto), 0)
       - state.movs.filter((m) => esDev(m) && m.categoria === 'previsto' && fechaDev(m) >= desde).reduce((a, m) => a + num(m.monto), 0);
     return { monto, desde, q, usado: round2(usado), saldo: round2(q * monto - usado), empezo: today() >= desde };
@@ -1634,7 +1648,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     if (!fechas.length) return [];
     const lim = num(cfg.limite_semana) || 55, ing = ingresoQ();
     const gas = num(cfg.gasolina), vari = num(cfg.varios);
-    // Quincenas por cobrar: si la de esta ventana ya se anotó, se empieza por la siguiente.
+    // Quincenas por cobrar: si la del día de pago en curso ya se anotó, se empieza por la siguiente.
     // Una quincena vieja (más de 4 días) que no se anotó se da por cobrada antes de empezar a usar la app.
     const qn = quincena(), pd = qn.pd;
     let x = qn.cobrada ? paydays(qn.cobrada).next : (qn.adelantada ? pd.next : (daysTo(pd.prev) >= -4 ? pd.prev : pd.next));
