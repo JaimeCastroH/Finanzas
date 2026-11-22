@@ -1057,7 +1057,10 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   let ahModo = 'extra'; // 'extra': agregar al ahorro · 'retiro': pasar del ahorro a la cuenta
   let db = null;
 
-  { const d = new Date(); $('today').textContent = DIAS[d.getDay()].replace(/^./, (c) => c.toUpperCase()) + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; }
+  // La fecha de arriba se vuelve a escribir si la app sigue abierta al cambiar el día (ver alDia, al final).
+  let diaPintado = '';
+  const ponerFecha = () => { const d = new Date(); diaPintado = iso(d); $('today').textContent = DIAS[d.getDay()].replace(/^./, (c) => c.toUpperCase()) + ' ' + d.getDate() + ' de ' + MESES[d.getMonth()]; };
+  ponerFecha();
 
   // ---------- Formulario Anotar ----------
   CATS.filter((c) => !c.oculto).forEach((c, i) => {
@@ -2570,7 +2573,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.52';
+  const VERSION = '2026-11-03.53';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
@@ -2590,6 +2593,12 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // Guarda una copia de la app en el teléfono para que abra aunque no haya señal.
   if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
   document.addEventListener('visibilitychange', () => { if (!document.hidden) revisarVersion(); });
+
+  // .53: si la app quedó abierta y cambió el día, se vuelve a dibujar todo (semana, quincena, «Hoy» y «Mañana» de los pagos)
+  // aunque la hoja no haya cambiado; antes se quedaba con lo del día anterior hasta anotar algo.
+  const alDia = () => { if (today() === diaPintado) return; ponerFecha(); if (state.loaded) render(); };
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) alDia(); });
+  setInterval(() => { if (!document.hidden) alDia(); }, 60000);
 
   if (!API) { $('app').classList.add('no-db'); avisar('Falta conectar con tu hoja. Abre el enlace de configuración.'); }
   else {
