@@ -804,6 +804,41 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 /* ===== .57: centavos más pequeños en los montos, y el sello del pie vuelve a leerse (en Tinta el fondo y el kanji eran del mismo color) ===== */
 .ct { font-size: .6em; letter-spacing: 0; }
 :root[data-paleta="tinta"] .pie .sello { background: #1B1B1D; color: var(--ink); opacity: 1; }
+/* ===== .58: arreglos de la revisión del 24 de noviembre ===== */
+/* Modo discreto: montos que quedaban a la vista (semana desplegada, día de pago, aviso de la Visa, devoluciones, total de fijos, interés estimado, Previstos y el aviso al anotar) */
+html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig small, .debt .rate.int, #pvSub, #toastTxt) { filter: blur(7px); }
+/* Candado: el kanji no se veía (fondo y letra claros) */
+:root[data-paleta="tinta"] .lock-sello { background: #1B1B1D; color: var(--ink); }
+/* Interruptores: encendido blanco con perilla oscura; apagado gris con perilla gris */
+:root[data-paleta="tinta"] .sw { background: #2A2A2D; }
+:root[data-paleta="tinta"] .sw::after { background: #808085; }
+:root[data-paleta="tinta"] .sw:checked { background: var(--ink); }
+:root[data-paleta="tinta"] .sw:checked::after { background: #0B0B0C; }
+/* Acciones: las principales en blanco y las secundarias en gris, las dos como texto. En los renglones de Inicio siguen en gris, junto al nombre.
+   El relleno con margen negativo agranda la zona de toque sin mover nada. */
+:root[data-paleta="tinta"] .mini:not(.ghost) { color: var(--ink); font-weight: 500; padding: 12px 0; margin: -12px 0; }
+:root[data-paleta="tinta"] .tile .mini:not(.ghost) { color: var(--muted); font-weight: 400; }
+:root[data-paleta="tinta"] .mini.ghost { background: transparent; color: var(--muted); padding: 12px 0; margin: -12px 0; }
+:root[data-paleta="tinta"] .aj-act, :root[data-paleta="tinta"] .gasin { gap: 18px; }
+:root[data-paleta="tinta"] .lnk { padding: 10px 0; margin: -10px 0; }
+/* Selección que se nota: categorías del panel Anotar y sugerencia de «Por clasificar» */
+:root[data-paleta="tinta"] .chip { color: #A0A0A5; }
+:root[data-paleta="tinta"] .chip:has(input:checked) { background: #2E2E32; color: var(--ink); }
+:root[data-paleta="tinta"] .bchips button.sug { background: #2E2E32; color: var(--ink); }
+:root[data-paleta="tinta"] .b-yo { background: #2A2A2D; color: var(--ink); }
+/* Reportes: las rebanadas chicas se distinguen del fondo y un «quedó» negativo va en rojo */
+:root[data-paleta="tinta"] { --rep2: #B5B5B9; --rep3: #8E8E93; --rep4: #6E6E73; --rep5: #57575C; --rep6: #45454A; }
+:root[data-paleta="tinta"] .rm .rq.neg { color: var(--bad); }
+/* La cifra de la semana se achica en pantallas angostas en vez de cortarse */
+:root[data-paleta="tinta"] .hero .big, :root[data-paleta="tinta"] .hero .big:is(*) { font-size: min(96px, 22.4vw); }
+/* Centavos: en listas, donde la cifra ya es chica, se achican menos */
+:root[data-paleta="tinta"] :is(.mov .v, .devln .v, .tcard td.n, .fx .r b, .pay .r b, .debt .amt, .rcat .rv) .ct { font-size: .8em; }
+:root[data-paleta="tinta"] .fx .r b { font-weight: 400; }
+:root[data-paleta="tinta"] .ev b .dl { color: var(--acento-txt); }
+/* La parte vacía de las barras se distingue del fondo */
+:root[data-paleta="tinta"] .wtrack, :root[data-paleta="tinta"] .prog, :root[data-paleta="tinta"] .fprog, :root[data-paleta="tinta"] .cam-bar { background: #2A2A2D; }
+/* Computadora y horizontal: el + vuelve a tener círculo sobre la barra */
+@media (min-width: 1000px), (max-height: 520px) { :root[data-paleta="tinta"] #tabs .fab, :root[data-paleta="tinta"] #tabs .fab:is(*) { background: #2E2E32 !important; } }
 </style>
 </head>
 <body data-tab="inicio">
@@ -1081,12 +1116,17 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   const num = (x) => +x || 0;
   const round2 = (x) => Math.round(x * 100) / 100;
   // Acepta 7.50, 7,50 (coma decimal del teclado), $1,200.00, 1.200,50 y 1200.
+  // .58: lectura estricta. Acepta 7.50, 7,50, ,50, 1,200.00, 1.234,56 y 1.234 (mil doscientos treinta y cuatro).
+  // El último signo es el decimal si le siguen 1 o 2 cifras; con 3 cifras es separador de miles. Lo demás no es un monto (NaN).
   const parseMonto = (s) => {
-    let t = String(s || '').replace(/[$\s]/g, '');
-    const p = t.lastIndexOf('.'), c = t.lastIndexOf(',');
-    if (p >= 0 && c >= 0) t = p > c ? t.replace(/,/g, '') : t.replace(/\./g, '').replace(',', '.'); // 1,234.56 o 1.234,56: el último signo es el decimal
-    else t = /^\d+,\d{1,2}$/.test(t) ? t.replace(',', '.') : t.replace(/,/g, '');
-    return round2(parseFloat(t));
+    const t = String(s == null ? '' : s).replace(/[$\s]/g, '');
+    if (!/^[\d.,]*\d[\d.,]*$/.test(t)) return NaN;
+    const i = Math.max(t.lastIndexOf('.'), t.lastIndexOf(','));
+    if (i < 0) return round2(parseFloat(t));
+    const ent = t.slice(0, i), dec = t.slice(i + 1);
+    if (dec.length === 0) return /^\d+$/.test(ent) ? round2(parseFloat(ent)) : NaN; // «12.» mientras se escribe
+    if (dec.length === 1 || dec.length === 2) return /^(\d*|[1-9]\d{0,2}([.,]\d{3})+)$/.test(ent) ? round2(parseFloat((ent.replace(/[.,]/g, '') || '0') + '.' + dec)) : NaN;
+    return /^[1-9]\d{0,2}([.,]\d{3})+$/.test(t) ? round2(parseFloat(t.replace(/[.,]/g, ''))) : NaN;
   };
   const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const emptyP = (t) => el('p', 'empty', t);
@@ -1162,7 +1202,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     $('msg').textContent = ''; $('msg').className = 'msg';
     if (editing) {
       $('monto').value = num(m.monto).toFixed(2); $('nota').value = m.nota || '';
-      if (m.tipo === 'gasto') { setTipo('gasto'); const c = document.querySelector('input[name=cat][value="' + m.categoria + '"]') || document.querySelector('input[name=cat][value="otros"]'); c.checked = true; $('medio').value = m.medio || 'visa'; }
+      if (m.tipo === 'gasto') { setTipo('gasto'); const c = document.querySelector('input[name=cat][value="' + m.categoria + '"]') || document.querySelector('input[name=cat][value="otros"]'); c.checked = true; { const sm = $('medio'), mv = m.medio || 'visa'; if (![...sm.options].some((o) => o.value === mv)) sm.add(new Option(MEDIO[mv] || mv, mv)); sm.value = mv; } }
       else if (m.tipo === 'pago') { setTipo('pago'); $('destinoPago').value = m.a; }
       else setTipo(m.tipo === 'ingreso' ? 'entrada' : 'salida');
       $('sheetTitle').textContent = 'Editar';
@@ -1273,7 +1313,14 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
         if (doc.tipo === 'ingreso' && editing.tipo === 'ingreso' && editing.concepto) doc.concepto = editing.concepto;
         if (doc.tipo === 'ahorro' && editing.tipo === 'ahorro' && editing.destino) doc.destino = editing.destino;
         const q = await db.doc('movs/' + editing.id).set({ ...keep, ...doc, creado: keep.creado || doc.creado, editado: new Date().toISOString() });
-        avisoDeshacer('Cambios guardados: ' + fmt(monto), [q]);
+        const qs = [q];
+        // .58: las devoluciones guardan copia de la categoría de su gasto; si el gasto cambia de categoría, se cambian con él.
+        if (editing.tipo === 'gasto' && doc.tipo === 'gasto' && doc.categoria && doc.categoria !== editing.categoria) {
+          for (const d of state.movs.filter((m) => esDev(m) && m.a === editing.id && m.categoria !== doc.categoria)) {
+            qs.push(await db.doc('movs/' + d.id).set({ ...d, categoria: doc.categoria, editado: new Date().toISOString() }));
+          }
+        }
+        avisoDeshacer('Cambios guardados: ' + fmt(monto), qs);
       } else {
         const q = await db.collection('movs').add(doc);
         if (doc.tipo === 'gasto' && doc.medio === 'visa' && $('yaAbone').checked) {
@@ -1413,13 +1460,15 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     const adelantada = !!sig || t >= addDays(pd.next, -4);
     const q = adelantada ? sig : ant;                       // fecha en que se anotó la quincena en curso
     const cobrada = q ? (adelantada ? pd.next : pd.prev) : null; // día de pago que ya se anotó
-    return { pd, q, cobrada, adelantada };
+    return { pd, q, cobrada, adelantada, ant };
   }
   function periodo() {
-    const { pd, q, adelantada } = quincena();
+    const { pd, q, adelantada, ant } = quincena();
     if (q && adelantada) return { desde: q, hasta: paydays(pd.next).next };
-    if (q) return { desde: q < pd.prev ? q : pd.prev, hasta: pd.next };
-    return { desde: pd.prev, hasta: pd.next };
+    // .58: mientras no se anote la quincena siguiente, el periodo empieza donde se anotó la del día de pago anterior,
+    // también en los 4 días antes del siguiente (antes volvía al día 15 o 30 y Gasolina y Gastos varios se reiniciaban).
+    const a = adelantada ? ant : q;
+    return { desde: a && a < pd.prev ? a : pd.prev, hasta: pd.next };
   }
 
   // ---------- Quincena ----------
@@ -1538,7 +1587,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     ev.preventDefault();
     const msg = $('ajMsg'); msg.className = 'msg'; msg.textContent = '';
     if (!db || !state.last) { msg.className = 'msg err'; msg.textContent = 'Sin conexión a tus datos en esta vista.'; return; }
-    if (!frescos || cola.get().length) { msg.className = 'msg err'; msg.textContent = 'Espera a que tus datos se actualicen con la hoja (necesitas señal) y vuelve a intentarlo.'; cargar(); return; }
+    if (!frescos || Date.now() - frescoEn > 120000 || cola.get().length) { msg.className = 'msg err'; msg.textContent = 'Espera a que tus datos se actualicen con la hoja (necesitas señal) y vuelve a intentarlo.'; cargar(); return; }
     const real = parseMonto($('ajMonto').value);
     if (!(real >= 0)) { msg.className = 'msg err'; msg.textContent = 'Escribe el saldo de tu banco.'; $('ajMonto').focus(); return; }
     const diff = round2(real - state.last.cuenta);
@@ -1818,11 +1867,13 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
         store.set('fj_lock', b64(cred.rawId)); $('lockInfo').textContent = 'Listo: se pedirá Face ID al abrir la app.';
       } catch (e) { $('lockIn').checked = false; $('lockInfo').textContent = 'No se activó. Intenta de nuevo.'; }
     });
-    const bloquear = () => { if (store.get('fj_lock')) { $('lock').hidden = false; $('lockMsg').textContent = ''; } };
+    // .58: el candado además vuelve inerte todo lo demás; antes solo lo tapaba.
+    const candado = (on) => { $('lock').hidden = !on; document.querySelectorAll('body > *:not(#lock):not(script):not(style)').forEach((e) => { e.inert = on; }); };
+    const bloquear = () => { if (store.get('fj_lock')) { candado(true); $('lockMsg').textContent = ''; } };
     $('lockBtn').addEventListener('click', async () => {
       try {
         await navigator.credentials.get({ publicKey: { challenge: rnd(32), allowCredentials: [{ type: 'public-key', id: deb64(store.get('fj_lock')) }], userVerification: 'required', timeout: 60000 } });
-        $('lock').hidden = true;
+        candado(false);
       } catch (e) { $('lockMsg').textContent = 'No se pudo verificar. Intenta otra vez.'; }
     });
     let oculto = 0;
@@ -1951,7 +2002,8 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       const r = el('div', 'r'); r.append(el('b', null, fmt(num(f.monto))));
       const btn = el('button', 'mini', 'Pagado'); btn.type = 'button'; btn.setAttribute('aria-label', 'Marcar ' + f.nombre + ' como pagado');
       btn.addEventListener('click', async () => {
-        if (!db) return;
+        if (!db || btn.disabled) return;
+        btn.disabled = true; gasAbierto = false; // .58: con «Poner gas» abierto la lista no se redibujaba y un segundo toque lo anotaba otra vez
         const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'fijo', medio: f.medio || 'cuenta', monto: num(f.monto), fecha: today(), pago_id: marca(f), nota: f.nombre, creado: new Date().toISOString() });
         const qs = [q];
         if (f.medio === 'visa') qs.push(await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto: num(f.monto), fecha: today(), nota: 'Abono de compras con Visa', creado: new Date().toISOString() }));
@@ -1973,7 +2025,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       const bar = el('div', 'fprog'); const fill = el('span'); fill.style.width = Math.min(100, Math.max(0, usado / gLim * 100)) + '%'; bar.append(fill);
       if (!gasAbierto) {
         const btn = el('button', 'mini', 'Poner gas'); btn.type = 'button';
-        btn.addEventListener('click', () => { gasAbierto = true; renderFijos(true); const i = $('gasMonto'); if (i) i.focus(); });
+        btn.addEventListener('click', () => { gasAbierto = true; renderFijos(true); dolares($('fijos')); const i = $('gasMonto'); if (i) i.focus(); });
         r.append(btn);
         row.append(icon('gasolina'), t, r, bar);
       } else {
@@ -1982,7 +2034,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
         const ok = el('button', 'mini', 'Guardar'); ok.type = 'submit';
         const no = el('button', 'mini ghost', 'Cancelar'); no.type = 'button';
         const ab = el('label', 'abono'); const cb = el('input'); cb.type = 'checkbox'; cb.checked = true; ab.append(cb, el('span', null, 'Ya lo aboné a la Visa'));
-        no.addEventListener('click', () => { gasAbierto = false; renderFijos(true); });
+        no.addEventListener('click', () => { gasAbierto = false; renderFijos(true); dolares($('fijos')); });
         f.addEventListener('submit', async (e) => {
           e.preventDefault();
           const monto = parseMonto(i.value);
@@ -2130,7 +2182,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     w.replaceChildren(...out);
   }
   $('wMore').addEventListener('click', () => { semanaAbierta = !semanaAbierta; if (state.last) { renderSemana(state.last); dolares($('wList')); } });
-  ['weekLeft', 'wFill', 'wSub'].forEach((id) => { const e = $(id); e.style.cursor = 'pointer'; e.addEventListener('click', () => $('wMore').click()); });
+  ['weekLeft', 'wSub'].forEach((id) => { const e = $(id); e.style.cursor = 'pointer'; e.addEventListener('click', () => $('wMore').click()); });
   $('hero').querySelector('.wbar').addEventListener('click', () => $('wMore').click());
   const sortedMovs = () => state.movs.slice().sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '') || (b.creado || '').localeCompare(a.creado || ''));
 
@@ -2317,7 +2369,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     ponerTip($('wTip'), qf);
     $('weekLeft').textContent = left < 0 ? '−' + fmt(-left) : fmt(left);
     renderSemana(c);
-    $('wSub').textContent = 'gastado ' + fmt(c.weekSpent) + ' de ' + fmt0(state.cfg.limite_semana);
+    $('wSub').textContent = 'gastado ' + fmt(c.weekSpent) + ' de ' + fmt0(num(state.cfg.limite_semana) || 55);
     const t = today();
     const vb = $('visaBanner'); vb.hidden = !(c.visaPend > 0.004);
     $('visaTxt').textContent = 'Abona ' + fmt(c.visaPend) + ' a la Visa: son compras que aún no cubres.';
@@ -2430,7 +2482,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Centavos más pequeños ----------
   // En los mismos montos (y en Previstos) los dos decimales van en un span para achicarlos. El texto no cambia.
   function centavos(root) {
-    (root || document).querySelectorAll(CON_DOLAR + ', #pvVal').forEach((e) => {
+    (root || document).querySelectorAll(CON_DOLAR + ', #pvVal, .fbig b').forEach((e) => {
       if (e.querySelector('.ct')) return;
       const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); const nodos = []; while (w.nextNode()) nodos.push(w.currentNode);
       nodos.forEach((n) => {
@@ -2454,9 +2506,17 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     const p = new URLSearchParams(location.search.slice(1) || location.hash.slice(1));
     if (location.search && (p.get('api') || p.get('k'))) { try { history.replaceState(null, '', location.pathname + '#' + location.search.slice(1)); } catch (e) {} }
     // Si la clave se cambió a mano en Ajustes, un enlace viejo (por ejemplo el del ícono de inicio) ya no la reemplaza.
-    // Solo se acepta una dirección de Apps Script: un enlace falso no puede desviar tus datos a otro servidor.
+    // Solo se acepta una dirección de Apps Script. .58: si el enlace trae OTRA dirección que la guardada, se pregunta antes
+    // de reemplazarla (cualquiera puede publicar un Apps Script; sin la pregunta, un enlace ajeno desviaba la app a otra hoja).
     const apiOk = /^https:\/\/script\.google\.com\/(a\/macros\/[^/]+|macros)\/s\/[A-Za-z0-9_-]+\/exec$/.test(p.get('api') || '');
-    if (apiOk && p.get('k') && !store.get('fj_k_manual')) { store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); }
+    if (apiOk && p.get('k')) {
+      const tenia = store.get('fj_api');
+      if (tenia && tenia !== p.get('api')) {
+        if (confirm('Este enlace conecta la app con otra hoja, distinta de la que ya tienes. ¿Reemplazar la conexión?')) {
+          store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); store.set('fj_k_manual', ''); store.set('fj_firma', '');
+        }
+      } else if (!store.get('fj_k_manual')) { store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); }
+    }
   })();
   const q0 = new URLSearchParams(location.hash.slice(1));
   const API = store.get('fj_api') || q0.get('api'), KEY = store.get('fj_k') || q0.get('k');
@@ -2494,7 +2554,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // Sin señal, la cola espera y se sube sola cuando vuelve la conexión. Cada cambio se puede deshacer.
   let base = [];             // movimientos tal como están en la hoja
   const hechos = new Map();  // qid → operación, para poder deshacer aunque ya se haya subido
-  let enviando = null, version = 0, fallo = false, errorHoja = false, frescos = false;
+  let enviando = null, version = 0, fallo = false, errorHoja = false, frescos = false, frescoEn = 0;
   const leerCola = () => { try { return JSON.parse(localStorage.getItem('fj_cola') || '[]'); } catch (e) { return []; } };
   let colaMem = leerCola();
   const cola = { get: () => colaMem.slice(), set: (c) => { colaMem = c; try { localStorage.setItem('fj_cola', JSON.stringify(c)); } catch (e) {} } };
@@ -2513,9 +2573,9 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     const mapa = (state.cfg && state.cfg.tarjetas) || {};
     let medio = m.medio;
     // Si el banco escribe la tarjeta distinto, se buscan los últimos 4 dígitos conocidos en el texto.
-    const conocida = !tj ? Object.keys(mapa).find((d) => new RegExp('\\b' + d + '\\b').test(txt)) : null;
+    const conocida = !tj ? Object.keys(mapa).find((d) => new RegExp('\\b' + String(d).replace(/[^0-9A-Za-z]/g, '') + '\\b').test(txt)) : null;
     if (medio === 'sms' || !medio) medio = tj ? (mapa[tj[2]] || (/D[ÉE]BITO/i.test(tj[1]) ? 'cuenta' : 'sms')) : (conocida ? mapa[conocida] : 'sms');
-    return { ...m, medio, monto: mo ? parseMonto(mo[1]) : num(m.monto), fecha: co ? co[2] + '-' + co[3] + '-' + co[4] : m.fecha,
+    return { ...m, medio, monto: mo && parseMonto(mo[1]) >= 0 ? parseMonto(mo[1]) : num(m.monto), fecha: co ? co[2] + '-' + co[3] + '-' + co[4] : m.fecha,
       nota: co && m.categoria !== 'pendiente' ? co[1].trim() : m.nota,
       _comercio: co ? co[1].trim() : (txt.slice(0, 40) || 'Cobro'), _tarjeta: tj ? tj[1].toUpperCase() + ' ' + tj[2] : '' };
   }
@@ -2607,8 +2667,8 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       const j = await leerHoja(true);
       if (!j.ok) { avisar(errorClave(j.error) || 'No se pudieron leer tus datos.'); return; }
       if (v !== version || enviando || cola.get().length) return;
-      if (j.sinCambios) { avisar(notaDatos()); frescos = true; return; }
-      guardarFirma(j); cache.set(j.datos); aplicar(j.datos); avisar(notaDatos()); frescos = true;
+      if (j.sinCambios) { avisar(notaDatos()); frescos = true; frescoEn = Date.now(); return; }
+      aplicar(j.datos); guardarFirma(j); cache.set(j.datos); avisar(notaDatos()); // .58: primero se aplican; si fallan no se guardan como copia frescos = true; frescoEn = Date.now();
     } catch (e) { avisar('Sin conexión. Mostrando lo último guardado.'); }
   }
   // Misma forma que usaba la app antes; cada operación devuelve su qid para poder deshacerla.
@@ -2636,7 +2696,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.57';
+  const VERSION = '2026-11-03.58';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
@@ -2644,7 +2704,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       const html = await r.text();
       const m = html.match(/const VERSION = '([^']+)'/);
       if (!m || m[1] === VERSION) return;
-      const abierto = !$('sheet').hidden || ['qForm', 'ajForm', 'ahForm'].some((id) => !$(id).hidden);
+      const abierto = !$('sheet').hidden || !$('ajustes').hidden || !!$('gasMonto') || ['qForm', 'ajForm', 'ahForm'].some((id) => !$(id).hidden);
       if (abierto) return; // se actualiza la próxima vez, para no borrar lo que estás escribiendo
       if (sessionStorage.getItem('fj_recarga') === m[1]) return; // ya se intentó, no entrar en bucle
       sessionStorage.setItem('fj_recarga', m[1]);
@@ -2665,7 +2725,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 
   if (!API) { $('app').classList.add('no-db'); avisar('Falta conectar con tu hoja. Abre el enlace de configuración.'); }
   else {
-    const c = cache.get(); if (c) aplicar(c);
+    const c = cache.get(); if (c) { try { aplicar(c); } catch (e) { /* .58: copia guardada dañada; se espera la lectura de la hoja */ } }
     if (cola.get().length) fallo = true; // quedó algo de antes: se relee la hoja antes de reenviar
     mezclar(); render(); estadoCola();
     cargar();
