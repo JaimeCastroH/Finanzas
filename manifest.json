@@ -2,8 +2,8 @@
   "name": "Finanzas de Jaime",
   "short_name": "Finanzas",
   "display": "standalone",
-  "background_color": "#1B1716",
-  "theme_color": "#1B1716",
+  "background_color": "#0C0C0D",
+  "theme_color": "#0C0C0D",
   "icons": [
     {
       "src": "icono.png?v=2",
