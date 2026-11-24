@@ -801,6 +801,9 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
 :root[data-paleta="tinta"] .ic { background: transparent; width: auto; color: var(--muted); }
 :root[data-paleta="tinta"] .app { gap: 22px; }
 :root[data-paleta="tinta"] #tabs .fab, :root[data-paleta="tinta"] #tabs .fab:is(*) { width: 46px; height: 46px; margin-top: -2px; background: #1B1B1D !important; color: #F2F2F0 !important; }
+/* ===== .57: centavos más pequeños en los montos, y el sello del pie vuelve a leerse (en Tinta el fondo y el kanji eran del mismo color) ===== */
+.ct { font-size: .6em; letter-spacing: 0; }
+:root[data-paleta="tinta"] .pie .sello { background: #1B1B1D; color: var(--ink); opacity: 1; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -2185,7 +2188,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
     if (porCat.pendiente) s.push({ ids: ['pendiente'], nombre: 'Por clasificar', v: porCat.pendiente, alerta: true });
     return s;
   }
-  const repDl = (v, dec) => '<span class="dl">' + (v < 0 ? '−$' : '$') + '</span>' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const repDl = (v, dec) => '<span class="dl">' + (v < 0 ? '−$' : '$') + '</span>' + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }).replace(/(\.\d\d)$/, '<span class="ct">$1</span>');
   // Cada rebanada toma un color distinto del tema: acento, positivo y color de botones
   const REP_COL = ['var(--rep1, var(--acento-txt))', 'var(--rep2, var(--ok))', 'var(--rep3, var(--brand))', 'var(--rep4, rgba(var(--acento-rgb),.45))', 'var(--rep5, rgba(var(--ok-rgb),.4))', 'var(--rep6, rgba(255,255,255,.2))'];
   let repSel = null, repAbierta = null;
@@ -2421,6 +2424,21 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
       for (let i = 1; i < partes.length; i++) { out.push(el('span', 'dl', '$'), document.createTextNode(partes[i])); }
       e.replaceChildren(...out);
     });
+    centavos(root);
+  }
+
+  // ---------- Centavos más pequeños ----------
+  // En los mismos montos (y en Previstos) los dos decimales van en un span para achicarlos. El texto no cambia.
+  function centavos(root) {
+    (root || document).querySelectorAll(CON_DOLAR + ', #pvVal').forEach((e) => {
+      if (e.querySelector('.ct')) return;
+      const w = document.createTreeWalker(e, NodeFilter.SHOW_TEXT); const nodos = []; while (w.nextNode()) nodos.push(w.currentNode);
+      nodos.forEach((n) => {
+        const m = n.nodeValue.match(/^([\s\S]*\d)(\.\d\d)(\D*)$/); if (!m) return;
+        const f = document.createDocumentFragment(); f.append(m[1], el('span', 'ct', m[2])); if (m[3]) f.append(m[3]);
+        n.replaceWith(f);
+      });
+    });
   }
 
   const renderBase = render;
@@ -2618,7 +2636,7 @@ html { min-height: calc(100% + env(safe-area-inset-top, 0px)); }
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.56';
+  const VERSION = '2026-11-03.57';
   $('ver').textContent = 'Versión ' + VERSION;
   async function revisarVersion() {
     try {
