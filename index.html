@@ -1891,6 +1891,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     $('claveForm').addEventListener('submit', (e) => {
       e.preventDefault(); const v = $('claveIn').value.trim();
       if (v.length < 8) { $('claveMsg').textContent = 'Pega la clave completa.'; return; }
+      const kEnlace = new URLSearchParams(location.hash.slice(1)).get('k'); // .61: la clave que trae la dirección del ícono es la vieja
+      if (kEnlace && kEnlace !== v) store.set('fj_k_no', kEnlace);
       store.set('fj_k', v); store.set('fj_k_manual', '1'); $('claveMsg').textContent = 'Guardada. Recargando…'; setTimeout(() => location.reload(), 600);
     });
   }
@@ -2587,7 +2589,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       // .60: si la clave se cambió a mano, un enlace con otra clave pregunta (antes se ignoraba y no había cómo volver al enlace).
       // Si dices que no, esa clave no se vuelve a preguntar (el ícono de inicio abre siempre con el mismo enlace).
       else if (p.get('k') !== store.get('fj_k') && p.get('k') !== store.get('fj_k_no')) {
-        if (confirm('Este enlace trae otra clave para tu hoja. ¿Usarla en lugar de la que escribiste en Ajustes?')) {
+        if (confirm('Este enlace trae una clave distinta de la que guardaste en Ajustes. Si no acabas de recibir un enlace nuevo, toca Cancelar. ¿Usar la clave del enlace?')) {
           store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); store.set('fj_k_manual', ''); store.set('fj_firma', '');
         } else store.set('fj_k_no', p.get('k'));
       }
@@ -2786,7 +2788,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.60';
+  const VERSION = '2026-11-03.61';
   $('ver').textContent = 'Versión ' + VERSION;
   let revisadoEn = 0;
   async function revisarVersion() {
