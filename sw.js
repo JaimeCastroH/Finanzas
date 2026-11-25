@@ -29,7 +29,8 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     fetch(req)
       .then((res) => {
-        if (res && res.ok) {
+        // Solo se guarda una respuesta buena; para la página, solo si de verdad es la página (no un error ni otra cosa).
+        if (res && res.ok && (!navega || (res.headers.get('content-type') || '').includes('text/html'))) {
           const copia = res.clone();
           caches.open(CACHE).then((c) => c.put(clave, copia));
         }

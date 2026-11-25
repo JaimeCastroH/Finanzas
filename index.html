@@ -808,6 +808,16 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
 :root[data-paleta="tinta"] .wtrack, :root[data-paleta="tinta"] .prog, :root[data-paleta="tinta"] .fprog, :root[data-paleta="tinta"] .cam-bar { background: #2A2A2D; }
 /* Computadora y horizontal: el + vuelve a tener círculo sobre la barra */
 @media (min-width: 1000px), (max-height: 520px) { :root[data-paleta="tinta"] #tabs .fab, :root[data-paleta="tinta"] #tabs .fab:is(*) { background: #2E2E32 !important; } }
+:root[data-paleta="tinta"] .fx.atras .t > div:last-child { color: var(--warn); } /* .60: cobro fijo del mes pasado sin marcar */
+:root[data-paleta="tinta"] .mvw { position: relative; overflow: hidden; } /* .60: deslizar para borrar */
+:root[data-paleta="tinta"] .mvw .mov { position: relative; z-index: 1; background: #0C0C0D; touch-action: pan-y; transition: transform .22s ease; }
+:root[data-paleta="tinta"] .mvw.moviendo .mov { transition: none; }
+:root[data-paleta="tinta"] .mvdel { position: absolute; z-index: 0; right: 0; top: 6px; bottom: 6px; width: 84px; border: 0; border-radius: 12px; background: #FF6A55; color: #0B0B0C; font: 600 15px/1 var(--font); opacity: 0; pointer-events: none; }
+:root[data-paleta="tinta"] .mvw:is(.abierto, .moviendo) .mvdel { opacity: 1; pointer-events: auto; }
+@media (prefers-reduced-motion: reduce) { :root[data-paleta="tinta"] .mvw .mov { transition: none; } }
+:root[data-paleta="tinta"] #fijos .mini.chk { width: 34px; height: 34px; min-height: 0; padding: 0; border-radius: 50%; background: #1B1B1D !important; color: #808085 !important; font-size: 16px; display: inline-grid; place-items: center; margin-top: 4px; } /* .60: círculo ✓ */
+:root[data-paleta="tinta"] #fijos .mini.chk::after { content: ''; position: absolute; inset: -5px; } /* zona de toque de 44 px */
+:root[data-paleta="tinta"] #fijos .mini.chk { position: relative; }
 </style>
 </head>
 <body data-tab="inicio">
@@ -1109,6 +1119,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   const state = { cfg: null, movs: [], loaded: false, last: null };
   let editing = null;   // movimiento que se edita en el panel Anotar
   let ahEditing = null; // movimiento de ahorro que se edita
+  let ahVolver = null;   // pestaña a la que se vuelve al cerrar el ahorro abierto desde Movimientos
   let ahModo = 'extra'; // 'extra': agregar al ahorro · 'retiro': pasar del ahorro a la cuenta
   let db = null;
 
@@ -1230,6 +1241,9 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     if (!db || !devDe) { msg.className = 'msg err'; msg.textContent = 'Sin conexión a tus datos en esta vista.'; return; }
     const monto = parseMonto($('devMonto').value);
     if (!(monto > 0)) { msg.className = 'msg err'; msg.textContent = 'Escribe cuánto te devolvieron.'; $('devMonto').focus(); return; }
+    // .60: una devolución no puede pasar de lo que queda del gasto.
+    const tope = round2(num(devDe.monto) - state.movs.filter((d) => esDev(d) && d.a === devDe.id).reduce((s, d) => s + num(d.monto), 0));
+    if (monto > tope + 0.004) { msg.className = 'msg err'; msg.textContent = 'Es más de lo que queda del gasto: hasta ' + fmt(Math.max(0, tope)) + '.'; $('devMonto').focus(); return; }
     const q = await db.collection('movs').add({ tipo: 'ingreso', concepto: 'Devolución', categoria: devDe.categoria, a: devDe.id, monto, fecha: today(), nota: $('devQuien').value.trim(), creado: new Date().toISOString() });
     avisoDeshacer(($('devQuien').value.trim() || 'Devolución') + ': +' + fmt(monto), [q]);
     devDe = null; closeSheet();
@@ -1244,6 +1258,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     document.querySelectorAll('#tabs [data-go]').forEach((b) => { if (b.dataset.go === go) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
     document.querySelectorAll('#pdSeg [data-sub]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sub === t)));
     window.scrollTo(0, 0);
+    if (gasAbierto && t !== 'pagos') { gasAbierto = false; renderFijos(true); dolares($('fijos')); } // .60
     if (t === 'inicio' && state.last) render();
     if (t === 'reportes') renderReportes();
   };
@@ -1275,6 +1290,20 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     }
     if (t === 'entrada') { doc.tipo = 'ingreso'; doc.concepto = 'Entrada'; }
     if (t === 'salida') { doc.tipo = 'ahorro'; doc.destino = 'salida'; }
+    // .60: un gasto y sus devoluciones tienen que cuadrar: la suma de devoluciones no pasa del gasto.
+    if (editing) {
+      const devsDe = (id) => state.movs.filter((d) => esDev(d) && d.a === id);
+      if (editing.tipo === 'gasto' && devsDe(editing.id).length) {
+        const ya = round2(devsDe(editing.id).reduce((s, d) => s + num(d.monto), 0));
+        if (doc.tipo !== 'gasto') { msg.className = 'msg err'; msg.textContent = 'Este gasto tiene devoluciones: bórralas antes de cambiarlo de tipo.'; return; }
+        if (monto < ya - 0.004) { msg.className = 'msg err'; msg.textContent = 'Ya te devolvieron ' + fmt(ya) + ': el gasto no puede ser menor.'; $('monto').focus(); return; }
+      }
+      if (esDev(editing)) {
+        const g = state.movs.find((x) => x.id === editing.a);
+        const otras = g ? round2(devsDe(g.id).filter((d) => d.id !== editing.id).reduce((s, d) => s + num(d.monto), 0)) : 0;
+        if (g && monto > num(g.monto) - otras + 0.004) { msg.className = 'msg err'; msg.textContent = 'Es más de lo que queda del gasto: hasta ' + fmt(Math.max(0, round2(num(g.monto) - otras))) + '.'; $('monto').focus(); return; }
+      }
+    }
     const btn = $('save'); const label = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
     try {
       if (editing) {
@@ -1344,12 +1373,12 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       if (it && num(it.mensual) > 0) {
         const tasa = num(it.mensual) / 100, dia = num(it.corte) || 12;
         const b = parse(base); let est = 0;
-        for (let k = 0; k < 60; k++) {
+        for (let k = 0; k < 240; k++) {
           const c = new Date(b.getFullYear(), b.getMonth() + k, Math.min(dia, lastDay(b.getFullYear(), b.getMonth() + k)));
           const f = iso(c); if (f <= base) continue;
           const mes = f.slice(0, 7);
           const real = movs.find((m) => m.tipo === 'gasto' && m.categoria === 'interes' && m.pago_id === 'int-' + d.id + '-' + mes);
-          if (f > hoy) { proximo = { fecha: f, monto: round2(Math.max(0, saldo) * tasa) }; break; }
+          if (f > hoy) { proximo = { fecha: f, monto: round2(Math.max(0, saldo + est) * tasa) }; break; }
           if (real) { ultimo = { fecha: f, monto: num(real.monto), real: true }; continue; }
           const m = round2(Math.max(0, saldoAl(f) + est) * tasa);
           est += m; ultimo = { fecha: f, monto: m, real: false };
@@ -1509,6 +1538,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     $('ahDesdeLbl').closest('.field').hidden = r;
     $('ahNota').placeholder = r ? 'Ej. viaje' : 'Ej. bono';
     ahEditing = open && m ? m : null;
+    if (!open && ahVolver) { const v = ahVolver; ahVolver = null; setTab(v); } // .60: vuelve a la pestaña desde donde se editó
     if (open) {
       $('ahMsg').textContent = '';
       $('ahFecha').value = ahEditing ? ahEditing.fecha : today();
@@ -1614,7 +1644,9 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   // Quincena esperada: la última que se anotó de verdad; si no hay, la de Config.
   function ingresoQ() {
     const qs = state.movs.filter((m) => m.tipo === 'ingreso' && m.concepto === 'Quincena').sort((a, b) => (a.fecha || '').localeCompare(b.fecha || ''));
-    return qs.length ? num(qs[qs.length - 1].monto) : num(state.cfg && state.cfg.ingreso_quincena);
+    // .60: la mediana de las últimas tres, para que una quincena distinta (más baja o con un extra) no mueva toda la proyección.
+    const u = qs.slice(-3).map((m) => num(m.monto)).sort((a, b) => a - b);
+    return u.length ? (u.length === 2 ? Math.min(u[0], u[1]) : u[Math.floor(u.length / 2)]) : num(state.cfg && state.cfg.ingreso_quincena);
   }
   // Ahorro de la quincena: 0 si la fecha cae en una pausa acordada (Config → ahorro_pausa).
   function vacEn(f) {
@@ -1624,7 +1656,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   }
   function fijosHasta(D) {
     const cfg = state.cfg, t = today(); let total = 0;
-    for (let k = 0; k < 6; k++) {
+    // .60: desde k = -1: un cobro fijo del mes pasado que no se marcó sigue contando como pendiente.
+    for (let k = -1; k < 6; k++) {
       const m0 = parse(t); const md = new Date(m0.getFullYear(), m0.getMonth() + k, 1); const mes = iso(md).slice(0, 7);
       if (mes + '-01' > D) break;
       if (cfg.fijos_desde && mes < cfg.fijos_desde) continue;
@@ -1653,7 +1686,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   function apartado(c) {
     const cfg = state.cfg, t = today(), pd = periodo(), hasta = pd.hasta;
     const hecho = (p) => state.movs.some((m) => m.pago_id === p.id);
-    const pend = (cfg.pagos || []).filter((p) => !hecho(p)).map((p) => (p.fecha < t ? { ...p, fecha: t } : p));
+    const pend = (cfg.pagos || []).filter((p) => !hecho(p) && p.fecha >= addDays(t, -30)).map((p) => (p.fecha < t ? { ...p, fecha: t } : p));
     const antes = pend.filter((p) => p.fecha < hasta), despues = pend.filter((p) => p.fecha >= hasta).sort((a, b) => a.fecha.localeCompare(b.fecha));
     const lim = num(cfg.limite_semana) || 55, gas = num(cfg.gasolina), vari = num(cfg.varios);
     const dias = Math.max(0, daysTo(hasta));
@@ -1718,6 +1751,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     let x = qn.cobrada ? paydays(qn.cobrada).next : (qn.adelantada ? pd.next : (daysTo(pd.prev) >= -4 ? pd.prev : pd.next));
     const cobros = [];
     for (let i = 0; i < 12; i++) { cobros.push(x); x = paydays(x).next; }
+    // .60: si la primera quincena por cobrar es la del día de pago que ya pasó, sus Gastos varios ya están en los de la quincena en curso.
+    const dobleVar = !qn.cobrada && !qn.adelantada && cobros[0] === pd.prev ? 1 : 0;
     const dow = (new Date().getDay() + 6) % 7, finSemana = addDays(t, 6 - dow);
     // Gasolina: lo que falta de la quincena en curso (igual que en Inicio) y, después, $gas cada 15 días.
     const pdG = periodo(), gasResto = Math.max(0, gas - gastado('gasolina', pdG.desde, pdG.hasta)), diasG = Math.max(0, daysTo(pdG.hasta));
@@ -1728,7 +1763,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       const semana = (dias ? restoSemana * (diasSemana / (7 - dow)) : 0) + Math.max(0, dias - diasSemana) * lim / 7;
       const gasolina = dias <= diasG ? Math.min(gasResto, dias * gas / 15) : gasResto + (dias - diasG) * gas / 15;
       const q = cobros.filter((f) => f <= D).length;
-      const varios = Math.max(0, vari - c.emergUsed) + q * vari;
+      const varios = Math.max(0, vari - c.emergUsed) + Math.max(0, q - dobleVar) * vari;
       const fijos = fijosHasta(D);
       const pagos = pend.filter((p) => p.fecha <= D).reduce((a, p) => a + partsSum(p), 0);
       const netas = cobros.filter((f) => f <= D).reduce((a, f) => a + ing - vacEn(f), 0);
@@ -1759,7 +1794,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     const tot = () => Object.values(bal).reduce((a, v) => a + v, 0);
     const hoy = today(), d0 = parse(hoy);
     const hecho = (p) => state.movs.some((m) => m.pago_id === p.id);
-    const pend = (cfg.pagos || []).filter((p) => !hecho(p));
+    // .60: igual que la proyección: un pago vencido sin marcar (hasta 30 días) cuenta como de este mes.
+    const pend = (cfg.pagos || []).filter((p) => !hecho(p) && p.fecha >= addDays(hoy, -30)).map((p) => (p.fecha < hoy ? { ...p, fecha: hoy } : p));
     // .52: las filas del plan (id «plan-…») no mueven el mes en que empieza la simulación del plan.
     const pendBase = pend.filter((p) => !esPlan(p));
     const ini = pendBase.length ? pendBase.map((p) => p.fecha.slice(0, 7)).sort().pop() : hoy.slice(0, 7);
@@ -1807,7 +1843,9 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   function iniciarAjustes() {
     const foto = () => { const f = store.get('fj_foto'); $('avatar').hidden = !f; $('avatarIni').hidden = !!f; if (f) $('avatar').src = f; };
     foto();
-    const abrir = (v) => { $('ajustes').hidden = !v; $('scrim').hidden = !v; $('app').inert = v; $('fab').inert = v; if (v) { $('discretoIn').checked = document.documentElement.classList.contains('discreto'); $('lockIn').checked = !!store.get('fj_lock'); $('claveMsg').textContent = ''; } };
+    // .60: el foco entra a Ajustes al abrir y vuelve a la foto al cerrar; Escape cierra.
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('ajustes').hidden) abrir(false); });
+    const abrir = (v) => { if (v) setTimeout(() => $('ajustesClose').focus(), 30); else if (!$('ajustes').hidden) setTimeout(() => $('avatarBtn').focus(), 30); $('ajustes').hidden = !v; $('scrim').hidden = !v; $('app').inert = v; $('fab').inert = v; if (v) { $('discretoIn').checked = document.documentElement.classList.contains('discreto'); $('lockIn').checked = !!store.get('fj_lock'); $('claveMsg').textContent = ''; } };
     $('avatarBtn').addEventListener('click', () => abrir(true));
     $('ajustesClose').addEventListener('click', () => abrir(false));
     $('scrim').addEventListener('click', () => { if (!$('ajustes').hidden) abrir(false); });
@@ -1878,6 +1916,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   const deudaDeComercio = (com) => { const c = String(com || '').toUpperCase(), m = (state.cfg && state.cfg.pagos_sms) || {}; const k = Object.keys(m).find((x) => c.includes(x.toUpperCase())); return k ? m[k] : null; };
   // Fila del calendario de pagos que cuadra con ese pago (misma deuda, mismo monto, todavía sin pagar).
   const pagoDelCalendario = (deuda, monto) => (((state.cfg && state.cfg.pagos) || []).find((p) => !state.movs.some((m) => m.pago_id === p.id) && (p.partes || []).some((x) => x.a === deuda && Math.abs(num(x.monto) - monto) < 0.01)) || {}).id;
+  const bandejaMedio = new Map(); // .60: tarjeta elegida en «Por clasificar» mientras no se clasifica
   function renderBandeja() {
     const pend = state.movs.filter((m) => m.tipo === 'gasto' && (m.categoria === 'pendiente' || m.medio === 'sms')).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || ''));
     $('bandHead').hidden = $('banda').hidden = !pend.length;
@@ -1896,12 +1935,14 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       if (m.medio === 'sms') {
         medioSel = el('select'); medioSel.setAttribute('aria-label', '¿Con qué tarjeta?');
         [['', '¿Qué tarjeta?'], ['visa', 'Visa'], ['cuenta', 'Débito'], ['atl', 'Atlántida'], ['siman', 'Simán'], ['amex_rev', 'AMEX']].forEach(([v, l]) => medioSel.append(new Option(l, v)));
+        if (bandejaMedio.has(m.id)) medioSel.value = bandejaMedio.get(m.id);
+        medioSel.addEventListener('change', () => bandejaMedio.set(m.id, medioSel.value));
         pie.append(medioSel);
       }
       if (m.medio === 'visa' || m.medio === 'sms') {
         abonoCb = el('input'); abonoCb.type = 'checkbox'; abonoCb.checked = true;
         const ab = el('label', 'abono'); ab.append(abonoCb, el('span', null, 'Ya lo aboné a la Visa'));
-        if (m.medio === 'sms') { ab.hidden = true; medioSel.addEventListener('change', () => { ab.hidden = medioSel.value !== 'visa'; }); }
+        if (m.medio === 'sms') { ab.hidden = medioSel.value !== 'visa'; medioSel.addEventListener('change', () => { ab.hidden = medioSel.value !== 'visa'; }); }
         pie.append(ab);
       }
       const del = el('button', 'del', 'No es mío / borrar'); del.type = 'button'; del.addEventListener('click', () => borrarMov(m));
@@ -1944,14 +1985,18 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     const mes = today().slice(0, 7);
     const vigente = (f) => (!f.desde || mes >= f.desde) && (!f.hasta || mes <= f.hasta);
     const activos = (!cfg.fijos_desde || mes >= cfg.fijos_desde) ? (cfg.fijos || []).filter(vigente) : [];
-    const marca = (f) => 'fijo-' + f.id + '-' + mes;
+    const marca = (f, ms) => 'fijo-' + f.id + '-' + (ms || mes);
     const hecho = (f) => state.movs.some((m) => m.pago_id === marca(f));
     const pend = activos.filter((f) => !hecho(f)).sort((a, b) => (num(a.dia) || 99) - (num(b.dia) || 99));
+    // .60: los del mes pasado que quedaron sin marcar siguen aquí, arriba, hasta marcarlos (antes desaparecían el día 1).
+    const d0 = parse(today()), mesAnt = iso(new Date(d0.getFullYear(), d0.getMonth() - 1, 1)).slice(0, 7);
+    const vigAnt = (f) => (!f.desde || mesAnt >= f.desde) && (!f.hasta || mesAnt <= f.hasta);
+    const atras = (!cfg.fijos_desde || mesAnt >= cfg.fijos_desde) ? (cfg.fijos || []).filter((f) => vigAnt(f) && !state.movs.some((m) => m.pago_id === marca(f, mesAnt))).sort((a, b) => (num(a.dia) || 99) - (num(b.dia) || 99)) : [];
     const listos = activos.filter(hecho);
     const total = activos.reduce((s, f) => s + num(f.monto), 0);
     const pagado = listos.reduce((s, f) => s + num(f.monto), 0);
     const gLim = num(cfg.gasolina);
-    if (!activos.length && !(gLim > 0)) { $('fijosHead').hidden = $('fijos').hidden = true; return; }
+    if (!activos.length && !atras.length && !(gLim > 0)) { $('fijosHead').hidden = $('fijos').hidden = true; return; }
     $('fijosHead').hidden = $('fijos').hidden = false;
     $('fijosSub').textContent = MESES[parse(today()).getMonth()].replace(/^./, (c) => c.toUpperCase());
     const out = [];
@@ -1964,17 +2009,18 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       out.push(big, bar);
     }
 
-    for (const f of pend) {
-      const row = el('div', 'fx');
+    for (const [f, ms] of [...atras.map((x) => [x, mesAnt]), ...pend.map((x) => [x, mes])]) {
+      const viejo = ms !== mes;
+      const row = el('div', 'fx' + (viejo ? ' atras' : ''));
       const t = el('div', 't'); const n = el('div');
       n.append(el('span', 'badge ' + (f.auto ? 'b-auto' : 'b-yo'), f.auto ? 'AUTO' : 'TÚ'), document.createTextNode(f.nombre));
-      t.append(n, el('div', null, (MEDIO[f.medio] || 'Débito') + (f.dia ? (f.auto ? ' · se cobra el ' : ' · el ') + f.dia : '') + (f.nota ? ' · ' + f.nota : '')));
+      t.append(n, el('div', null, (viejo ? 'Sin marcar de ' + MESES[parse(ms + '-01').getMonth()] + ' · ' : '') + (MEDIO[f.medio] || 'Débito') + (f.dia ? (f.auto ? ' · se cobra el ' : ' · el ') + f.dia : '') + (f.nota ? ' · ' + f.nota : '')));
       const r = el('div', 'r'); r.append(el('b', null, fmt(num(f.monto))));
-      const btn = el('button', 'mini', 'Pagado'); btn.type = 'button'; btn.setAttribute('aria-label', 'Marcar ' + f.nombre + ' como pagado');
+      const btn = el('button', 'mini chk', '✓'); btn.type = 'button'; btn.setAttribute('aria-label', 'Marcar ' + f.nombre + (viejo ? ' de ' + MESES[parse(ms + '-01').getMonth()] : '') + ' como pagado');
       btn.addEventListener('click', async () => {
         if (!db || btn.disabled) return;
         btn.disabled = true; gasAbierto = false; // .58: con «Poner gas» abierto la lista no se redibujaba y un segundo toque lo anotaba otra vez
-        const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'fijo', medio: f.medio || 'cuenta', monto: num(f.monto), fecha: today(), pago_id: marca(f), nota: f.nombre, creado: new Date().toISOString() });
+        const q = await db.collection('movs').add({ tipo: 'gasto', categoria: 'fijo', medio: f.medio || 'cuenta', monto: num(f.monto), fecha: today(), pago_id: marca(f, ms), nota: f.nombre, creado: new Date().toISOString() });
         const qs = [q];
         if (f.medio === 'visa') qs.push(await db.collection('movs').add({ tipo: 'pago', a: 'visa', monto: num(f.monto), fecha: today(), nota: 'Abono de compras con Visa', creado: new Date().toISOString() }));
         avisoDeshacer((f.medio === 'visa' ? 'Pagado y abonado: ' : 'Pagado: ') + f.nombre + ' ' + fmt(num(f.monto)), qs);
@@ -2050,10 +2096,17 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   }
   // El formulario de ahorro vive en Inicio: si se edita un ahorro o un retiro desde Movimientos, primero se pasa a Inicio para que se vea.
   const editMov = (m) => {
-    if (m.tipo === 'ahorro' && (m.destino === 'vacaciones' || m.destino === 'retiro')) { if (document.body.dataset.tab !== 'inicio') setTab('inicio'); ahToggle(true, m); }
+    if (m.tipo === 'ahorro' && (m.destino === 'vacaciones' || m.destino === 'retiro')) { if (document.body.dataset.tab !== 'inicio') { ahVolver = document.body.dataset.tab; setTab('inicio'); } ahToggle(true, m); }
     else openSheet(m);
   };
-  const borrarMov = async (m) => { if (!db) return; const q = await db.doc('movs/' + m.id).delete(); avisoDeshacer('Borrado: ' + desc(m).what + ' ' + fmt(Math.abs(num(m.monto))), [q]); };
+  // .60: al borrar un gasto se borran con él sus devoluciones (antes quedaban sueltas y seguían restando). Deshacer devuelve todo.
+  const borrarMov = async (m) => {
+    if (!db) return;
+    const devs = m.tipo === 'gasto' ? state.movs.filter((d) => esDev(d) && d.a === m.id) : [];
+    const qs = [await db.doc('movs/' + m.id).delete()];
+    for (const d of devs) qs.push(await db.doc('movs/' + d.id).delete());
+    avisoDeshacer('Borrado: ' + desc(m).what + ' ' + fmt(Math.abs(num(m.monto))) + (devs.length ? (devs.length === 1 ? ' y su devolución' : ' y sus devoluciones') : ''), qs);
+  };
 
   function rowFor(m) {
     const D = desc(m); const what = D.what, key = D.key, sign = D.sign, inClass = D.inClass;
@@ -2067,10 +2120,47 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       info.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
     }
     const r = el('div', 'r'); r.append(el('span', 'v' + inClass, sign + fmt(Math.abs(num(m.monto)))));
-    const del = el('button', 'del', 'Borrar'); del.type = 'button'; del.setAttribute('aria-label', 'Borrar ' + what);
+    // .60: «Borrar» ya no se ve en la lista: se desliza el renglón a la izquierda y aparece. Para VoiceOver y teclado
+    // queda un botón invisible con el mismo efecto.
+    const del = el('button', 'sr', 'Borrar'); del.type = 'button'; del.setAttribute('aria-label', 'Borrar ' + what);
     del.addEventListener('click', () => borrarMov(m));
     r.append(del);
-    const d = el('div', 'mov'); d.append(icon(key), info, r); return d;
+    const d = el('div', 'mov'); d.append(icon(key), info, r);
+    const w = el('div', 'mvw'); const slot = el('button', 'mvdel', 'Borrar'); slot.type = 'button'; slot.tabIndex = -1; slot.setAttribute('aria-hidden', 'true');
+    slot.addEventListener('click', () => { cerrarMov(); borrarMov(m); });
+    w.append(slot, d); deslizable(w, d); return w;
+  }
+  // Deslizar para borrar: el renglón sigue el dedo; pasando la mitad queda abierto, si no vuelve. Solo uno abierto a la vez.
+  let movAbierto = null;
+  const ANCHO_DEL = 92;
+  function cerrarMov() { if (!movAbierto) return; movAbierto.classList.remove('abierto'); movAbierto.querySelector('.mov').style.transform = ''; movAbierto = null; }
+  // Con un renglón abierto, el primer toque en otro lado solo lo cierra (como en Mail del iPhone).
+  let tragarClic = 0;
+  document.addEventListener('pointerdown', (e) => { if (movAbierto && !movAbierto.contains(e.target)) { cerrarMov(); tragarClic = Date.now(); } }, true);
+  document.addEventListener('click', (e) => { if (tragarClic && Date.now() - tragarClic < 700) { tragarClic = 0; e.stopPropagation(); e.preventDefault(); } }, true);
+  function deslizable(w, row) {
+    let x0 = null, y0 = 0, dx = 0, base = 0, activo = false, movio = false;
+    row.addEventListener('pointerdown', (e) => { if (e.button) return; x0 = e.clientX; y0 = e.clientY; base = w.classList.contains('abierto') ? -ANCHO_DEL : 0; dx = base; activo = false; movio = false; });
+    row.addEventListener('pointermove', (e) => {
+      if (x0 === null) return;
+      const mx = e.clientX - x0, my = e.clientY - y0;
+      if (!activo) {
+        if (Math.abs(mx) < 8) return;
+        if (Math.abs(my) > Math.abs(mx)) { x0 = null; return; }
+        activo = true; movio = true; if (movAbierto && movAbierto !== w) cerrarMov(); w.classList.add('moviendo');
+        try { row.setPointerCapture(e.pointerId); } catch (er) { /* sin captura también funciona */ }
+      }
+      dx = Math.max(-ANCHO_DEL - 24, Math.min(0, base + mx)); row.style.transform = 'translateX(' + dx + 'px)';
+    });
+    const soltar = () => {
+      if (x0 === null) return; x0 = null; if (!activo) return;
+      w.classList.remove('moviendo'); const abre = dx < -ANCHO_DEL / 2;
+      w.classList.toggle('abierto', abre); row.style.transform = abre ? 'translateX(-' + ANCHO_DEL + 'px)' : '';
+      if (abre) movAbierto = w; else if (movAbierto === w) movAbierto = null;
+    };
+    row.addEventListener('pointerup', soltar); row.addEventListener('pointercancel', soltar);
+    // Un arrastre no abre el editor; tocar un renglón abierto solo lo cierra.
+    row.addEventListener('click', (e) => { if (movio) { movio = false; e.stopPropagation(); e.preventDefault(); return; } if (w.classList.contains('abierto')) { e.stopPropagation(); cerrarMov(); } }, true);
   }
 
   // ---------- Tabla (computadora) ----------
@@ -2163,7 +2253,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     if (!W || !w) { tip.style.left = Math.min(85, Math.max(15, frac * 100)) + '%'; return; }
     tip.style.left = Math.min(W - w / 2, Math.max(w / 2, frac * W)) + 'px';
   }
-  window.addEventListener('resize', () => { if (state.last) render(); });
+  let resizeT = 0; // .60: al girar o cambiar el tamaño se redibuja una vez, no en cada cuadro
+  window.addEventListener('resize', () => { cancelAnimationFrame(resizeT); resizeT = requestAnimationFrame(() => { if (state.last) render(); }); });
 
   // ---------- Reportes (表) ----------
   // Reglas para que cuadre con Inicio:
@@ -2174,11 +2265,12 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   const repMes = (f) => String(f || '').slice(0, 7);
   const repSuma = (mes, n) => { let [y, m] = mes.split('-').map(Number); m += n; while (m < 1) { m += 12; y--; } while (m > 12) { m -= 12; y++; } return y + '-' + pad(m); };
   const repNombre = (mes) => { const [y, m] = mes.split('-').map(Number); return { largo: MESES[m - 1], corto: MES3[m - 1], y }; };
-  const repEsAbonoVisa = (m) => m.tipo === 'pago' && m.a === 'visa' && !m.pago_id;
   function gastosPorCategoria(movs, mes, hastaDia) {
     const t = {};
     movs.forEach((m) => {
-      if (repMes(m.fecha) !== mes || (hastaDia && +String(m.fecha).slice(8, 10) > hastaDia)) return;
+      // .60: la devolución se resta en el mes de su gasto, no en el mes en que llegó.
+      const fm = esDev(m) ? fechaDev(m) : m.fecha;
+      if (repMes(fm) !== mes || (hastaDia && +String(fm).slice(8, 10) > hastaDia)) return;
       const v = num(m.monto), k = m.categoria || 'pendiente';
       if (m.tipo === 'gasto') t[k] = (t[k] || 0) + v;
       else if (esDev(m)) t[k] = (t[k] || 0) - v;
@@ -2186,18 +2278,24 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     Object.keys(t).forEach((k) => { if (t[k] < 0.005) delete t[k]; });
     return t;
   }
+  // .60: «quedó» es lo que te quedó en la cuenta: ingresos menos lo que salió de la cuenta ese mes
+  // (compras de contado, pagos de tarjetas y deudas, y Salidas). Una compra con tarjeta cuenta cuando la pagas;
+  // antes contaba al comprarla y otra vez al pagar la tarjeta. La barra de gastos sigue siendo lo que gastaste.
   function flujoMes(movs, mes) {
-    let ing = 0, gas = 0, pag = 0, ret = 0, apa = 0;
+    const credito = new Set(((state.cfg && state.cfg.deudas) || []).map((d) => d.id));
+    let ing = 0, gas = 0, pag = 0, ret = 0, sal = 0, cont = 0;
     movs.forEach((m) => {
-      if (repMes(m.fecha) !== mes) return;
       const v = num(m.monto);
-      if (m.tipo === 'ahorro') { if (m.destino === 'retiro') ret += v; else if (m.destino !== 'salida' && m.desde !== 'externo') apa += v; return; }
-      if (m.tipo === 'gasto') gas += v;
-      else if (esDev(m)) gas -= v;
+      if (m.tipo === 'gasto' && repMes(m.fecha) === mes) gas += v;
+      else if (esDev(m) && repMes(fechaDev(m)) === mes) gas -= v;
+      if (repMes(m.fecha) !== mes) return;
+      if (m.tipo === 'ahorro') { if (m.destino === 'retiro') ret += v; else if (m.destino === 'salida') sal += v; return; }
+      if (m.tipo === 'gasto') { if (!credito.has(m.medio)) cont += v; }
+      else if (esDev(m)) cont -= v;
       else if (m.tipo === 'ingreso') ing += v;
-      else if (m.tipo === 'pago' && !repEsAbonoVisa(m)) pag += v;
+      else if (m.tipo === 'pago' && m.desde !== 'visa') pag += v;
     });
-    return { ing: round2(ing + ret), gas: round2(gas), pag: round2(pag), ret: round2(ret), quedo: round2(ing + ret - gas - pag) };
+    return { ing: round2(ing + ret), gas: round2(gas), pag: round2(pag + sal), ret: round2(ret), quedo: round2(ing + ret - cont - pag - sal) };
   }
   // Las 5 categorías más grandes; si sobran dos o más, van juntas en «Resto». «Por clasificar» siempre aparte.
   function rebanadas(porCat) {
@@ -2276,7 +2374,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
         cats.append(b);
         if (repAbierta === clave) {
           const det = mk('div', 'rdet');
-          movs.filter((m) => repMes(m.fecha) === sel && x.ids.includes(m.categoria || 'pendiente') && (m.tipo === 'gasto' || esDev(m)))
+          movs.filter((m) => repMes(esDev(m) ? fechaDev(m) : m.fecha) === sel && x.ids.includes(m.categoria || 'pendiente') && (m.tipo === 'gasto' || esDev(m)))
             .sort((a, c) => String(c.fecha).localeCompare(String(a.fecha)))
             .forEach((m) => {
               const r = mk('div', esDev(m) ? 'dev' : ''); const t = mk('span'); const b2 = mk('b');
@@ -2310,7 +2408,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
       b.addEventListener('click', () => { if (repSel !== d.m) { repSel = d.m; repAbierta = null; renderReportes(); } });
       bars.append(b);
     });
-    const nota = mk('p', 'rnota'); nota.textContent = 'Bajo cada mes, lo que quedó: ingresos menos gastos y pagos. Lo que pasas del ahorro a tu cuenta se suma como ingreso.';
+    const nota = mk('p', 'rnota'); nota.textContent = 'Bajo cada mes, lo que te quedó en la cuenta: ingresos menos compras de contado, pagos de tarjetas y deudas, y salidas. Las compras con tarjeta cuentan cuando las pagas. Lo que pasas del ahorro a tu cuenta se suma como ingreso.';
     hist.append(bars, nota);
 
     box.replaceChildren(cab, dist, cats, hist);
@@ -2402,7 +2500,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
 
     // Movimientos
     const list = sortedMovs();
-    renderTabla(list);
+    if (window.matchMedia('(min-width: 1000px)').matches) renderTabla(list); // .60: la tabla solo existe en computadora
     $('histCount').textContent = list.length ? list.length + (list.length === 1 ? ' movimiento' : ' movimientos') : '';
     const h = $('hist');
     if (!list.length) { h.replaceChildren(emptyP('Todavía no hay movimientos. Toca + para anotar el primero.')); return; }
@@ -2486,6 +2584,13 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
           store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); store.set('fj_k_manual', ''); store.set('fj_firma', '');
         }
       } else if (!store.get('fj_k_manual')) { store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); }
+      // .60: si la clave se cambió a mano, un enlace con otra clave pregunta (antes se ignoraba y no había cómo volver al enlace).
+      // Si dices que no, esa clave no se vuelve a preguntar (el ícono de inicio abre siempre con el mismo enlace).
+      else if (p.get('k') !== store.get('fj_k') && p.get('k') !== store.get('fj_k_no')) {
+        if (confirm('Este enlace trae otra clave para tu hoja. ¿Usarla en lugar de la que escribiste en Ajustes?')) {
+          store.set('fj_api', p.get('api')); store.set('fj_k', p.get('k')); store.set('fj_k_manual', ''); store.set('fj_firma', '');
+        } else store.set('fj_k_no', p.get('k'));
+      }
     }
   })();
   const q0 = new URLSearchParams(location.hash.slice(1));
@@ -2516,7 +2621,9 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   const avisar = (t) => { $('weekNote').hidden = !t; $('weekNote').textContent = t || ''; };
   // Avisos que deben quedarse aunque la lectura salga bien: un cambio que la hoja no aceptó (2 minutos) y filas sin fecha.
   let rechazo = '', rechazoHasta = 0;
-  const notaDatos = () => (Date.now() < rechazoHasta && rechazo) ? rechazo
+  let sinEspacio = false; // .60: el teléfono no pudo guardar la cola; el aviso se queda mientras dure
+  const notaDatos = () => sinEspacio ? 'El teléfono no tiene espacio para guardar tus cambios: no cierres la app hasta que se suban a tu hoja.'
+    : (Date.now() < rechazoHasta && rechazo) ? rechazo
     : state.sinFecha ? (state.sinFecha === 1 ? 'Hay 1 movimiento sin fecha en tu hoja: no cuenta' : 'Hay ' + state.sinFecha + ' movimientos sin fecha en tu hoja: no cuentan') + ' en los saldos hasta que le pongas fecha.' : '';
 
   // ---------- Sincronización con cola ----------
@@ -2524,10 +2631,21 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   // Sin señal, la cola espera y se sube sola cuando vuelve la conexión. Cada cambio se puede deshacer.
   let base = [];             // movimientos tal como están en la hoja
   const hechos = new Map();  // qid → operación, para poder deshacer aunque ya se haya subido
+  const intentados = new Set(); // qid de cambios que ya se mandaron al menos una vez
   let enviando = null, version = 0, fallo = false, errorHoja = false, frescos = false, frescoEn = 0;
+  // .60: con la clave equivocada o el puente bloqueado no se reintenta solo cada 15 a 30 segundos (eso alarga el bloqueo):
+  // se vuelve a intentar al abrir de nuevo la app.
+  let claveMala = false;
   const leerCola = () => { try { return JSON.parse(localStorage.getItem('fj_cola') || '[]'); } catch (e) { return []; } };
   let colaMem = leerCola();
-  const cola = { get: () => colaMem.slice(), set: (c) => { colaMem = c; try { localStorage.setItem('fj_cola', JSON.stringify(c)); } catch (e) {} } };
+  // .60: si el teléfono no tiene espacio, se libera la copia de los datos (se vuelve a leer de la hoja) y, si aun así no cabe, se avisa.
+  const cola = { get: () => colaMem.slice(), set: (c) => { colaMem = c; const txt = JSON.stringify(c);
+    const tenia = sinEspacio; sinEspacio = false;
+    try { localStorage.setItem('fj_cola', txt); if (tenia) avisar(notaDatos()); return; } catch (e) {}
+    try { localStorage.removeItem('fj_datos'); localStorage.setItem('fj_cola', txt); if (tenia) avisar(notaDatos()); return; } catch (e) {}
+    sinEspacio = true; avisar(notaDatos()); } };
+  // .60: ninguna llamada espera para siempre: a los 25 segundos se da por fallida (como sin señal) y se reintenta después.
+  const conTiempo = (url, op) => { const ac = new AbortController(); const t = setTimeout(() => ac.abort(), 25000); return fetch(url, { ...op, signal: ac.signal }).finally(() => clearTimeout(t)); };
   const nuevoId = () => Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => b.toString(16).padStart(2, '0')).join('');
   const limpiar = (d) => { const o = {}; Object.keys(d).forEach((k) => { if (d[k] !== undefined && d[k] !== null) o[k] = d[k]; }); return o; };
 
@@ -2581,7 +2699,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     let c = cola.get(); const inversas = [];
     for (const qid of qids.slice().reverse()) {
       const i = c.findIndex((op) => op.qid === qid);
-      if (i >= 0 && qid !== enviando) { c.splice(i, 1); continue; }
+      // .60: si ya se intentó enviar, pudo haber llegado a la hoja aunque falló la respuesta: además de quitarlo, se manda el contrario.
+      if (i >= 0 && qid !== enviando) { c.splice(i, 1); if (!intentados.has(qid)) continue; }
       const op = hechos.get(qid); if (!op) continue;
       if (op.accion === 'agregar') inversas.push({ qid: nuevoId(), accion: 'borrar', mov: { id: op.mov.id } });
       else if (op.prev) inversas.push({ qid: nuevoId(), accion: op.accion === 'borrar' ? 'agregar' : 'editar', mov: limpiar(op.prev) });
@@ -2595,7 +2714,7 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   async function leerHoja(conFirma) {
     const cuerpo = { k: KEY, accion: 'leer' };
     if (conFirma && firma && cache.get()) cuerpo.firma = firma;
-    const r = await fetch(API, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo) });
+    const r = await conTiempo(API, { method: 'POST', cache: 'no-store', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(cuerpo) });
     return r.json();
   }
   // Mensajes para los errores del puente que tocan la clave.
@@ -2613,13 +2732,13 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     while (cola.get().length) {
       const op = cola.get()[0];
       if (op.accion === 'agregar' && base.some((m) => m.id === op.mov.id)) { cola.set(cola.get().filter((x) => x.qid !== op.qid)); continue; }
-      enviando = op.qid;
+      enviando = op.qid; intentados.add(op.qid);
       let r = null, j = null;
-      try { r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: KEY, accion: op.accion, mov: op.mov }) }); }
+      try { r = await conTiempo(API, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ k: KEY, accion: op.accion, mov: op.mov }) }); }
       catch (e) { enviando = null; fallo = true; errorHoja = false; estadoCola(); return; } // sin señal
       try { j = await r.json(); } catch (e) { j = { ok: false, error: 'servidor' }; }
       enviando = null;
-      if (!j.ok && errorClave(j.error)) { fallo = true; avisar(errorClave(j.error)); return; }
+      if (!j.ok && errorClave(j.error)) { fallo = true; claveMala = true; avisar(errorClave(j.error)); return; }
       if (!j.ok && j.error === 'servidor') { fallo = true; errorHoja = true; estadoCola(); return; } // se reintenta después
       fallo = false; errorHoja = false; version++;
       cola.set(cola.get().filter((x) => x.qid !== op.qid)); // si la hoja lo rechazó (p. ej. ya no existe), se descarta
@@ -2635,7 +2754,8 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     const v = version;
     try {
       const j = await leerHoja(true);
-      if (!j.ok) { avisar(errorClave(j.error) || 'No se pudieron leer tus datos.'); return; }
+      if (!j.ok) { if (errorClave(j.error)) claveMala = true; avisar(errorClave(j.error) || 'No se pudieron leer tus datos.'); return; }
+      claveMala = false;
       if (v !== version || enviando || cola.get().length) return;
       if (j.sinCambios) { avisar(notaDatos()); frescos = true; frescoEn = Date.now(); return; }
       aplicar(j.datos); guardarFirma(j); cache.set(j.datos); avisar(notaDatos()); frescos = true; frescoEn = Date.now(); // .58: primero se aplican; si fallan no se guardan como copia
@@ -2666,18 +2786,23 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
   // ---------- Actualización automática ----------
   // El ícono de inicio del iPhone guarda su propia copia de la página. Al abrir la app se compara esta versión
   // con la publicada en GitHub y, si cambió, se descarga la nueva y se recarga una sola vez.
-  const VERSION = '2026-11-03.59';
+  const VERSION = '2026-11-03.60';
   $('ver').textContent = 'Versión ' + VERSION;
+  let revisadoEn = 0;
   async function revisarVersion() {
     try {
-      const r = await fetch(location.pathname + '?nocache=' + Date.now(), { cache: 'no-store' });
+      if (Date.now() - revisadoEn < 120000) return; revisadoEn = Date.now(); // .60: como mucho una vez cada 2 minutos (descarga toda la app)
+      const r = await conTiempo(location.pathname + '?nocache=' + Date.now(), { cache: 'no-store' });
       const html = await r.text();
       const m = html.match(/const VERSION = '([^']+)'/);
       if (!m || m[1] === VERSION) return;
       const abierto = !$('sheet').hidden || !$('ajustes').hidden || !!$('gasMonto') || ['qForm', 'ajForm', 'ahForm'].some((id) => !$(id).hidden);
       if (abierto) return; // se actualiza la próxima vez, para no borrar lo que estás escribiendo
-      if (sessionStorage.getItem('fj_recarga') === m[1]) return; // ya se intentó, no entrar en bucle
-      sessionStorage.setItem('fj_recarga', m[1]);
+      // Ya se intentó con esta versión: no entrar en bucle. .60: se vuelve a intentar a los 10 minutos (antes, en el ícono de inicio,
+      // podía quedarse en la versión vieja hasta cerrar la app del todo).
+      let antes = null; try { antes = JSON.parse(store.get('fj_recarga') || 'null'); } catch (e) { antes = null; }
+      if (antes && antes.v === m[1] && Date.now() - antes.t < 600000) return;
+      store.set('fj_recarga', JSON.stringify({ v: m[1], t: Date.now() }));
       await fetch(location.pathname, { cache: 'reload' });
       location.reload();
     } catch (e) { /* sin conexión: se revisa la próxima vez */ }
@@ -2699,10 +2824,12 @@ html.discreto :is(#qSub, #qMsg, #visaTxt, .wtot, .tuparte, .devln .v, .fbig smal
     if (cola.get().length) fallo = true; // quedó algo de antes: se relee la hoja antes de reenviar
     mezclar(); render(); estadoCola();
     cargar();
-    setInterval(() => { if (!document.hidden) cargar(); }, 30000);
-    setInterval(() => { if (!document.hidden && cola.get().length && navigator.onLine) subir(); }, 15000);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden) cargar(); });
-    window.addEventListener('online', () => subir());
+    setInterval(() => { if (!document.hidden && !claveMala) cargar(); }, 30000);
+    setInterval(() => { if (!document.hidden && !claveMala && cola.get().length && navigator.onLine) subir(); }, 15000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) { claveMala = false; cargar(); } });
+    window.addEventListener('online', () => { if (!claveMala) subir(); });
+    // .60: si la app está abierta en dos pestañas, cada una ve los cambios pendientes de la otra.
+    window.addEventListener('storage', (e) => { if (e.key === 'fj_cola') { colaMem = leerCola(); mezclar(); render(); estadoCola(); } });
     window.addEventListener('offline', estadoCola);
   }
 })();
